@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <TextView
+        android:id="@+id/textViewPrompt"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="2dp"
+        android:text="@string/promptStatements"
+        android:textSize="@dimen/fontSize_small" />
+
+    <EditText
+        android:id="@+id/inputInteractiveMode"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/textViewPrompt"
+        android:inputType="textMultiLine|textNoSuggestions|textVisiblePassword"
+        android:minLines="2"
+        android:scrollbars="vertical"
+        android:textSize="@dimen/fontSize"
+        android:typeface="monospace" />
+
+    <ImageButton
+        android:id="@+id/buttonOpenFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/inputInteractiveMode"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/textViewPrompt"
+        android:contentDescription="@string/buttonOpenFile"
+        android:src="@drawable/file_icon"
+        android:visibility="invisible" />
+
+    <EditText
+        android:id="@+id/inputFileMode"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/buttonOpenFile"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/textViewPrompt"
+        android:layout_toLeftOf="@id/buttonOpenFile"
+        android:inputType="textNoSuggestions|textVisiblePassword"
+        android:scrollbars="vertical"
+        android:textSize="@dimen/fontSize"
+        android:typeface="monospace"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/buttonModeSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/inputInteractiveMode"
+        android:text="@string/buttonModeFile"
+        android:textSize="@dimen/fontSize" />
+
+    <Button
+        android:id="@+id/buttonExecute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/inputInteractiveMode"
+        android:text="@string/buttonExecute"
+        android:textSize="@dimen/fontSize" />
+
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/buttonModeSwitch" >
+
+        <TextView
+            android:id="@+id/textViewOutput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:paddingLeft="@dimen/padding"
+            android:paddingRight="@dimen/padding"
+            android:paddingTop="@dimen/padding"
+            android:text="@string/output"
+            android:textSize="@dimen/fontSize"
+            android:typeface="monospace" />
+    </ScrollView>
+
+</RelativeLayout>

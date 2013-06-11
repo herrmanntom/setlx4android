@@ -1,0 +1,10 @@
+/android_keystore
+/.metadata
+/*/bin
+/*/gen
+/setlXforAndroid/libs/*.jar
+/setlXforAndroid/libs/doc/*.jar
+/setlXforAndroid/libs/src/*.jar
+/*.zip
+/*.apk
+
