@@ -256,8 +256,6 @@ public class SetlXforAndroidActivity extends Activity {
                 if (enableDebuggingCount == 5) {
                     menu.getItem(i).setVisible(true);
                     enableDebuggingCount = 0;
-                } else {
-                    menu.getItem(i).setVisible(false);
                 }
             }
         }

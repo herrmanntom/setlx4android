@@ -31,7 +31,7 @@
         android:checked="false"
         android:enabled="true"
         android:title="@string/menuRuntimeDebugging"
-        android:visible="true">
+        android:visible="false">
     </item>
     <item
         android:id="@+id/menuItemClear"
