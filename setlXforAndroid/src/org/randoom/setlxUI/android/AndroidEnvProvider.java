@@ -23,18 +23,20 @@ import java.util.LinkedList;
 
     private final static int    sMAX_CHARS  = 25000;
 
-    private SetlXforAndroidActivity activity;
-    private String                  lastPrompt;
-    private final LinkedList<String>      messageBuffer;
-    private boolean                 isLocked;
+    private SetlXforAndroidActivity  activity;
+    private String                   lastPrompt;
+    private final LinkedList<String> messageBuffer;
+    private boolean                  isLocked;
+    private String                   currentDir;
 
-    private SetlXExecutionTask      execTask;
+    private SetlXExecutionTask       execTask;
 
     /*package*/ AndroidEnvProvider(final SetlXforAndroidActivity activity) {
         this.activity       = activity;
         this.lastPrompt     = null;
         this.messageBuffer  = new LinkedList<String>();
         this.isLocked       = false;
+        this.currentDir     = sCODE_DIR;
         this.execTask       = null;
     }
 
@@ -61,11 +63,17 @@ import java.util.LinkedList;
     }
 
     /*package*/ void execute(final State state, final String code) {
-        this.execTask = new SetlXExecutionTask(state);
+        this.currentDir = sCODE_DIR;
+        this.execTask   = new SetlXExecutionTask(state);
         this.execTask.execute(SetlXExecutionTask.ECUTE_CODE, code);
     }
 
     /*package*/ void executeFile(final State state, final String fileName) {
+        if (fileName.lastIndexOf('/') != -1) {
+            this.currentDir = fileName.substring(0, fileName.lastIndexOf('/') + 1);
+        } else {
+            this.currentDir = sCODE_DIR;
+        }
         this.execTask = new SetlXExecutionTask(state);
         this.execTask.execute(SetlXExecutionTask.EXECUTE_FILE, fileName);
     }
@@ -201,7 +209,7 @@ import java.util.LinkedList;
             return fileName;
         } else {
             AndroidUItools.createDirIfNotExists(sCODE_DIR);
-            return sCODE_DIR + fileName;
+            return currentDir + fileName;
         }
     }
 
