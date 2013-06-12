@@ -52,6 +52,14 @@
         android:visible="true">
     </item>
     <item
+        android:id="@+id/menuItemAutoReset"
+        android:checkable="false"
+        android:checked="false"
+        android:enabled="true"
+        android:title="@string/menuAutoReset2ON"
+        android:visible="false">
+    </item>
+    <item
         android:id="@+id/menuItemRandom"
         android:checkable="false"
         android:checked="false"

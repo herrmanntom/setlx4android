@@ -48,28 +48,29 @@ import android.text.ClipboardManager;
 
 public class SetlXforAndroidActivity extends Activity {
 
-    private final static String SETL_X_URL           = "http://setlX.randoom.org/";
-    private final static String ANTLR_URL            = "http://www.antlr.org/";
-    private final static String FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
-    private final static String SETL_X_C_YEARS       = "2011-2013";
+    private final static String  SETL_X_URL           = "http://setlX.randoom.org/";
+    private final static String  ANTLR_URL            = "http://www.antlr.org/";
+    private final static String  FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
+    private final static String  SETL_X_C_YEARS       = "2011-2013";
 
-    private final static int    INTERACTIVE_MODE     = 23;
-    private final static int    FILE_MODE            = 42;
+    private final static int     INTERACTIVE_MODE     = 23;
+    private final static int     FILE_MODE            = 42;
 
     // flag for file open intent
-    private final static int    REQEST_FILE_FLAG     = 0;
+    private final static int     REQEST_FILE_FLAG     = 0;
 
-    private       static State  state;
+    private       static State   state;
+    private       static boolean isAutoResetEnabled   = true;
 
-    private AndroidEnvProvider  envProvider;
+    private AndroidEnvProvider   envProvider;
 
-    private TextView            prompt;
-    private EditText            inputInteractive;
-    private EditText            inputFileMode;
-    private ImageButton         openFileBtn;
-    private Button              modeSwitchBtn;
-    private Button              executeBtn;
-    private TextView            output;
+    private TextView             prompt;
+    private EditText             inputInteractive;
+    private EditText             inputFileMode;
+    private ImageButton          openFileBtn;
+    private Button               modeSwitchBtn;
+    private Button               executeBtn;
+    private TextView             output;
 
     // counter to enable interpreter debugging options
     private int                 enableDebuggingCount;
@@ -95,6 +96,10 @@ public class SetlXforAndroidActivity extends Activity {
         @Override
         public void onClick(final View v) {
             if (mode == FILE_MODE) {
+                if (isAutoResetEnabled) {
+                    Toast.makeText(getBaseContext(), R.string.toastReset, Toast.LENGTH_SHORT).show();
+                    state.resetState();
+                }
                 mode = INTERACTIVE_MODE;
             } else /* if (mode == INTERACTIVE_MODE) */ {
                 mode = FILE_MODE;
@@ -106,6 +111,11 @@ public class SetlXforAndroidActivity extends Activity {
     private class ExecListener implements View.OnClickListener {
         @Override
         public void onClick(final View v) {
+            if (isAutoResetEnabled && mode == FILE_MODE) {
+                Toast.makeText(getBaseContext(), R.string.toastReset, Toast.LENGTH_SHORT).show();
+                state.resetState();
+            }
+
             AndroidUItools.hideKeyboard(v);
             output.setText("", BufferType.SPANNABLE);
             if (outputIsGreeting) {
@@ -258,6 +268,18 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
             }
+            if (menu.getItem(i).getItemId() == R.id.menuItemAutoReset) {
+                if (mode == FILE_MODE) {
+                    menu.getItem(i).setVisible(true);
+                    if (isAutoResetEnabled) {
+                        menu.getItem(i).setTitle(R.string.menuAutoReset2OFF);
+                    } else {
+                        menu.getItem(i).setTitle(R.string.menuAutoReset2ON);
+                    }
+                } else {
+                    menu.getItem(i).setVisible(false);
+                }
+            }
         }
 
         return true;
@@ -370,6 +392,19 @@ public class SetlXforAndroidActivity extends Activity {
                 } else {
                     state.resetState();
                     Toast.makeText(getBaseContext(), R.string.toastReset, Toast.LENGTH_LONG).show();
+                }
+                return true;
+            case R.id.menuItemAutoReset:
+                if (envProvider.isExecuting()) {
+                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                } else {
+                    if (isAutoResetEnabled) {
+                        isAutoResetEnabled = false;
+                        Toast.makeText(getBaseContext(), R.string.toastAutoResetOFF, Toast.LENGTH_LONG).show();
+                    } else {
+                        isAutoResetEnabled = true;
+                        Toast.makeText(getBaseContext(), R.string.toastAutoResetON, Toast.LENGTH_LONG).show();
+                    }
                 }
                 return true;
             case R.id.menuItemAbout:
