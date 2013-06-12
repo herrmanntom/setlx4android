@@ -268,6 +268,20 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
             }
+            if (menu.getItem(i).getItemId() == R.id.menuItemTrace) {
+                if (state.traceAssignments) {
+                    menu.getItem(i).setTitle(R.string.menuTrace2OFF);
+                } else {
+                    menu.getItem(i).setTitle(R.string.menuTrace2ON);
+                }
+            }
+            if (menu.getItem(i).getItemId() == R.id.menuItemAssert) {
+                if (state.areAssertsDisabled()) {
+                    menu.getItem(i).setTitle(R.string.menuAsserts2ON);
+                } else {
+                    menu.getItem(i).setTitle(R.string.menuAsserts2OFF);
+                }
+            }
             if (menu.getItem(i).getItemId() == R.id.menuItemAutoReset) {
                 if (mode == FILE_MODE) {
                     menu.getItem(i).setVisible(true);

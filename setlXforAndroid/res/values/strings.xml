@@ -12,7 +12,8 @@
     <string name="toastRestart">Restart has reset memory contents.</string>
     <string name="menuCopy">Copy Output</string>
     <string name="toastCopy">Output copied to clipboard.</string>
-    <string name="menuTrace">Toggle Tracing</string>
+    <string name="menuTrace2ON">Enable Tracing</string>
+    <string name="menuTrace2OFF">Disable Tracing</string>
     <string name="toastTraceOn">Tracing of assignments enabled.</string>
     <string name="toastTraceOff">Assignments will not be traced.</string>
     <string name="menuRuntimeDebugging">Toggle Runtime Debugging</string>
@@ -20,7 +21,8 @@
     <string name="runtimeDebuggingOff">Runtime Debugging disabled.</string>
     <string name="menuRandom">Predictable Random</string>
     <string name="toastRandom">Random functions will return deterministic results (debugging mode).</string>
-    <string name="menuAsserts">Toggle Assertions</string>
+    <string name="menuAsserts2ON">Enable Assertions</string>
+    <string name="menuAsserts2OFF">Disable Assertions</string>
     <string name="toastAssertsOn">Assertions enabled.\nMemory contents was reset.</string>
     <string name="toastAssertsOff">Assertions disabled.\nMemory contents was reset.</string>
     <string name="menuAutoReset2ON">Enable Auto Reset</string>
