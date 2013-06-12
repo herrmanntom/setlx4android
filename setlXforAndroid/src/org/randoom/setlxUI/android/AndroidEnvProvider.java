@@ -201,6 +201,11 @@ import java.util.LinkedList;
         return sENDL;
     }
 
+    @Override
+    public int getMaxStackSize() {
+        return 111;
+    }
+
     // allow modification of fileName/path when reading files
     @Override
     public String filterFileName(String fileName) {
