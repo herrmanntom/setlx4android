@@ -16,7 +16,8 @@
     <string name="menuTrace2OFF">Disable Tracing</string>
     <string name="toastTraceOn">Tracing of assignments enabled.</string>
     <string name="toastTraceOff">Assignments will not be traced.</string>
-    <string name="menuRuntimeDebugging">Toggle Runtime Debugging</string>
+    <string name="menuRuntimeDebugging2ON">Enable Runtime Debugging</string>
+    <string name="menuRuntimeDebugging2OFF">Disable Runtime Debugging</string>
     <string name="runtimeDebuggingOn">Runtime Debugging enabled.</string>
     <string name="runtimeDebuggingOff">Runtime Debugging disabled.</string>
     <string name="menuRandom">Predictable Random</string>

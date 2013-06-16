@@ -259,40 +259,68 @@ public class SetlXforAndroidActivity extends Activity {
     @Override
     public boolean onPrepareOptionsMenu(final Menu menu) {
         for (int i = 0; i < menu.size(); ++i) {
-            if (menu.getItem(i).getItemId() == R.id.menuItemKill) {
-                menu.getItem(i).setVisible(envProvider.isLocked());
-            }
-            if (menu.getItem(i).getItemId() == R.id.menuItemRuntimeDebugging) {
-                if (enableDebuggingCount == 5) {
-                    menu.getItem(i).setVisible(true);
-                    enableDebuggingCount = 0;
-                }
-            }
-            if (menu.getItem(i).getItemId() == R.id.menuItemTrace) {
-                if (state.traceAssignments) {
-                    menu.getItem(i).setTitle(R.string.menuTrace2OFF);
-                } else {
-                    menu.getItem(i).setTitle(R.string.menuTrace2ON);
-                }
-            }
-            if (menu.getItem(i).getItemId() == R.id.menuItemAssert) {
-                if (state.areAssertsDisabled()) {
-                    menu.getItem(i).setTitle(R.string.menuAsserts2ON);
-                } else {
-                    menu.getItem(i).setTitle(R.string.menuAsserts2OFF);
-                }
-            }
-            if (menu.getItem(i).getItemId() == R.id.menuItemAutoReset) {
-                if (mode == FILE_MODE) {
-                    menu.getItem(i).setVisible(true);
-                    if (isAutoResetEnabled) {
-                        menu.getItem(i).setTitle(R.string.menuAutoReset2OFF);
+            final MenuItem item = menu.getItem(i);
+            switch (item.getItemId()) {
+                case R.id.menuItemKill:
+                    item.setVisible(envProvider.isLocked());
+                    break;
+                case R.id.menuItemAssert:
+                    if (envProvider.isExecuting()) {
+                        item.setVisible(false);
                     } else {
-                        menu.getItem(i).setTitle(R.string.menuAutoReset2ON);
+                        item.setVisible(true);
+                        if (state.areAssertsDisabled()) {
+                            item.setTitle(R.string.menuAsserts2ON);
+                        } else {
+                            item.setTitle(R.string.menuAsserts2OFF);
+                        }
                     }
-                } else {
-                    menu.getItem(i).setVisible(false);
-                }
+                    break;
+                case  R.id.menuItemTrace:
+                    if (envProvider.isExecuting()) {
+                        item.setVisible(false);
+                    } else {
+                        item.setVisible(true);
+                        if (state.traceAssignments) {
+                            item.setTitle(R.string.menuTrace2OFF);
+                        } else {
+                            item.setTitle(R.string.menuTrace2ON);
+                        }
+                    }
+                    break;
+                case R.id.menuItemRuntimeDebugging:
+                    if (enableDebuggingCount == 5) {
+                        item.setVisible(true);
+                        enableDebuggingCount = 0;
+                    }
+                    if (state.isRuntimeDebuggingEnabled()) {
+                        item.setTitle(R.string.menuRuntimeDebugging2OFF);
+                    } else {
+                        item.setTitle(R.string.menuRuntimeDebugging2ON);
+                    }
+                    break;
+                case R.id.menuItemClear:
+                case R.id.menuItemReset:
+                    if (envProvider.isExecuting()) {
+                        item.setEnabled(false);
+                    } else {
+                        item.setEnabled(true);
+                    }
+                    break;
+                case R.id.menuItemAutoReset:
+                    if (mode == FILE_MODE) {
+                        item.setVisible(true);
+                        if (isAutoResetEnabled) {
+                            item.setTitle(R.string.menuAutoReset2OFF);
+                        } else {
+                            item.setTitle(R.string.menuAutoReset2ON);
+                        }
+                    } else {
+                        item.setVisible(false);
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -409,16 +437,12 @@ public class SetlXforAndroidActivity extends Activity {
                 }
                 return true;
             case R.id.menuItemAutoReset:
-                if (envProvider.isExecuting()) {
-                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                if (isAutoResetEnabled) {
+                    isAutoResetEnabled = false;
+                    Toast.makeText(getBaseContext(), R.string.toastAutoResetOFF, Toast.LENGTH_LONG).show();
                 } else {
-                    if (isAutoResetEnabled) {
-                        isAutoResetEnabled = false;
-                        Toast.makeText(getBaseContext(), R.string.toastAutoResetOFF, Toast.LENGTH_LONG).show();
-                    } else {
-                        isAutoResetEnabled = true;
-                        Toast.makeText(getBaseContext(), R.string.toastAutoResetON, Toast.LENGTH_LONG).show();
-                    }
+                    isAutoResetEnabled = true;
+                    Toast.makeText(getBaseContext(), R.string.toastAutoResetON, Toast.LENGTH_LONG).show();
                 }
                 return true;
             case R.id.menuItemAbout:

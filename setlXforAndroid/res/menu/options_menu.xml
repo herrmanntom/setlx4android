@@ -14,7 +14,7 @@
         android:checkable="false"
         android:checked="false"
         android:enabled="true"
-        android:title="@string/menuAsserts2ON"
+        android:title="@string/menuAsserts2OFF"
         android:visible="true">
     </item>
     <item
@@ -30,7 +30,7 @@
         android:checkable="false"
         android:checked="false"
         android:enabled="true"
-        android:title="@string/menuRuntimeDebugging"
+        android:title="@string/menuRuntimeDebugging2ON"
         android:visible="false">
     </item>
     <item
