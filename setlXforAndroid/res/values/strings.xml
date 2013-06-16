@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="promptStatements">Enter SetlX statements:</string>
+    <string name="load">($TICKS$/$CPU$%/$MEM$MB)</string>
     <string name="promptFile">Enter path to SetlX file:</string>
     <string name="app_name">setlX</string>
     <string name="output">&lt;br />&lt;b>setlX v$VERSION$&lt;/b>&lt;br />&lt;br />Open Source Software from&lt;br />$URL_START$setlx.randoom.org$URL_END$&lt;br />© $YEARS$ by Herrmann, Tom</string>

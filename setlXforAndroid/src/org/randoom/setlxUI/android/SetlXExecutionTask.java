@@ -5,31 +5,31 @@ import org.randoom.setlx.exceptions.ParserException;
 import org.randoom.setlx.statements.Block;
 import org.randoom.setlx.utilities.ParseSetlX;
 import org.randoom.setlx.utilities.State;
+import org.randoom.util.AndroidUItools;
 
 import android.os.AsyncTask;
 
 /*package*/ class SetlXExecutionTask extends AsyncTask<String, String, Void> {
-    public  final static String  ECUTE_CODE = "code";
-    public  final static String  EXECUTE_FILE = "file";
+    public  final static String  ECUTE_CODE    = "code";
+    public  final static String  EXECUTE_FILE  = "file";
 
-    private final static String  PUBLISH_ERR = "err";
-    private final static String  PUBLISH_IN  = "in";
-    private final static String  PUBLISH_OUT = "out";
-    private final static String  PUBLISH_PMP = "prompt";
+    private final static String  PUBLISH_ERR   = "err";
+    private final static String  PUBLISH_IN    = "in";
+    private final static String  PUBLISH_OUT   = "out";
+    private final static String  PUBLISH_PMP   = "prompt";
+    private final static String  PUBLISH_STATS = "cpu+mem";
     private       static String  input;
 
     private final        State              state;
-    private              AndroidEnvProvider startEnv;
+    private final        AndroidEnvProvider startEnv;
     private              boolean            running;
+    private              int                ticks;
 
     /*package*/ SetlXExecutionTask(final State state) {
-        this.state = state;
-        if (state.getEnvironmentProvider() instanceof AndroidEnvProvider) {
-            this.startEnv = (AndroidEnvProvider) state.getEnvironmentProvider();
-        } else {
-            this.startEnv = null;
-        }
-        this.running = false;
+        this.state    = state;
+        this.startEnv = (AndroidEnvProvider) state.getEnvironmentProvider();
+        this.running  = false;
+        this.ticks    = 0;
     }
 
     /*package*/ void addError(final String msg) {
@@ -112,7 +112,11 @@ import android.os.AsyncTask;
                 process.interrupt();
             }
             try {
-                Thread.sleep(200);
+                final float CPUusage  = AndroidUItools.getCPUusage();
+                final long usedMemory = AndroidUItools.getUsedMemory();
+                publishProgress(PUBLISH_STATS, ticks + ":" + CPUusage + ":" + usedMemory);
+                Thread.sleep(150);
+                ++ticks;
             } catch (final InterruptedException e) {
                 // don't care
             }
@@ -135,6 +139,9 @@ import android.os.AsyncTask;
                 startEnv.appendPrompt(msg[1]);
             } else if (msg[0] == PUBLISH_IN) {
                 startEnv.getInputLine();
+            } else if (msg[0] == PUBLISH_STATS) {
+                final String[] message = msg[1].split(":");
+                startEnv.updateStats(Integer.parseInt(message[0]), Float.parseFloat(message[1]), Long.parseLong(message[2]));
             }
         }
     }

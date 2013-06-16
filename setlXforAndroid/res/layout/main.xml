@@ -5,13 +5,26 @@
 
     <TextView
         android:id="@+id/textViewPrompt"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:padding="2dp"
         android:text="@string/promptStatements"
         android:textSize="@dimen/fontSize_small" />
+
+    <TextView
+        android:id="@+id/textViewLoad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@id/textViewPrompt"
+        android:gravity="right"
+        android:padding="2dp"
+        android:text=""
+        android:typeface="monospace"
+        android:textSize="@dimen/fontSize_tiny" />
 
     <EditText
         android:id="@+id/inputInteractiveMode"

@@ -65,6 +65,7 @@ public class SetlXforAndroidActivity extends Activity {
     private AndroidEnvProvider   envProvider;
 
     private TextView             prompt;
+    private TextView             load;
     private EditText             inputInteractive;
     private EditText             inputFileMode;
     private ImageButton          openFileBtn;
@@ -352,6 +353,9 @@ public class SetlXforAndroidActivity extends Activity {
                 // announce reset of memory to user
                 Toast.makeText(getBaseContext(), R.string.toastKill, Toast.LENGTH_LONG).show();
 
+                // give hint to the garbage collector
+                Runtime.getRuntime().gc();
+
                 // unlock UI
                 lockUI(envProvider.isLocked());
 
@@ -503,6 +507,9 @@ public class SetlXforAndroidActivity extends Activity {
             this.getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             this.getWindow().clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
+            if (! state.isRuntimeDebuggingEnabled()) {
+                this.load.setText("");
+            }
         }
         this.inputInteractive.setClickable           (! lock);
         this.inputInteractive.setFocusable           (! lock);
@@ -550,14 +557,23 @@ public class SetlXforAndroidActivity extends Activity {
         output.setText(content, BufferType.SPANNABLE);
     }
 
+    /*package*/ void updateStats(final String ticks, final String CPUusage, final String usedMemory) {
+        String loadText = getString(R.string.load);
+        loadText = loadText.replace("$TICKS$", ticks);
+        loadText = loadText.replace("$CPU$",   CPUusage);
+        loadText = loadText.replace("$MEM$",   usedMemory);
+        load.setText(loadText);
+    }
+
     private void setup(final boolean outputIsReset) {
-        prompt              = (TextView)    findViewById(R.id.textViewPrompt);
-        inputInteractive    = (EditText)    findViewById(R.id.inputInteractiveMode);
-        inputFileMode       = (EditText)    findViewById(R.id.inputFileMode);
-        openFileBtn         = (ImageButton) findViewById(R.id.buttonOpenFile);
-        modeSwitchBtn       = (Button)      findViewById(R.id.buttonModeSwitch);
-        executeBtn          = (Button)      findViewById(R.id.buttonExecute);
-        output              = (TextView)    findViewById(R.id.textViewOutput);
+        prompt           = (TextView)    findViewById(R.id.textViewPrompt);
+        load             = (TextView)    findViewById(R.id.textViewLoad);
+        inputInteractive = (EditText)    findViewById(R.id.inputInteractiveMode);
+        inputFileMode    = (EditText)    findViewById(R.id.inputFileMode);
+        openFileBtn      = (ImageButton) findViewById(R.id.buttonOpenFile);
+        modeSwitchBtn    = (Button)      findViewById(R.id.buttonModeSwitch);
+        executeBtn       = (Button)      findViewById(R.id.buttonExecute);
+        output           = (TextView)    findViewById(R.id.textViewOutput);
 
         // (re) initialize setlX Environment
         if (state == null) {

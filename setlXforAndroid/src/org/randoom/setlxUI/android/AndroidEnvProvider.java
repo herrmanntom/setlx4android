@@ -11,6 +11,7 @@ import android.text.InputType;
 import android.widget.EditText;
 
 import java.util.LinkedList;
+import java.util.Locale;
 
 // This provides access to the I/O mechanisms of Android
 /*package*/ class AndroidEnvProvider implements EnvironmentProvider {
@@ -141,6 +142,15 @@ import java.util.LinkedList;
         alert.setCancelable(false);
 
         alert.show();
+    }
+
+    /*package*/ void updateStats(final int ticks, final float CPUusage, final long usedMemory) {
+        if (activity.isActive()) {
+            final String ticksStr = String.format(Locale.ENGLISH, "%5d", ticks);
+            final String cpuUsage = String.format(Locale.ENGLISH, "%3d", (int) (CPUusage * 100));
+            final String memUsage = String.format(Locale.ENGLISH, "%3d", usedMemory / (1024 * 1024));
+            activity.updateStats(ticksStr, cpuUsage, memUsage);
+        }
     }
 
     /*package*/ String getCodeDir() {
