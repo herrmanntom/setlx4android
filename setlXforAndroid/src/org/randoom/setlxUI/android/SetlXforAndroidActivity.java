@@ -265,6 +265,17 @@ public class SetlXforAndroidActivity extends Activity {
                 case R.id.menuItemKill:
                     item.setVisible(envProvider.isLocked());
                     break;
+                case R.id.menuItemRandom:
+                    if (envProvider.isExecuting()) {
+                        item.setVisible(false);
+                    } else {
+                        if (item.isEnabled()) {
+                            item.setVisible(true);
+                        } else {
+                            item.setVisible(false);
+                        }
+                    }
+                    return true;
                 case R.id.menuItemAssert:
                     if (envProvider.isExecuting()) {
                         item.setVisible(false);
@@ -291,13 +302,22 @@ public class SetlXforAndroidActivity extends Activity {
                     break;
                 case R.id.menuItemRuntimeDebugging:
                     if (enableDebuggingCount == 5) {
-                        item.setVisible(true);
+                        item.setEnabled(true);
                         enableDebuggingCount = 0;
                     }
-                    if (state.isRuntimeDebuggingEnabled()) {
-                        item.setTitle(R.string.menuRuntimeDebugging2OFF);
+                    if (envProvider.isExecuting()) {
+                        item.setVisible(false);
                     } else {
-                        item.setTitle(R.string.menuRuntimeDebugging2ON);
+                        if (item.isEnabled()) {
+                            item.setVisible(true);
+                        } else {
+                            item.setVisible(false);
+                        }
+                        if (state.isRuntimeDebuggingEnabled()) {
+                            item.setTitle(R.string.menuRuntimeDebugging2OFF);
+                        } else {
+                            item.setTitle(R.string.menuRuntimeDebugging2ON);
+                        }
                     }
                     break;
                 case R.id.menuItemClear:
@@ -365,7 +385,7 @@ public class SetlXforAndroidActivity extends Activity {
                     Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
                 } else {
                     state.setPredictableRandoom();
-                    item.setVisible(false);
+                    item.setEnabled(false);
                     Toast.makeText(getBaseContext(), R.string.toastRandom, Toast.LENGTH_SHORT).show();
                 }
                 return true;

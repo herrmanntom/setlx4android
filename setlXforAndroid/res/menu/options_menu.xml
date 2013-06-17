@@ -29,7 +29,7 @@
         android:id="@+id/menuItemRuntimeDebugging"
         android:checkable="false"
         android:checked="false"
-        android:enabled="true"
+        android:enabled="false"
         android:title="@string/menuRuntimeDebugging2ON"
         android:visible="false">
     </item>
