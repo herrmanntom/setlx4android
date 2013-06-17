@@ -146,7 +146,7 @@ import java.util.Locale;
 
     /*package*/ void updateStats(final int ticks, final float CPUusage, final long usedMemory) {
         if (activity.isActive()) {
-            final String ticksStr = String.format(Locale.ENGLISH, "%5d", ticks);
+            final String ticksStr = String.format(Locale.ENGLISH, "%3d", ticks);
             final String cpuUsage = String.format(Locale.ENGLISH, "%3d", (int) (CPUusage * 100));
             final String memUsage = String.format(Locale.ENGLISH, "%3d", usedMemory / (1024 * 1024));
             activity.updateStats(ticksStr, cpuUsage, memUsage);
@@ -213,7 +213,7 @@ import java.util.Locale;
 
     @Override
     public int getMaxStackSize() {
-        return 111;
+        return 175;
     }
 
     // allow modification of fileName/path when reading files
