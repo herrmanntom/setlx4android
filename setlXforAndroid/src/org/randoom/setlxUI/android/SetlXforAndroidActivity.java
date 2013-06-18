@@ -15,6 +15,9 @@ import org.randoom.util.AndroidUItools;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -43,9 +46,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
-// deprecated stuff vvvv
-import android.text.ClipboardManager;
-@SuppressWarnings("deprecation")
 
 public class SetlXforAndroidActivity extends Activity {
 
@@ -240,8 +240,8 @@ public class SetlXforAndroidActivity extends Activity {
     public boolean onContextItemSelected(final MenuItem item) {
         if (item.getTitle() == getString(R.string.menuCopy)) {
             // place text of output into the clipboard
-            final ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            clipboard.setText(output.getText());
+            final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setPrimaryClip(ClipData.newPlainText("setlX output", output.getText()));
 
             // show user what was done
             Toast.makeText(getBaseContext(), R.string.toastCopy, Toast.LENGTH_SHORT).show();
