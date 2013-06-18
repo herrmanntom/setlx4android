@@ -3,7 +3,7 @@
     package="org.randoom.setlxUI.android"
     android:installLocation="auto"
     android:versionCode="44"
-    android:versionName="@string/version" >
+    android:versionName="2.0.3 (A0.2)" >
 
     <uses-sdk
         android:minSdkVersion="14"

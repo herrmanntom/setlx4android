@@ -17,6 +17,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -714,7 +715,11 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     private String formatVersionText(String text){
-        text = text.replace("$VERSION$", getString(R.string.version));
+        try {
+            text = text.replace("$VERSION$", getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+        } catch (final NameNotFoundException e) {
+            text = text.replace("$VERSION$", "??");
+        }
         text = text.replace("$URL_START$", "<a href=\""+ SETL_X_URL + "\">");
         text = text.replace("$ANTLR_URL_START$", "<a href=\""+ ANTLR_URL + "\">");
         text = text.replace("$FILECHOOSER_URL_START$", "<a href=\""+ FILECHOOSER_URL + "\">");
