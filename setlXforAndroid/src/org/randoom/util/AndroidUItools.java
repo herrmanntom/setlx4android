@@ -78,7 +78,7 @@ public class AndroidUItools {
                              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (final Exception e) {
                 // don't care
             }
