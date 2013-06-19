@@ -11,11 +11,11 @@ public class AndroidDataStorage {
     private static final String DATABASE_NAME    = "persistentStorage.db";
     private static final int    DATABASE_VERSION = 1;
 
-    private Context             context;
+    private final Context             context;
     private SQLiteDatabase      db;
     private OpenHelper          oh;
 
-    public AndroidDataStorage(Context context) {
+    public AndroidDataStorage(final Context context) {
         this.context = context;
         this.oh = new OpenHelper(this.context);
         this.db = oh.getWritableDatabase();
@@ -23,7 +23,7 @@ public class AndroidDataStorage {
     }
 
     public void close() {
-        if (db != null) {
+        if (db != null && db.isOpen()) {
             db.close();
         }
         if (oh != null) {
@@ -34,11 +34,11 @@ public class AndroidDataStorage {
         SQLiteDatabase.releaseMemory();
     }
 
-    public void setCode(String codeName, String codeValue) {
+    public void setCode(final String codeName, final String codeValue) {
         SQLiteStatement stmt;
-        
-        
-        Cursor codeRow = db.rawQuery(
+
+
+        final Cursor codeRow = db.rawQuery(
             "SELECT * FROM code WHERE codeName = ?",
             new String[] {codeName}
         );
@@ -58,10 +58,10 @@ public class AndroidDataStorage {
         }
     }
 
-    public String getCode(String codeName, String defaultValue) {
+    public String getCode(final String codeName, final String defaultValue) {
 
         // check to see if it already exists
-        Cursor codeRow = db.rawQuery(
+        final Cursor codeRow = db.rawQuery(
             "SELECT * FROM code WHERE codeName = ?",
             new String[] {codeName}
         );
@@ -75,18 +75,18 @@ public class AndroidDataStorage {
 
     private static class OpenHelper extends SQLiteOpenHelper {
 
-        OpenHelper(Context context) {
+        OpenHelper(final Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db) {
+        public void onCreate(final SQLiteDatabase db) {
             db.execSQL("CREATE TABLE IF NOT EXISTS code"
                     + "(id INTEGER PRIMARY KEY, codeName TEXT, codeValue TEXT)");
         }
 
         @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
         }
     }
 }
