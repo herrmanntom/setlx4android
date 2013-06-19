@@ -105,7 +105,6 @@ import android.os.AsyncTask;
         });
         process.start();
 
-        int count = 0;
         while (process.isAlive()) {
             if (startEnv != state.getEnvironmentProvider()) {
                 // this task is obsolete... kill it
@@ -113,18 +112,14 @@ import android.os.AsyncTask;
                 process.interrupt();
             }
             try {
-                if (count == 2) {
-                    final float CPUusage  = AndroidUItools.getCPUusage();
-                    final long usedMemory = AndroidUItools.getUsedMemory();
-                    ++ticks;
-                    publishProgress(PUBLISH_STATS, ticks + ":" + CPUusage + ":" + usedMemory);
-                    count = 0;
-                }
-                Thread.sleep(500);
+                final float CPUusage  = AndroidUItools.getCPUusage();
+                final long usedMemory = AndroidUItools.getUsedMemory();
+                ++ticks;
+                publishProgress(PUBLISH_STATS, ticks + ":" + CPUusage + ":" + usedMemory);
+                Thread.sleep(450);
             } catch (final InterruptedException e) {
                 // don't care
             }
-            ++count;
         }
 
         state.stopExecution(false);
