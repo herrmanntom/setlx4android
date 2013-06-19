@@ -322,14 +322,6 @@ public class SetlXforAndroidActivity extends Activity {
                         }
                     }
                     break;
-                case R.id.menuItemClear:
-                case R.id.menuItemReset:
-                    if (envProvider.isExecuting()) {
-                        item.setEnabled(false);
-                    } else {
-                        item.setEnabled(true);
-                    }
-                    break;
                 case R.id.menuItemAutoReset:
                     if (mode == FILE_MODE) {
                         item.setVisible(true);
