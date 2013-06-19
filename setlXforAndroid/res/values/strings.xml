@@ -21,8 +21,10 @@
     <string name="menuRuntimeDebugging2OFF">Disable Runtime Debugging</string>
     <string name="runtimeDebuggingOn">Runtime Debugging enabled.</string>
     <string name="runtimeDebuggingOff">Runtime Debugging disabled.</string>
-    <string name="menuRandom">Predictable Random</string>
-    <string name="toastRandom">Random functions will return deterministic results (debugging mode).</string>
+    <string name="menuRandom2ON">Unpredictable Random</string>
+    <string name="menuRandom2OFF">Predictable Random</string>
+    <string name="toastRandomON">Random functions will return non-deterministic results.</string>
+    <string name="toastRandomOFF">Random functions will return deterministic results (debugging mode).</string>
     <string name="menuAsserts2ON">Enable Assertions</string>
     <string name="menuAsserts2OFF">Disable Assertions</string>
     <string name="toastAssertsOn">Assertions enabled.\nMemory contents was reset.</string>

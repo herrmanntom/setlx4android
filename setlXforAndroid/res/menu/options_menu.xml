@@ -64,7 +64,7 @@
         android:checkable="false"
         android:checked="false"
         android:enabled="true"
-        android:title="@string/menuRandom"
+        android:title="@string/menuRandom2OFF"
         android:visible="true">
     </item>
     <item

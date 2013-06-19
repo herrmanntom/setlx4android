@@ -270,10 +270,11 @@ public class SetlXforAndroidActivity extends Activity {
                     if (envProvider.isExecuting()) {
                         item.setVisible(false);
                     } else {
-                        if (item.isEnabled()) {
-                            item.setVisible(true);
+                        item.setVisible(true);
+                        if (state.isRandoomPredictable()) {
+                            item.setTitle(R.string.menuRandom2OFF);
                         } else {
-                            item.setVisible(false);
+                            item.setTitle(R.string.menuRandom2ON);
                         }
                     }
                     return true;
@@ -385,9 +386,13 @@ public class SetlXforAndroidActivity extends Activity {
                 if (envProvider.isExecuting()) {
                     Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
                 } else {
-                    state.setPredictableRandoom();
-                    item.setEnabled(false);
-                    Toast.makeText(getBaseContext(), R.string.toastRandom, Toast.LENGTH_SHORT).show();
+                    if (state.isRandoomPredictable()) {
+                        state.setRandoomPredictable(false);
+                        Toast.makeText(getBaseContext(), R.string.toastRandomON, Toast.LENGTH_SHORT).show();
+                    } else {
+                        state.setRandoomPredictable(true);
+                        Toast.makeText(getBaseContext(), R.string.toastRandomOFF, Toast.LENGTH_SHORT).show();
+                    }
                 }
                 return true;
             case R.id.menuItemAssert:
