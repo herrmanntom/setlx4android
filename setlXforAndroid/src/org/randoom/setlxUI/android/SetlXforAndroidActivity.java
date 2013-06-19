@@ -272,9 +272,9 @@ public class SetlXforAndroidActivity extends Activity {
                     } else {
                         item.setVisible(true);
                         if (state.isRandoomPredictable()) {
-                            item.setTitle(R.string.menuRandom2OFF);
-                        } else {
                             item.setTitle(R.string.menuRandom2ON);
+                        } else {
+                            item.setTitle(R.string.menuRandom2OFF);
                         }
                     }
                     return true;
