@@ -75,7 +75,7 @@ import java.util.Locale;
         } else {
             this.currentDir = sCODE_DIR;
         }
-        this.execTask = new SetlXExecutionTask(state);
+        this.execTask  = new SetlXExecutionTask(state);
         this.execTask.execute(SetlXExecutionTask.EXECUTE_FILE, fileName);
     }
 
@@ -94,6 +94,11 @@ import java.util.Locale;
         } else {
             return false;
         }
+    }
+
+    /*package*/ void interrupt() {
+        execTask.interrupt();
+        execTask.cancel(true);
     }
 
     /*package*/ void appendErr(final String msg) {

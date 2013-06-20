@@ -10,6 +10,7 @@ import org.randoom.util.AndroidUItools;
 import android.os.AsyncTask;
 
 /*package*/ class SetlXExecutionTask extends AsyncTask<String, String, Void> {
+
     public  final static String  ECUTE_CODE    = "code";
     public  final static String  EXECUTE_FILE  = "file";
 
@@ -22,14 +23,20 @@ import android.os.AsyncTask;
 
     private final        State              state;
     private final        AndroidEnvProvider startEnv;
-    private              boolean            running;
+    private              Thread             statsUpdate;
+    private              float              cpuUsage;
+    private              long               memoryUsage;
     private              int                ticks;
+    private              Thread             execution;
 
     /*package*/ SetlXExecutionTask(final State state) {
-        this.state    = state;
-        this.startEnv = (AndroidEnvProvider) state.getEnvironmentProvider();
-        this.running  = false;
-        this.ticks    = 0;
+        this.state       = state;
+        this.startEnv    = (AndroidEnvProvider) state.getEnvironmentProvider();
+        this.statsUpdate = null;
+        this.execution   = null;
+        this.cpuUsage    = 0.0f;
+        this.memoryUsage = 0;
+        this.ticks       = 0;
     }
 
     /*package*/ void addError(final String msg) {
@@ -62,20 +69,51 @@ import android.os.AsyncTask;
     }
 
     /*package*/ boolean isRunning() {
-        return running;
+        if (execution != null && statsUpdate != null) {
+            return execution.isAlive() || statsUpdate.isAlive();
+        } else {
+            return false;
+        }
+    }
+
+    /*package*/ void interrupt() {
+        if (statsUpdate != null && statsUpdate.isAlive()) {
+            statsUpdate.interrupt();
+        }
+        if (execution != null && execution.isAlive()) {
+            execution.interrupt();
+        }
     }
 
     @Override
     protected void onPreExecute() {
-        running = true;
         startEnv.lockUI(true);
     }
 
     @Override
     protected Void doInBackground(final String... code) {
-        final String              mode        = code[0];
-        final String              setlXobject = code[1];
-        final Thread              process     = new Thread( new Runnable() {
+        final String mode        = code[0];
+        final String setlXobject = code[1];
+
+        statsUpdate = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    while (startEnv == state.getEnvironmentProvider()) {
+                        cpuUsage    = AndroidUItools.getCPUusage();
+                        memoryUsage = AndroidUItools.getUsedMemory();
+                        ++ticks;
+                        publishProgress(PUBLISH_STATS);
+                        Thread.sleep(450);
+                    }
+                } catch (final InterruptedException e) {
+                    // while is already broken here => done
+                }
+            }
+        });
+        statsUpdate.setPriority(Thread.MAX_PRIORITY);
+
+        execution = new Thread(new Runnable() {
             @Override
             public void run() {
                 state.resetParserErrorCount();
@@ -89,41 +127,32 @@ import android.os.AsyncTask;
                     }
                 } catch (final ParserException pe) {
                     state.errWriteLn(pe.getMessage());
-                    return;
+                    b = null;
                 } catch (final StackOverflowError soe) {
                     state.errWriteOutOfStack(soe, true);
-                    return;
+                    b = null;
                 }  catch (final OutOfMemoryError oome) { // Somehow this never works properly on ANDROID ;-(
                     state.errWriteOutOfMemory(false, true);
-                    return;
+                    b = null;
                 } catch (final Exception e) { // this should never happen...
                     state.errWriteInternalError(e);
-                    return;
+                    b = null;
                 }
-                b.executeWithErrorHandling(state, false);
+                if (b != null) {
+                    b.executeWithErrorHandling(state, false);
+                }
             }
         });
-        process.start();
+        execution.setPriority(Thread.MIN_PRIORITY);
 
-        while (process.isAlive()) {
-            if (startEnv != state.getEnvironmentProvider()) {
-                // this task is obsolete... kill it
-                state.stopExecution(true);
-                process.interrupt();
-            }
-            try {
-                final float CPUusage  = AndroidUItools.getCPUusage();
-                final long usedMemory = AndroidUItools.getUsedMemory();
-                ++ticks;
-                publishProgress(PUBLISH_STATS, ticks + ":" + CPUusage + ":" + usedMemory);
-                Thread.sleep(450);
-            } catch (final InterruptedException e) {
-                // don't care
-            }
+        statsUpdate.start();
+        execution.start();
+        try {
+            execution.join();
+        } catch (final InterruptedException e) {
+            execution.interrupt();
         }
-
-        state.stopExecution(false);
-        running = false;
+        statsUpdate.interrupt();
 
         return null;
     }
@@ -140,8 +169,7 @@ import android.os.AsyncTask;
             } else if (msg[0] == PUBLISH_IN) {
                 startEnv.getInputLine();
             } else if (msg[0] == PUBLISH_STATS) {
-                final String[] message = msg[1].split(":");
-                startEnv.updateStats(Integer.parseInt(message[0]), Float.parseFloat(message[1]), Long.parseLong(message[2]));
+                startEnv.updateStats(ticks, cpuUsage, memoryUsage);
             }
         }
     }
@@ -150,6 +178,16 @@ import android.os.AsyncTask;
     protected void onPostExecute(final Void result) {
         if (startEnv == state.getEnvironmentProvider()) {
             startEnv.lockUI(false);
+        }
+    }
+
+    @Override
+    protected void onCancelled(final Void result) {
+        if (statsUpdate != null && statsUpdate.isAlive()) {
+            statsUpdate.interrupt();
+        }
+        if (execution != null && execution.isAlive()) {
+            execution.interrupt();
         }
     }
 }

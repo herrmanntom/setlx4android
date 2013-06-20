@@ -154,7 +154,7 @@ public class SetlXforAndroidActivity extends Activity {
         dh.close();
         dh = null;
 
-        mode             = inputMode;
+        mode = inputMode;
         // display greeting if environment is not present OR
         // (output is empty, no output is queued and nothing executes)
         outputIsGreeting = state == null;
@@ -348,11 +348,9 @@ public class SetlXforAndroidActivity extends Activity {
             case R.id.menuItemKill:
 
                 state.setEnvironmentProvider(DummyEnvProvider.DUMMY);
-
-                /*
-                 * Currently running ExecTasks will now kill themselves, when
-                 * they find out that its EnvironmentProvider changed.
-                 */
+                state.resetState();
+                state.stopExecution(true);
+                envProvider.interrupt();
 
                 while (envProvider.isExecuting()) {
                     // wait until execTask dies
@@ -363,7 +361,6 @@ public class SetlXforAndroidActivity extends Activity {
 
                 envProvider = new AndroidEnvProvider(this);
                 state       = new StateImplementation(envProvider);
-                state.resetState();
                 // announce reset of memory to user
                 Toast.makeText(getBaseContext(), R.string.toastKill, Toast.LENGTH_LONG).show();
 
