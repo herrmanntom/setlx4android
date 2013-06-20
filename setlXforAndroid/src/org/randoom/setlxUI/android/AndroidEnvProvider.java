@@ -79,9 +79,15 @@ import java.util.Locale;
         this.execTask.execute(SetlXExecutionTask.EXECUTE_FILE, fileName);
     }
 
-    /*package*/ void lockUI(final boolean lock) {
-        this.isLocked = lock;
-        this.activity.lockUI(lock);
+    /*package*/ void preExecute() {
+        this.isLocked = true;
+        this.activity.lockUI(true);
+    }
+
+    /*package*/ void postExecute() {
+        this.isLocked = false;
+        this.activity.lockUI(false);
+        this.activity.postExecute();
     }
 
     /*package*/ boolean isLocked() {

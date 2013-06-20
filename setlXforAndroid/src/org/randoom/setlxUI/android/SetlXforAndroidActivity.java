@@ -98,10 +98,6 @@ public class SetlXforAndroidActivity extends Activity {
         @Override
         public void onClick(final View v) {
             if (mode == FILE_MODE) {
-                if (isAutoResetEnabled) {
-                    Toast.makeText(getBaseContext(), R.string.toastReset, Toast.LENGTH_SHORT).show();
-                    state.resetState();
-                }
                 mode = INTERACTIVE_MODE;
             } else /* if (mode == INTERACTIVE_MODE) */ {
                 mode = FILE_MODE;
@@ -113,11 +109,6 @@ public class SetlXforAndroidActivity extends Activity {
     private class ExecListener implements View.OnClickListener {
         @Override
         public void onClick(final View v) {
-            if (isAutoResetEnabled && mode == FILE_MODE) {
-                Toast.makeText(getBaseContext(), R.string.toastReset, Toast.LENGTH_SHORT).show();
-                state.resetState();
-            }
-
             AndroidUItools.hideKeyboard(v);
             output.setText("", BufferType.SPANNABLE);
             if (outputIsGreeting) {
@@ -370,6 +361,11 @@ public class SetlXforAndroidActivity extends Activity {
                 // unlock UI
                 lockUI(envProvider.isLocked());
 
+                // delete load text
+                if (! state.isRuntimeDebuggingEnabled()) {
+                    this.load.setText("");
+                }
+
                 return true;
             case R.id.menuItemRandom:
                 if (envProvider.isExecuting()) {
@@ -522,9 +518,6 @@ public class SetlXforAndroidActivity extends Activity {
             this.getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             this.getWindow().clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
-            if (! state.isRuntimeDebuggingEnabled()) {
-                this.load.setText("");
-            }
         }
         this.inputInteractive.setClickable           (! lock);
         this.inputInteractive.setFocusable           (! lock);
@@ -535,6 +528,16 @@ public class SetlXforAndroidActivity extends Activity {
         this.openFileBtn.setEnabled                  (! lock);
         this.modeSwitchBtn.setEnabled                (! lock);
         this.executeBtn.setEnabled                   (! lock);
+    }
+
+    /*package*/ void postExecute() {
+        if (isAutoResetEnabled && mode == FILE_MODE) {
+            Toast.makeText(getBaseContext(), R.string.toastAutoReset, Toast.LENGTH_SHORT).show();
+            state.resetState();
+        }
+        if (! state.isRuntimeDebuggingEnabled()) {
+            this.load.setText("");
+        }
     }
 
     /*package*/ boolean isActive() {

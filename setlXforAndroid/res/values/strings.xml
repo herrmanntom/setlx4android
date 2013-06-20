@@ -31,8 +31,9 @@
     <string name="toastAssertsOff">Assertions disabled.\nMemory contents was reset.</string>
     <string name="menuAutoReset2ON">Enable Auto Reset</string>
     <string name="menuAutoReset2OFF">Disable Auto Reset</string>
-    <string name="toastAutoResetON">Auto Reset enabled.\nMemory contents will be reset before executing files.</string>
-    <string name="toastAutoResetOFF">Auto Reset disabled.\nMemory contents will not be reset before executing files.</string>
+    <string name="toastAutoResetON">Auto Reset enabled.\nMemory contents will be reset after executing files.</string>
+    <string name="toastAutoResetOFF">Auto Reset disabled.\nMemory contents will not be reset after executing files.</string>
+    <string name="toastAutoReset">Memory contents was automatically reset.</string>
     <string name="menuAbout">About</string>
     <string name="menuKill">Stop Execution (caution, UI may hang)</string>
     <string name="toastKill">Execution stopped, memory contents reset.</string>

@@ -87,7 +87,7 @@ import android.os.AsyncTask;
 
     @Override
     protected void onPreExecute() {
-        startEnv.lockUI(true);
+        startEnv.preExecute();
     }
 
     @Override
@@ -177,7 +177,7 @@ import android.os.AsyncTask;
     @Override
     protected void onPostExecute(final Void result) {
         if (startEnv == state.getEnvironmentProvider()) {
-            startEnv.lockUI(false);
+            startEnv.postExecute();
         }
     }
 
