@@ -66,7 +66,7 @@ public class AndroidUItools {
         }
     }
 
-    public static float getCPUusage() {
+    public static float getCPUusage(final int timeBetweenBothSamples) throws InterruptedException {
         try {
             final RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
 
@@ -77,11 +77,7 @@ public class AndroidUItools {
             final long cpu1  = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
                              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 
-            try {
-                Thread.sleep(50);
-            } catch (final Exception e) {
-                // don't care
-            }
+            Thread.sleep(timeBetweenBothSamples);
 
             // take second sample
             reader.seek(0);

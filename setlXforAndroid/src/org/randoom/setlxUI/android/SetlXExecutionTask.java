@@ -100,11 +100,11 @@ import android.os.AsyncTask;
             public void run() {
                 try {
                     while (startEnv == state.getEnvironmentProvider()) {
-                        cpuUsage    = AndroidUItools.getCPUusage();
+                        cpuUsage    = AndroidUItools.getCPUusage(248);
                         memoryUsage = AndroidUItools.getUsedMemory();
                         ++ticks;
                         publishProgress(PUBLISH_STATS);
-                        Thread.sleep(450);
+                        Thread.sleep(250);
                     }
                 } catch (final InterruptedException e) {
                     // while is already broken here => done
