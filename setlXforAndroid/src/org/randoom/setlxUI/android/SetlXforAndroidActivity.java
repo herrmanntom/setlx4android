@@ -137,15 +137,38 @@ public class SetlXforAndroidActivity extends Activity {
         setContentView(R.layout.main);
 
         // get persistent state
-              AndroidDataStorage dh                   = new AndroidDataStorage(getBaseContext());
-        final String             inputInteractiveText = dh.getCode("inputInteractiveText", "");
-        final String             inputFileModeText    = dh.getCode("inputFileModeText", "");
-        final int                inputMode            = Integer.valueOf(dh.getCode("inputMode", String.valueOf(INTERACTIVE_MODE)));
-        final String             outputHtml           = dh.getCode("outputHtml", "");
+        AndroidDataStorage dh = new AndroidDataStorage(getBaseContext());
+
+        // state / input for this launch
+        final String inputInteractiveText;
+        final String inputFileModeText;
+        final String outputHtml;
+
+        // Get intent, action and MIME type
+        final Intent intent = getIntent();
+        final String action = intent.getAction();
+        final String type   = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null && "text/plain".equals(type)) {
+            // Handle text being sent
+            String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+            if (sharedText == null) {
+                sharedText = "";
+            }
+            inputInteractiveText = sharedText;
+            outputHtml           = "";
+            mode = INTERACTIVE_MODE;
+        } else {
+            // Handle other intents, such as being started from the home screen
+            inputInteractiveText = dh.getCode("inputInteractiveText", "");
+            outputHtml           = dh.getCode("outputHtml", "");
+            mode                 = Integer.valueOf(dh.getCode("inputMode", String.valueOf(INTERACTIVE_MODE)));;
+        }
+        inputFileModeText        = dh.getCode("inputFileModeText", "");
+
         dh.close();
         dh = null;
 
-        mode = inputMode;
         // display greeting if environment is not present OR
         // (output is empty, no output is queued and nothing executes)
         outputIsGreeting = state == null;
