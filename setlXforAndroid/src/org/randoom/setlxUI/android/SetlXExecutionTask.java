@@ -69,19 +69,23 @@ import android.os.AsyncTask;
     }
 
     /*package*/ boolean isRunning() {
-        if (execution != null && statsUpdate != null) {
-            return execution.isAlive() || statsUpdate.isAlive();
-        } else {
-            return false;
-        }
+        return (execution   != null && execution.isAlive()  ) ||
+               (statsUpdate != null && statsUpdate.isAlive());
     }
 
     /*package*/ void interrupt() {
-        if (statsUpdate != null && statsUpdate.isAlive()) {
-            statsUpdate.interrupt();
-        }
-        if (execution != null && execution.isAlive()) {
-            execution.interrupt();
+        while (isRunning()) {
+            if (statsUpdate != null && statsUpdate.isAlive()) {
+                statsUpdate.interrupt();
+            }
+            if (execution != null && execution.isAlive()) {
+                execution.interrupt();
+            }
+
+            // wait until threads die
+            try {
+                Thread.sleep(250);
+            } catch (final InterruptedException e) {}
         }
     }
 
@@ -92,67 +96,100 @@ import android.os.AsyncTask;
 
     @Override
     protected Void doInBackground(final String... code) {
-        final String mode        = code[0];
-        final String setlXobject = code[1];
-
-        statsUpdate = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (startEnv == state.getEnvironmentProvider()) {
-                        cpuUsage    = AndroidUItools.getCPUusage(248);
-                        memoryUsage = AndroidUItools.getUsedMemory();
-                        ++ticks;
-                        publishProgress(PUBLISH_STATS);
-                        Thread.sleep(250);
-                    }
-                } catch (final InterruptedException e) {
-                    // while is already broken here => done
-                }
-            }
-        });
-        statsUpdate.setPriority(Thread.MAX_PRIORITY);
-
-        execution = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                state.resetParserErrorCount();
-                Block b = null;
-                try {
-                    if (mode == ECUTE_CODE) {
-                        b = ParseSetlX.parseStringToBlock(state, setlXobject);
-                        b.markLastExprStatement();
-                    } else /* if (mode == sEXECUTE_FILE) */ {
-                        b = ParseSetlX.parseFile(state, setlXobject);
-                    }
-                } catch (final ParserException pe) {
-                    state.errWriteLn(pe.getMessage());
-                    b = null;
-                } catch (final StackOverflowError soe) {
-                    state.errWriteOutOfStack(soe, true);
-                    b = null;
-                }  catch (final OutOfMemoryError oome) { // Somehow this never works properly on ANDROID ;-(
-                    state.errWriteOutOfMemory(false, true);
-                    b = null;
-                } catch (final Exception e) { // this should never happen...
-                    state.errWriteInternalError(e);
-                    b = null;
-                }
-                if (b != null) {
-                    b.executeWithErrorHandling(state, false);
-                }
-            }
-        });
-        execution.setPriority(Thread.MIN_PRIORITY);
-
-        statsUpdate.start();
-        execution.start();
         try {
-            execution.join();
-        } catch (final InterruptedException e) {
-            execution.interrupt();
+            final String mode        = code[0];
+            final String setlXobject = code[1];
+
+            statsUpdate = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (startEnv == state.getEnvironmentProvider() &&
+                               ! state.isExecutionStopped
+                        ) {
+                            cpuUsage    = AndroidUItools.getCPUusage(248);
+                            memoryUsage = AndroidUItools.getUsedMemory();
+                            ++ticks;
+                            publishProgress(PUBLISH_STATS);
+                            Thread.sleep(250);
+                        }
+                    } catch (final InterruptedException e) {
+                        // while is already broken here => done
+                    }
+                }
+            });
+            statsUpdate.setPriority(Thread.MAX_PRIORITY);
+
+            execution = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    state.resetParserErrorCount();
+                    Block b = null;
+                    try {
+                        if (mode == ECUTE_CODE) {
+                            b = ParseSetlX.parseStringToBlock(state, setlXobject);
+                            b.markLastExprStatement();
+                        } else /* if (mode == sEXECUTE_FILE) */ {
+                            b = ParseSetlX.parseFile(state, setlXobject);
+                        }
+                    } catch (final ParserException pe) {
+                        state.errWriteLn(pe.getMessage());
+                        b = null;
+                    } catch (final StackOverflowError soe) {
+                        state.errWriteOutOfStack(soe, true);
+                        b = null;
+                    } catch (final OutOfMemoryError oome) { // Somehow this never works properly on ANDROID ;-(
+                        try {
+                            // free some memory
+                            state.resetState();
+                            // give hint to the garbage collector
+                            Runtime.getRuntime().gc();
+                            // sleep a while
+                            Thread.sleep(50);
+                        } catch (final InterruptedException e) {
+                            /* don't care anymore */
+                        }
+
+                        state.errWriteOutOfMemory(false, true);
+                        b = null;
+                    } catch (final Exception e) { // this should never happen...
+                        state.errWriteInternalError(e);
+                        b = null;
+                    }
+                    if (b != null) {
+                        b.executeWithErrorHandling(state, false);
+                    }
+                }
+            });
+            execution.setPriority(Thread.MIN_PRIORITY);
+
+            statsUpdate.start();
+            execution.start();
+            try {
+                execution.join();
+            } catch (final InterruptedException e) {
+                /* don't care */
+            }
+        } catch (final StackOverflowError soe) {
+            state.errWriteOutOfStack(soe, false);
+        } catch (final OutOfMemoryError oome) { // Somehow this never works properly on ANDROID ;-(
+            try {
+                // free some memory
+                state.resetState();
+                // give hint to the garbage collector
+                Runtime.getRuntime().gc();
+                // sleep a while
+                Thread.sleep(50);
+            } catch (final InterruptedException e) {
+                /* don't care anymore */
+            }
+
+            state.errWriteOutOfMemory(false, true);
+        } catch (final Exception e) { // this should never happen...
+            state.errWriteInternalError(e);
         }
-        statsUpdate.interrupt();
+
+        interrupt();
 
         return null;
     }
@@ -183,11 +220,6 @@ import android.os.AsyncTask;
 
     @Override
     protected void onCancelled(final Void result) {
-        if (statsUpdate != null && statsUpdate.isAlive()) {
-            statsUpdate.interrupt();
-        }
-        if (execution != null && execution.isAlive()) {
-            execution.interrupt();
-        }
+        interrupt();
     }
 }

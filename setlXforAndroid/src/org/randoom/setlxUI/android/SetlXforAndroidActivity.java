@@ -364,14 +364,8 @@ public class SetlXforAndroidActivity extends Activity {
                 state.setEnvironmentProvider(DummyEnvProvider.DUMMY);
                 state.resetState();
                 state.stopExecution(true);
-                envProvider.interrupt();
 
-                while (envProvider.isExecuting()) {
-                    // wait until execTask dies
-                    try {
-                        Thread.sleep(250);
-                    } catch (final InterruptedException e) {}
-                }
+                envProvider.interrupt();
 
                 envProvider = new AndroidEnvProvider(this);
                 state       = new StateImplementation(envProvider);
