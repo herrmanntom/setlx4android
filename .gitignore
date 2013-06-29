@@ -3,8 +3,7 @@
 /*/bin
 /*/gen
 /setlXforAndroid/libs/*.jar
-/setlXforAndroid/libs/doc/*.jar
-/setlXforAndroid/libs/src/*.jar
+/setlXforAndroid/libs/jar-documentation/*.jar
 /*.zip
 /*.apk
 
