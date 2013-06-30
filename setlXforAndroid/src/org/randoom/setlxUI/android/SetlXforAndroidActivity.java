@@ -43,6 +43,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
@@ -72,6 +73,7 @@ public class SetlXforAndroidActivity extends Activity {
     private ImageButton          openFileBtn;
     private Button               modeSwitchBtn;
     private Button               executeBtn;
+    private ScrollView           outputScroller;
     private TextView             output;
 
     // counter to enable interpreter debugging options
@@ -376,6 +378,7 @@ public class SetlXforAndroidActivity extends Activity {
                 state       = new StateImplementation(envProvider);
                 // announce reset of memory to user
                 Toast.makeText(getBaseContext(), R.string.toastKill, Toast.LENGTH_LONG).show();
+                envProvider.appendErr("Execution was stopped.");
 
                 // give hint to the garbage collector
                 Runtime.getRuntime().gc();
@@ -585,6 +588,12 @@ public class SetlXforAndroidActivity extends Activity {
         } else {
             output.append(msg);
         }
+        outputScroller.post(new Runnable() {
+            @Override
+            public void run() {
+                outputScroller.fullScroll(View.FOCUS_DOWN);
+            }
+        });
     }
 
     /*package*/ void appendPrompt(final String msg) {
@@ -613,6 +622,7 @@ public class SetlXforAndroidActivity extends Activity {
         openFileBtn      = (ImageButton) findViewById(R.id.buttonOpenFile);
         modeSwitchBtn    = (Button)      findViewById(R.id.buttonModeSwitch);
         executeBtn       = (Button)      findViewById(R.id.buttonExecute);
+        outputScroller   = (ScrollView)  findViewById(R.id.scrollViewOutput);
         output           = (TextView)    findViewById(R.id.textViewOutput);
 
         // (re) initialize setlX Environment
