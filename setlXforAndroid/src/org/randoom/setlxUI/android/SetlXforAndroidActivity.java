@@ -89,6 +89,11 @@ public class SetlXforAndroidActivity extends Activity {
             final Intent intent = new Intent(v.getContext(), FileChooserActivity.class);
             // pre-select root dir
             intent.putExtra(FileChooserActivity._Rootpath, (Parcelable) new LocalFile(envProvider.getCodeDir()));
+            // pre-select last file
+            final String currentFile = inputFileMode.getText().toString();
+            if (currentFile != "") {
+                intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(currentFile));
+            }
             // start selection dialog
             startActivityForResult(intent, REQEST_FILE_FLAG);
         }
