@@ -43,6 +43,7 @@ import android.view.WindowManager.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
@@ -651,20 +652,26 @@ public class SetlXforAndroidActivity extends Activity {
 
         if (AndroidUItools.isTablet(displaymetrics)) {
             if (AndroidUItools.isInPortrait(displaymetrics)) {
-                this.inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 2);
+                inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 2);
             } else {
-                this.inputInteractive.setMaxHeight((11 * displaymetrics.heightPixels) / 30);
+                inputInteractive.setMaxHeight((11 * displaymetrics.heightPixels) / 30);
             }
         } else {
-            this.inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 3);
+            inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 3);
             // use smaller font on non-tablet device
             final float SCALE_FACTOR = 0.6f;
-            this.inputInteractive.setTextSize(this.inputInteractive.getTextSize() * SCALE_FACTOR);
-            this.inputFileMode.setTextSize   (this.inputFileMode.getTextSize()    * SCALE_FACTOR);
-            this.modeSwitchBtn.setTextSize   (this.modeSwitchBtn.getTextSize()    * SCALE_FACTOR);
-            this.executeBtn.setTextSize      (this.executeBtn.getTextSize()       * SCALE_FACTOR);
-            this.output.setTextSize          (this.output.getTextSize()           * SCALE_FACTOR);
+            inputInteractive.setTextSize(inputInteractive.getTextSize() * SCALE_FACTOR);
+            inputFileMode.setTextSize   (inputFileMode.getTextSize()    * SCALE_FACTOR);
+            modeSwitchBtn.setTextSize   (modeSwitchBtn.getTextSize()    * SCALE_FACTOR);
+            executeBtn.setTextSize      (executeBtn.getTextSize()       * SCALE_FACTOR);
+            output.setTextSize          (output.getTextSize()           * SCALE_FACTOR);
         }
+
+        // align file open and execute buttons
+        final RelativeLayout.LayoutParams openBtnLayout = (RelativeLayout.LayoutParams) openFileBtn.getLayoutParams();
+        openBtnLayout.addRule(RelativeLayout.ALIGN_LEFT,  R.id.buttonExecute);
+        openBtnLayout.addRule(RelativeLayout.ALIGN_RIGHT, R.id.buttonExecute);
+        openFileBtn.setLayoutParams(openBtnLayout);
 
         // set for file or interactive mode
         switchMode();
