@@ -24,7 +24,11 @@ public class AndroidDataStorage {
 
     public void close() {
         if (db != null && db.isOpen()) {
-            db.close();
+            try {
+                db.close();
+            } catch (final NullPointerException npe) {
+                /* screw you Android for crashing my application */
+            }
         }
         if (oh != null) {
             oh.close();
