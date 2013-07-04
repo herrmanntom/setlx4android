@@ -89,7 +89,7 @@ public class AndroidUItools {
                              + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
 
             // return average CPU usage
-            return (float)(cpu2 - cpu1) / ((cpu2 + idle2) - (cpu1 + idle1));
+            return Math.abs((float) cpu2 - cpu1) / Math.abs((cpu2 + idle2) - (cpu1 + idle1));
 
         } catch (final IOException ex) {
             ex.printStackTrace();
