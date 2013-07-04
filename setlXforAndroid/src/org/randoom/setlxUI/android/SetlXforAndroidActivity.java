@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.Html;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.method.LinkMovementMethod;
@@ -384,7 +385,7 @@ public class SetlXforAndroidActivity extends Activity {
                 state       = new StateImplementation(envProvider);
                 // announce reset of memory to user
                 Toast.makeText(getBaseContext(), R.string.toastKill, Toast.LENGTH_LONG).show();
-                envProvider.appendErr("Execution was stopped.");
+                this.appendErr("Execution was stopped.");
 
                 // give hint to the garbage collector
                 Runtime.getRuntime().gc();
@@ -545,20 +546,7 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     /*package*/ void lockUI(final boolean lock) {
-        if (lock) {
-            this.getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else {
-            this.getWindow().clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
-        }
-        this.inputInteractive.setClickable           (! lock);
-        this.inputInteractive.setFocusable           (! lock);
-        this.inputInteractive.setFocusableInTouchMode(! lock);
-        this.inputFileMode.setClickable              (! lock);
-        this.inputFileMode.setFocusable              (! lock);
-        this.inputFileMode.setFocusableInTouchMode   (! lock);
-        this.openFileBtn.setEnabled                  (! lock);
-        this.modeSwitchBtn.setEnabled                (! lock);
-        this.executeBtn.setEnabled                   (! lock);
+        outputScrollView.post(new UiLocker(lock));
     }
 
     /*package*/ void postExecute() {
@@ -567,7 +555,7 @@ public class SetlXforAndroidActivity extends Activity {
             state.resetState();
         }
         if (! state.isRuntimeDebuggingEnabled()) {
-            this.load.setText("");
+            load.post(new StatsUpdater("", "", ""));
         }
     }
 
@@ -590,12 +578,12 @@ public class SetlXforAndroidActivity extends Activity {
         outputScrollView.post(outputScroller);
     }
 
-    /*package*/ void updateStats(final String ticks, final String CPUusage, final String usedMemory) {
-        String loadText = getString(R.string.load);
-        loadText = loadText.replace("$TICKS$", ticks);
-        loadText = loadText.replace("$CPU$",   CPUusage);
-        loadText = loadText.replace("$MEM$",   usedMemory);
-        load.setText(loadText);
+    /*package*/ void readLine(final String prompt) {
+        outputScrollView.post(new InputReader(prompt, this));
+    }
+
+    /*package*/ void updateStats(final String ticks, final String usedCPU, final String usedMemory) {
+        load.post(new StatsUpdater(ticks, usedCPU, usedMemory));
     }
 
     private void setup(final boolean outputIsReset) {
@@ -747,9 +735,60 @@ public class SetlXforAndroidActivity extends Activity {
         return text.replace("$YEARS$", SETL_X_C_YEARS);
     }
 
+    private class UiLocker implements Runnable {
+        private final boolean locked;
+
+        public UiLocker(final boolean locked) {
+            this.locked = locked;
+        }
+
+        @Override
+        public void run() {
+            if (locked) {
+                getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
+            } else {
+                getWindow().clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
+            inputInteractive.setClickable           (! locked);
+            inputInteractive.setFocusable           (! locked);
+            inputInteractive.setFocusableInTouchMode(! locked);
+            inputFileMode.setClickable              (! locked);
+            inputFileMode.setFocusable              (! locked);
+            inputFileMode.setFocusableInTouchMode   (! locked);
+            openFileBtn.setEnabled                  (! locked);
+            modeSwitchBtn.setEnabled                (! locked);
+            executeBtn.setEnabled                   (! locked);
+        }
+    }
+
+    private class StatsUpdater implements Runnable {
+        private final String ticks;
+        private final String usedCPU;
+        private final String usedMemory;
+
+        public StatsUpdater(final String ticks, final String usedCPU, final String usedMemory) {
+            this.ticks      = ticks;
+            this.usedCPU    = usedCPU;
+            this.usedMemory = usedMemory;
+        }
+
+        @Override
+        public void run() {
+            if (ticks.equals("") && usedCPU.equals("") && usedMemory.equals("")) {
+                load.setText("");
+            } else {
+                String loadText = getString(R.string.load);
+                loadText = loadText.replace("$TICKS$", ticks);
+                loadText = loadText.replace("$CPU$",   usedCPU);
+                loadText = loadText.replace("$MEM$",   usedMemory);
+                load.setText(loadText);
+            }
+        }
+    }
+
     private class OutputPoster implements Runnable {
-        private final int        type;
-        private final String     msg;
+        private final int    type;
+        private final String msg;
 
         /*package*/ OutputPoster(final int type, final String msg) {
             this.type = type;
@@ -780,6 +819,39 @@ public class SetlXforAndroidActivity extends Activity {
                 }
                 output.setText(content, BufferType.SPANNABLE);
             }
+        }
+    }
+
+    private class InputReader implements Runnable {
+        private final String   prompt;
+        private final Activity activity;
+
+        /*package*/ InputReader(final String prompt, final Activity activity) {
+            this.prompt   = prompt;
+            this.activity = activity;
+        }
+
+        @Override
+        public void run() {
+            final AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+
+            alert.setMessage(prompt);
+
+            // Set an EditText view to get user input
+            final EditText inputBox = new EditText(activity);
+            inputBox.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+            alert.setView(inputBox);
+
+            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, final int whichButton) {
+                    envProvider.setInput(inputBox.getText().toString());
+                }
+            });
+
+            alert.setCancelable(false);
+
+            alert.show();
         }
     }
 
