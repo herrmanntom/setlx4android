@@ -95,7 +95,7 @@ public class SetlXforAndroidActivity extends Activity {
             // pre-select last file
             final String currentFile = inputFileMode.getText().toString();
             if (currentFile != "") {
-                intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(currentFile));
+                intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(envProvider.expandPath(currentFile)));
             }
             // start selection dialog
             startActivityForResult(intent, REQEST_FILE_FLAG);
@@ -532,7 +532,7 @@ public class SetlXforAndroidActivity extends Activity {
                 final
                 List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
                 for (final LocalFile f : files) {
-                    this.inputFileMode.setText(f.getAbsolutePath());
+                    this.inputFileMode.setText(this.envProvider.stripPath(f.getAbsolutePath()));
                 }
             }
             break;

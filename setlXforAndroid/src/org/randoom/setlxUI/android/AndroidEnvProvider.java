@@ -177,6 +177,26 @@ import java.util.Locale;
         return AndroidUItools.createDirIfNotExists(sLIBRARY_DIR);
     }
 
+    // get path relative to sCODE_DIR
+    /*package*/ String stripPath(String fileName) {
+        fileName = fileName.trim();
+        if (fileName.charAt(0) != '/' || ! fileName.startsWith(sCODE_DIR)) {
+            return fileName;
+        } else /* if (fileName.startsWith(sCODE_DIR)) */ {
+            return fileName.replace(sCODE_DIR, "");
+        }
+    }
+
+    // get absolute path from one relative to sCODE_DIR
+    /*package*/ String expandPath(String fileName) {
+        fileName = fileName.trim();
+        if (fileName.length() < 1 || fileName.charAt(0) == '/') {
+            return fileName;
+        } else {
+            return sCODE_DIR + fileName;
+        }
+    }
+
     /* interface functions */
 
     // read from input
