@@ -59,6 +59,10 @@ public class SetlXforAndroidActivity extends Activity {
     private final static int     INTERACTIVE_MODE     = 23;
     private final static int     FILE_MODE            = 42;
 
+    private final static int     STDOUT               = 3;
+    private final static int     STDERR               = 5;
+    private final static int     STDIN                = 7;
+
     // flag for file open intent
     private final static int     REQEST_FILE_FLAG     = 0;
 
@@ -74,7 +78,8 @@ public class SetlXforAndroidActivity extends Activity {
     private ImageButton          openFileBtn;
     private Button               modeSwitchBtn;
     private Button               executeBtn;
-    private ScrollView           outputScroller;
+    private ScrollView           outputScrollView;
+    private BottomScroller       outputScroller;
     private TextView             output;
 
     // counter to enable interpreter debugging options
@@ -571,40 +576,18 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     /*package*/ void appendErr(final String msg) {
-        final int pre  = (outputIsGreeting)? 0 : output.getText().length();
-        final int post = pre + msg.length();
-        appendOut(msg);
-        // show errors in red
-        final SpannableStringBuilder content = new SpannableStringBuilder(output.getText());
-        content.setSpan(new ForegroundColorSpan(0xFFFF0000), pre, post, 0);
-        output.setText(content, BufferType.SPANNABLE);
+        outputScrollView.post(new OutputPoster(STDERR, msg));
+        outputScrollView.post(outputScroller);
     }
 
     /*package*/ void appendOut(final String msg) {
-        if (outputIsGreeting) {
-            output.setText(msg, BufferType.SPANNABLE);
-            output.setGravity(Gravity.LEFT);
-            output.setTypeface(Typeface.MONOSPACE);
-            outputIsGreeting = false;
-        } else {
-            output.append(msg);
-        }
-        outputScroller.post(new Runnable() {
-            @Override
-            public void run() {
-                outputScroller.fullScroll(View.FOCUS_DOWN);
-            }
-        });
+        outputScrollView.post(new OutputPoster(STDOUT, msg));
+        outputScrollView.post(outputScroller);
     }
 
     /*package*/ void appendPrompt(final String msg) {
-        final int pre  = (outputIsGreeting)? 0 : output.getText().length();
-        final int post = pre + msg.length();
-        appendOut(msg);
-        // show prompts in green
-        final SpannableStringBuilder content = new SpannableStringBuilder(output.getText());
-        content.setSpan(new ForegroundColorSpan(0xFF00FF00), pre, post, 0);
-        output.setText(content, BufferType.SPANNABLE);
+        outputScrollView.post(new OutputPoster(STDIN, msg));
+        outputScrollView.post(outputScroller);
     }
 
     /*package*/ void updateStats(final String ticks, final String CPUusage, final String usedMemory) {
@@ -623,7 +606,8 @@ public class SetlXforAndroidActivity extends Activity {
         openFileBtn      = (ImageButton) findViewById(R.id.buttonOpenFile);
         modeSwitchBtn    = (Button)      findViewById(R.id.buttonModeSwitch);
         executeBtn       = (Button)      findViewById(R.id.buttonExecute);
-        outputScroller   = (ScrollView)  findViewById(R.id.scrollViewOutput);
+        outputScrollView = (ScrollView)  findViewById(R.id.scrollViewOutput);
+        outputScroller   = new BottomScroller();
         output           = (TextView)    findViewById(R.id.textViewOutput);
 
         // (re) initialize setlX Environment
@@ -761,5 +745,48 @@ public class SetlXforAndroidActivity extends Activity {
         text = text.replace("$FILECHOOSER_URL_START$", "<a href=\""+ FILECHOOSER_URL + "\">");
         text = text.replace("$URL_END$", "</a>");
         return text.replace("$YEARS$", SETL_X_C_YEARS);
+    }
+
+    private class OutputPoster implements Runnable {
+        private final int        type;
+        private final String     msg;
+
+        /*package*/ OutputPoster(final int type, final String msg) {
+            this.type = type;
+            this.msg  = msg;
+        }
+
+        @Override
+        public void run() {
+            final int pre  = (outputIsGreeting)? 0 : output.getText().length();
+            final int post = pre + msg.length();
+
+            if (outputIsGreeting) {
+                output.setText(msg, BufferType.SPANNABLE);
+                output.setGravity(Gravity.LEFT);
+                output.setTypeface(Typeface.MONOSPACE);
+                outputIsGreeting = false;
+            } else {
+                output.append(msg);
+            }
+            if (type != STDOUT) {
+                final SpannableStringBuilder content = new SpannableStringBuilder(output.getText());
+                if (type == STDERR) {
+                    // show errors in red
+                    content.setSpan(new ForegroundColorSpan(0xFFFF0000), pre, post, 0);
+                } else if (type == STDIN) {
+                    // show prompts in green
+                    content.setSpan(new ForegroundColorSpan(0xFF00FF00), pre, post, 0);
+                }
+                output.setText(content, BufferType.SPANNABLE);
+            }
+        }
+    }
+
+    private class BottomScroller implements Runnable {
+        @Override
+        public void run() {
+            outputScrollView.fullScroll(View.FOCUS_DOWN);
+        }
     }
 }
