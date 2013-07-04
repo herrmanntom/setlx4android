@@ -77,8 +77,6 @@
         android:id="@+id/buttonExecute"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/buttonOpenFile"
-        android:layout_alignRight="@id/buttonOpenFile"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/inputInteractiveMode"
         android:text="@string/buttonExecute"
