@@ -35,7 +35,7 @@
     <string name="toastAutoResetOFF">Auto Reset disabled.\nMemory contents will not be reset after executing files.</string>
     <string name="toastAutoReset">Memory contents was automatically reset.</string>
     <string name="menuAbout">About</string>
-    <string name="menuKill">Stop Execution (caution, UI may hang)</string>
+    <string name="menuKill">Stop Execution</string>
     <string name="toastKill">Execution stopped, memory contents reset.</string>
     <string name="about">&lt;b>setlX v$VERSION$&lt;/b>&lt;br />&lt;br />Open Source Software from&lt;br />$URL_START$setlx.randoom.org$URL_END$&lt;br />© $YEARS$ by Herrmann, Tom&lt;br />&lt;br />This program uses the&lt;br />$ANTLR_URL_START$ANTLR parser generator$URL_END$&lt;br />and the&lt;br />$FILECHOOSER_URL_START$android-filechooser$URL_END$&lt;br />library.&lt;br/></string>
     <string name="buttonModeFile">→ File Mode</string>

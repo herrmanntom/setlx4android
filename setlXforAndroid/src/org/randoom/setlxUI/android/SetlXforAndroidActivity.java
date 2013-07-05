@@ -24,6 +24,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.text.Editable;
 import android.text.Html;
@@ -60,15 +61,18 @@ public class SetlXforAndroidActivity extends Activity {
     private final static int     INTERACTIVE_MODE     = 23;
     private final static int     FILE_MODE            = 42;
 
-    private final static int     STDOUT               = 3;
-    private final static int     STDERR               = 5;
-    private final static int     STDIN                = 7;
+    /*package*/ final static int STDOUT               = 3;
+    /*package*/ final static int STDERR               = 5;
+    /*package*/ final static int STDIN                = 7;
 
     // flag for file open intent
     private final static int     REQEST_FILE_FLAG     = 0;
 
     private       static State   state;
     private       static boolean isAutoResetEnabled   = true;
+
+    private Handler              uiThreadHandler;
+    private boolean              uiThreadHasWork;
 
     private AndroidEnvProvider   envProvider;
 
@@ -149,6 +153,9 @@ public class SetlXforAndroidActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main);
+
+        uiThreadHandler = new Handler();
+        uiThreadHasWork = false;
 
         // get persistent state
         AndroidDataStorage dh = new AndroidDataStorage(getBaseContext());
@@ -272,7 +279,7 @@ public class SetlXforAndroidActivity extends Activity {
             clipboard.setPrimaryClip(ClipData.newPlainText("setlX output", output.getText()));
 
             // show user what was done
-            outputScrollView.post(new Toaster(R.string.toastCopy, Toast.LENGTH_SHORT));
+            uiThreadHandler.post(new Toaster(R.string.toastCopy, Toast.LENGTH_SHORT));
             return true;
         } else {
             return super.onContextItemSelected(item);
@@ -379,36 +386,46 @@ public class SetlXforAndroidActivity extends Activity {
                 state.resetState();
                 state.stopExecution(true);
 
-                envProvider.interrupt();
+                final SetlXforAndroidActivity _this  = this;
+                final Thread                  killer = new Thread(new Runnable() {
 
-                envProvider = new AndroidEnvProvider(this);
-                state       = new StateImplementation(envProvider);
-                // announce reset of memory to user
-                outputScrollView.post(new Toaster(R.string.toastKill, Toast.LENGTH_LONG));
-                appendErr("\nExecution was stopped.");
+                    @Override
+                    public void run() {
+                        envProvider.interrupt();
 
-                // give hint to the garbage collector
-                Runtime.getRuntime().gc();
+                        envProvider = new AndroidEnvProvider(_this);
+                        state       = new StateImplementation(envProvider);
 
-                // unlock UI
-                lockUI(envProvider.isLocked());
+                        // announce reset of memory to user
+                        uiThreadHandler.post(new Toaster(R.string.toastKill, Toast.LENGTH_LONG));
+                        appendOut(STDERR, "\nExecution was stopped.");
 
-                // delete load text
-                if (! state.isRuntimeDebuggingEnabled()) {
-                    this.load.setText("");
-                }
+                        // give hint to the garbage collector
+                        Runtime.getRuntime().gc();
+
+                        // unlock UI
+                        lockUI(envProvider.isLocked());
+
+                        // delete load text
+                        if (! state.isRuntimeDebuggingEnabled()) {
+                            load.post(new StatsUpdater("", "", ""));
+                        }
+                    }
+                });
+
+                killer.start();
 
                 return true;
             case R.id.menuItemRandom:
                 if (envProvider.isExecuting()) {
-                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.isRandoomPredictable()) {
                         state.setRandoomPredictable(false);
-                        outputScrollView.post(new Toaster(R.string.toastRandomON, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastRandomON, Toast.LENGTH_SHORT));
                     } else {
                         state.setRandoomPredictable(true);
-                        outputScrollView.post(new Toaster(R.string.toastRandomOFF, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastRandomOFF, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
@@ -419,14 +436,14 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
                 if (envProvider.isExecuting()) {
-                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.areAssertsDisabled()) {
                         state.setAssertsDisabled(false);
-                        outputScrollView.post(new Toaster(R.string.toastAssertsOn, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastAssertsOn, Toast.LENGTH_SHORT));
                     } else {
                         state.setAssertsDisabled(true);
-                        outputScrollView.post(new Toaster(R.string.toastAssertsOff, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastAssertsOff, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
@@ -437,33 +454,33 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
                 if (envProvider.isExecuting()) {
-                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.traceAssignments) {
                         state.setTraceAssignments(false);
-                        outputScrollView.post(new Toaster(R.string.toastTraceOff, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastTraceOff, Toast.LENGTH_SHORT));
                     } else {
                         state.setTraceAssignments(true);
-                        outputScrollView.post(new Toaster(R.string.toastTraceOn, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastTraceOn, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
             case R.id.menuItemRuntimeDebugging:
                 if (envProvider.isExecuting()) {
-                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.isRuntimeDebuggingEnabled()) {
                         state.setRuntimeDebugging(false);
-                        outputScrollView.post(new Toaster(R.string.runtimeDebuggingOff, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.runtimeDebuggingOff, Toast.LENGTH_SHORT));
                     } else {
                         state.setRuntimeDebugging(true);
-                        outputScrollView.post(new Toaster(R.string.runtimeDebuggingOn, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.runtimeDebuggingOn, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
             case R.id.menuItemClear:
                 if (envProvider.isExecuting()) {
-                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     setInteractiveInput("");
                     inputFileMode   .setText("");
@@ -477,19 +494,19 @@ public class SetlXforAndroidActivity extends Activity {
                 return true;
             case R.id.menuItemReset:
                 if (envProvider.isExecuting()) {
-                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     state.resetState();
-                    outputScrollView.post(new Toaster(R.string.toastReset, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastReset, Toast.LENGTH_LONG));
                 }
                 return true;
             case R.id.menuItemAutoReset:
                 if (isAutoResetEnabled) {
                     isAutoResetEnabled = false;
-                    outputScrollView.post(new Toaster(R.string.toastAutoResetOFF, Toast.LENGTH_SHORT));
+                    uiThreadHandler.post(new Toaster(R.string.toastAutoResetOFF, Toast.LENGTH_SHORT));
                 } else {
                     isAutoResetEnabled = true;
-                    outputScrollView.post(new Toaster(R.string.toastAutoResetON, Toast.LENGTH_SHORT));
+                    uiThreadHandler.post(new Toaster(R.string.toastAutoResetON, Toast.LENGTH_SHORT));
                 }
                 return true;
             case R.id.menuItemAbout:
@@ -546,12 +563,12 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     /*package*/ void lockUI(final boolean lock) {
-        outputScrollView.post(new UiLocker(lock));
+        uiThreadHandler.post(new UiLocker(lock));
     }
 
     /*package*/ void postExecute() {
         if (isAutoResetEnabled && mode == FILE_MODE) {
-            outputScrollView.post(new Toaster(R.string.toastAutoReset, Toast.LENGTH_SHORT));
+            uiThreadHandler.post(new Toaster(R.string.toastAutoReset, Toast.LENGTH_SHORT));
             state.resetState();
         }
         if (! state.isRuntimeDebuggingEnabled()) {
@@ -563,41 +580,28 @@ public class SetlXforAndroidActivity extends Activity {
         return isActive;
     }
 
-    /*package*/ void appendErr(final String msg) {
-        outputScrollView.post(new OutputPoster(STDERR, msg));
+    /*package*/ void appendOut(final int type, final String msg) {
         try {
-            Thread.sleep(1);
-        } catch (final InterruptedException e) {}
-        outputScrollView.post(outputScroller);
-        try {
-            Thread.sleep(0, 500);
-        } catch (final InterruptedException e) {}
-    }
+            while (uiThreadHasWork && ! state.isExecutionStopped) {
+                Thread.sleep(1);
+            }
 
-    /*package*/ void appendOut(final String msg) {
-        outputScrollView.post(new OutputPoster(STDOUT, msg));
-        try {
-            Thread.sleep(1);
-        } catch (final InterruptedException e) {}
-        outputScrollView.post(outputScroller);
-        try {
-            Thread.sleep(0, 500);
-        } catch (final InterruptedException e) {}
-    }
+            uiThreadHasWork = true;
+            uiThreadHandler.post(new OutputPoster(type, msg));
 
-    /*package*/ void appendPrompt(final String msg) {
-        outputScrollView.post(new OutputPoster(STDIN, msg));
-        try {
-            Thread.sleep(1);
-        } catch (final InterruptedException e) {}
-        outputScrollView.post(outputScroller);
-        try {
-            Thread.sleep(0, 500);
-        } catch (final InterruptedException e) {}
+            do {
+                Thread.sleep(1);
+            } while (uiThreadHasWork && ! state.isExecutionStopped);
+
+            uiThreadHasWork = true;
+            uiThreadHandler.post(outputScroller);
+        } catch (final InterruptedException e) {
+            uiThreadHasWork = false;
+        }
     }
 
     /*package*/ void readLine(final String prompt) {
-        outputScrollView.post(new InputReader(prompt, this));
+        uiThreadHandler.post(new InputReader(prompt, this));
     }
 
     /*package*/ void updateStats(final String ticks, final String usedCPU, final String usedMemory) {
@@ -623,7 +627,7 @@ public class SetlXforAndroidActivity extends Activity {
             if (! outputIsReset) {
                 state.resetState();
                 // announce reset of memory to user
-                outputScrollView.post(new Toaster(R.string.toastRestart, Toast.LENGTH_LONG));
+                uiThreadHandler.post(new Toaster(R.string.toastRestart, Toast.LENGTH_LONG));
             }
             // Android version cannot pass parameters to programs (yet?)
             try {
@@ -852,6 +856,7 @@ public class SetlXforAndroidActivity extends Activity {
                 }
                 output.setText(content, BufferType.SPANNABLE);
             }
+            uiThreadHasWork = false;
         }
     }
 
@@ -892,6 +897,7 @@ public class SetlXforAndroidActivity extends Activity {
         @Override
         public void run() {
             outputScrollView.fullScroll(View.FOCUS_DOWN);
+            uiThreadHasWork = false;
         }
     }
 }

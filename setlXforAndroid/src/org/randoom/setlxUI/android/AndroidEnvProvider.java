@@ -65,11 +65,11 @@ import java.util.Locale;
         while (activity.isActive() && ! messageBuffer.isEmpty()) {
             msg = messageBuffer.pollFirst();
             if (msg.startsWith(ERROR_KEY)) {
-                activity.appendErr(msg.substring(ERROR_KEY.length()));
+                activity.appendOut(SetlXforAndroidActivity.STDERR, msg.substring(ERROR_KEY.length()));
             } else if (msg.startsWith(PROMPT_KEY)) {
-                activity.appendPrompt(msg.substring(PROMPT_KEY.length()));
+                activity.appendOut(SetlXforAndroidActivity.STDIN, msg.substring(PROMPT_KEY.length()));
             } else {
-                activity.appendOut(msg);
+                activity.appendOut(SetlXforAndroidActivity.STDOUT, msg);
             }
         }
     }
