@@ -135,7 +135,7 @@ public class SetlXforAndroidActivity extends Activity {
 
             if (mode == FILE_MODE) {
                 final String fileName = inputFileMode.getText().toString();
-                envProvider.executeFile(state, fileName);
+                envProvider.executeFile(state, envProvider.expandPath(fileName));
             } else /* if (mode == INTERACTIVE_MODE) */ {
                 final String code = getInteractiveInput().toString();
                 envProvider.execute(state, code);
