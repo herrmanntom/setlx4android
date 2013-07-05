@@ -88,13 +88,14 @@ public class SetlXforAndroidActivity extends Activity {
     private TextView             output;
 
     // counter to enable interpreter debugging options
-    private int                 enableDebuggingCount;
+    private int                  enableDebuggingCount;
 
     // current state
-    private Editable            inputInteractiveTxt;
-    private int                 mode;
-    private boolean             outputIsGreeting;
-    private boolean             isActive;
+    private Editable             inputInteractiveTxt;
+    private int                  mode;
+    private boolean              outputIsGreeting;
+    private boolean              isActive;
+    private boolean              isKilling;
 
     private class OpenListener implements View.OnClickListener {
         @Override
@@ -221,7 +222,8 @@ public class SetlXforAndroidActivity extends Activity {
             output.setText(Html.fromHtml(outputHtml), BufferType.SPANNABLE);
         }
 
-        isActive = true;
+        isActive  = true;
+        isKilling = false;
 
         // add buffered messages to output
         envProvider.depleteMessageBuffer();
@@ -299,7 +301,7 @@ public class SetlXforAndroidActivity extends Activity {
             final MenuItem item = menu.getItem(i);
             switch (item.getItemId()) {
                 case R.id.menuItemKill:
-                    item.setVisible(envProvider.isLocked());
+                    item.setVisible(envProvider.isLocked() && ! isKilling);
                     break;
                 case R.id.menuItemRandom:
                     if (envProvider.isExecuting()) {
@@ -381,6 +383,7 @@ public class SetlXforAndroidActivity extends Activity {
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menuItemKill:
+                isKilling = true;
 
                 state.setEnvironmentProvider(DummyEnvProvider.DUMMY);
                 state.resetState();
@@ -410,8 +413,12 @@ public class SetlXforAndroidActivity extends Activity {
                         if (! state.isRuntimeDebuggingEnabled()) {
                             load.post(new StatsUpdater("", "", ""));
                         }
+
+                        isKilling = false;
                     }
                 });
+
+                uiThreadHandler.post(new Toaster(R.string.toastKillStarted, Toast.LENGTH_LONG));
 
                 killer.start();
 

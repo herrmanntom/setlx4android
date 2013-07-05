@@ -98,9 +98,7 @@ import java.util.Locale;
                 @Override
                 public void run() {
                     try {
-                        while (startEnv == state.getEnvironmentProvider() &&
-                               ! state.isExecutionStopped
-                        ) {
+                        while (true) {
                             cpuUsage    = AndroidUItools.getCPUusage(248);
                             memoryUsage = AndroidUItools.getUsedMemory();
                             ++ticks;
@@ -154,9 +152,13 @@ import java.util.Locale;
                         b.executeWithErrorHandling(state, false);
                     }
 
-                    if (statsUpdate != null && statsUpdate.isAlive()) {
-                        statsUpdate.interrupt();
-                    }
+                    try {
+                        while (isUpdatingStats()) {
+                            statsUpdate.interrupt();
+                            // wait until thread dies
+                            Thread.sleep(10);
+                        }
+                    } catch (final InterruptedException e) {}
 
                     if (startEnv == state.getEnvironmentProvider()) {
                         isLocked = false;
@@ -194,22 +196,27 @@ import java.util.Locale;
     }
 
     /*package*/ boolean isExecuting() {
-        return (execution   != null && execution.isAlive()  ) ||
-               (statsUpdate != null && statsUpdate.isAlive());
+        return (execution != null && execution.isAlive());
+    }
+
+    /*package*/ boolean isUpdatingStats() {
+        return (statsUpdate != null && statsUpdate.isAlive());
     }
 
     /*package*/ void interrupt() {
-        while (isExecuting()) {
-            if (statsUpdate != null && statsUpdate.isAlive()) {
-                statsUpdate.interrupt();
-            }
-            if (execution != null && execution.isAlive()) {
-                execution.interrupt();
-            }
-
-            // wait until threads die
+        while (isExecuting() || isUpdatingStats()) {
             try {
-                Thread.sleep(250);
+                while (isExecuting()) {
+                    execution.interrupt();
+                    // wait until thread dies
+                    Thread.sleep(250);
+                }
+
+                while (isUpdatingStats()) {
+                    statsUpdate.interrupt();
+                    // wait until thread dies
+                    Thread.sleep(10);
+                }
             } catch (final InterruptedException e) {}
         }
     }
