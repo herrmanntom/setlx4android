@@ -272,7 +272,7 @@ public class SetlXforAndroidActivity extends Activity {
             clipboard.setPrimaryClip(ClipData.newPlainText("setlX output", output.getText()));
 
             // show user what was done
-            Toast.makeText(getBaseContext(), R.string.toastCopy, Toast.LENGTH_SHORT).show();
+            outputScrollView.post(new Toaster(R.string.toastCopy, Toast.LENGTH_SHORT));
             return true;
         } else {
             return super.onContextItemSelected(item);
@@ -384,7 +384,7 @@ public class SetlXforAndroidActivity extends Activity {
                 envProvider = new AndroidEnvProvider(this);
                 state       = new StateImplementation(envProvider);
                 // announce reset of memory to user
-                Toast.makeText(getBaseContext(), R.string.toastKill, Toast.LENGTH_LONG).show();
+                outputScrollView.post(new Toaster(R.string.toastKill, Toast.LENGTH_LONG));
                 this.appendErr("Execution was stopped.");
 
                 // give hint to the garbage collector
@@ -401,14 +401,14 @@ public class SetlXforAndroidActivity extends Activity {
                 return true;
             case R.id.menuItemRandom:
                 if (envProvider.isExecuting()) {
-                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.isRandoomPredictable()) {
                         state.setRandoomPredictable(false);
-                        Toast.makeText(getBaseContext(), R.string.toastRandomON, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.toastRandomON, Toast.LENGTH_SHORT));
                     } else {
                         state.setRandoomPredictable(true);
-                        Toast.makeText(getBaseContext(), R.string.toastRandomOFF, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.toastRandomOFF, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
@@ -419,14 +419,14 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
                 if (envProvider.isExecuting()) {
-                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.areAssertsDisabled()) {
                         state.setAssertsDisabled(false);
-                        Toast.makeText(getBaseContext(), R.string.toastAssertsOn, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.toastAssertsOn, Toast.LENGTH_SHORT));
                     } else {
                         state.setAssertsDisabled(true);
-                        Toast.makeText(getBaseContext(), R.string.toastAssertsOff, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.toastAssertsOff, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
@@ -437,33 +437,33 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
                 if (envProvider.isExecuting()) {
-                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.traceAssignments) {
                         state.setTraceAssignments(false);
-                        Toast.makeText(getBaseContext(), R.string.toastTraceOff, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.toastTraceOff, Toast.LENGTH_SHORT));
                     } else {
                         state.setTraceAssignments(true);
-                        Toast.makeText(getBaseContext(), R.string.toastTraceOn, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.toastTraceOn, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
             case R.id.menuItemRuntimeDebugging:
                 if (envProvider.isExecuting()) {
-                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.isRuntimeDebuggingEnabled()) {
                         state.setRuntimeDebugging(false);
-                        Toast.makeText(getBaseContext(), R.string.runtimeDebuggingOff, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.runtimeDebuggingOff, Toast.LENGTH_SHORT));
                     } else {
                         state.setRuntimeDebugging(true);
-                        Toast.makeText(getBaseContext(), R.string.runtimeDebuggingOn, Toast.LENGTH_SHORT).show();
+                        outputScrollView.post(new Toaster(R.string.runtimeDebuggingOn, Toast.LENGTH_SHORT));
                     }
                 }
                 return true;
             case R.id.menuItemClear:
                 if (envProvider.isExecuting()) {
-                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     setInteractiveInput("");
                     inputFileMode   .setText("");
@@ -477,19 +477,19 @@ public class SetlXforAndroidActivity extends Activity {
                 return true;
             case R.id.menuItemReset:
                 if (envProvider.isExecuting()) {
-                    Toast.makeText(getBaseContext(), R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     state.resetState();
-                    Toast.makeText(getBaseContext(), R.string.toastReset, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastReset, Toast.LENGTH_LONG));
                 }
                 return true;
             case R.id.menuItemAutoReset:
                 if (isAutoResetEnabled) {
                     isAutoResetEnabled = false;
-                    Toast.makeText(getBaseContext(), R.string.toastAutoResetOFF, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastAutoResetOFF, Toast.LENGTH_SHORT));
                 } else {
                     isAutoResetEnabled = true;
-                    Toast.makeText(getBaseContext(), R.string.toastAutoResetON, Toast.LENGTH_LONG).show();
+                    outputScrollView.post(new Toaster(R.string.toastAutoResetON, Toast.LENGTH_SHORT));
                 }
                 return true;
             case R.id.menuItemAbout:
@@ -551,7 +551,7 @@ public class SetlXforAndroidActivity extends Activity {
 
     /*package*/ void postExecute() {
         if (isAutoResetEnabled && mode == FILE_MODE) {
-            Toast.makeText(getBaseContext(), R.string.toastAutoReset, Toast.LENGTH_SHORT).show();
+            outputScrollView.post(new Toaster(R.string.toastAutoReset, Toast.LENGTH_SHORT));
             state.resetState();
         }
         if (! state.isRuntimeDebuggingEnabled()) {
@@ -605,7 +605,7 @@ public class SetlXforAndroidActivity extends Activity {
             if (! outputIsReset) {
                 state.resetState();
                 // announce reset of memory to user
-                Toast.makeText(getBaseContext(), R.string.toastRestart, Toast.LENGTH_LONG).show();
+                outputScrollView.post(new Toaster(R.string.toastRestart, Toast.LENGTH_LONG));
             }
             // Android version cannot pass parameters to programs (yet?)
             try {
@@ -758,6 +758,21 @@ public class SetlXforAndroidActivity extends Activity {
             openFileBtn.setEnabled                  (! locked);
             modeSwitchBtn.setEnabled                (! locked);
             executeBtn.setEnabled                   (! locked);
+        }
+    }
+
+    private class Toaster implements Runnable {
+        private final int toastID;
+        private final int duration;
+
+        public Toaster(final int toastID, final int duration) {
+            this.toastID  = toastID;
+            this.duration = duration;
+        }
+
+        @Override
+        public void run() {
+            Toast.makeText(getBaseContext(), toastID, duration).show();
         }
     }
 
