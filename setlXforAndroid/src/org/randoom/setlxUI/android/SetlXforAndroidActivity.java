@@ -385,7 +385,7 @@ public class SetlXforAndroidActivity extends Activity {
                 state       = new StateImplementation(envProvider);
                 // announce reset of memory to user
                 outputScrollView.post(new Toaster(R.string.toastKill, Toast.LENGTH_LONG));
-                this.appendErr("Execution was stopped.");
+                appendErr("\nExecution was stopped.");
 
                 // give hint to the garbage collector
                 Runtime.getRuntime().gc();
@@ -565,17 +565,35 @@ public class SetlXforAndroidActivity extends Activity {
 
     /*package*/ void appendErr(final String msg) {
         outputScrollView.post(new OutputPoster(STDERR, msg));
+        try {
+            Thread.sleep(1);
+        } catch (final InterruptedException e) {}
         outputScrollView.post(outputScroller);
+        try {
+            Thread.sleep(0, 500);
+        } catch (final InterruptedException e) {}
     }
 
     /*package*/ void appendOut(final String msg) {
         outputScrollView.post(new OutputPoster(STDOUT, msg));
+        try {
+            Thread.sleep(1);
+        } catch (final InterruptedException e) {}
         outputScrollView.post(outputScroller);
+        try {
+            Thread.sleep(0, 500);
+        } catch (final InterruptedException e) {}
     }
 
     /*package*/ void appendPrompt(final String msg) {
         outputScrollView.post(new OutputPoster(STDIN, msg));
+        try {
+            Thread.sleep(1);
+        } catch (final InterruptedException e) {}
         outputScrollView.post(outputScroller);
+        try {
+            Thread.sleep(0, 500);
+        } catch (final InterruptedException e) {}
     }
 
     /*package*/ void readLine(final String prompt) {
