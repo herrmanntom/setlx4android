@@ -8,6 +8,7 @@ import java.util.List;
 import org.randoom.setlx.exceptions.IllegalRedefinitionException;
 import org.randoom.setlx.types.SetlList;
 import org.randoom.setlx.utilities.DummyEnvProvider;
+import org.randoom.setlx.utilities.EnvironmentProvider;
 import org.randoom.setlx.utilities.State;
 import org.randoom.setlx.utilities.StateImplementation;
 import org.randoom.util.AndroidDataStorage;
@@ -589,16 +590,19 @@ public class SetlXforAndroidActivity extends Activity {
 
     /*package*/ void appendOut(final int type, final String msg) {
         try {
-            while (uiThreadHasWork && ! state.isExecutionStopped) {
+            final boolean isNotUiThread = uiThreadHandler.getLooper().getThread() != Thread.currentThread();
+            while (isNotUiThread && uiThreadHasWork && ! state.isExecutionStopped) {
                 Thread.sleep(1);
             }
 
             uiThreadHasWork = true;
             uiThreadHandler.post(new OutputPoster(type, msg));
 
-            do {
-                Thread.sleep(1);
-            } while (uiThreadHasWork && ! state.isExecutionStopped);
+            if (isNotUiThread) {
+                do {
+                    Thread.sleep(1);
+                } while (uiThreadHasWork && ! state.isExecutionStopped);
+            }
 
             uiThreadHasWork = true;
             uiThreadHandler.post(outputScroller);
@@ -628,7 +632,13 @@ public class SetlXforAndroidActivity extends Activity {
         output           = (TextView)    findViewById(R.id.textViewOutput);
 
         // (re) initialize setlX Environment
-        if (state == null) {
+        if (state != null) {
+            final EnvironmentProvider env = state.getEnvironmentProvider();
+            if (! isKilling || env instanceof AndroidEnvProvider) {
+                envProvider = (AndroidEnvProvider) state.getEnvironmentProvider();
+            }
+        }
+        if (state == null || envProvider == null) {
             envProvider = new AndroidEnvProvider(this);
             state       = new StateImplementation(envProvider);
             if (! outputIsReset) {
@@ -642,10 +652,8 @@ public class SetlXforAndroidActivity extends Activity {
             } catch (final IllegalRedefinitionException e) {
                 // will not happen
             }
-        } else {
-            envProvider = (AndroidEnvProvider) state.getEnvironmentProvider();
-            envProvider.updateUI(this);
         }
+        envProvider.updateUI(this);
 
         // GUI
         final DisplayMetrics displaymetrics = new DisplayMetrics();
