@@ -305,7 +305,7 @@ public class SetlXforAndroidActivity extends Activity {
                     item.setVisible(envProvider.isLocked() && ! isKilling);
                     break;
                 case R.id.menuItemRandom:
-                    if (envProvider.isExecuting()) {
+                    if (envProvider.isLocked()) {
                         item.setVisible(false);
                     } else {
                         item.setVisible(true);
@@ -317,7 +317,7 @@ public class SetlXforAndroidActivity extends Activity {
                     }
                     return true;
                 case R.id.menuItemAssert:
-                    if (envProvider.isExecuting()) {
+                    if (envProvider.isLocked()) {
                         item.setVisible(false);
                     } else {
                         item.setVisible(true);
@@ -329,7 +329,7 @@ public class SetlXforAndroidActivity extends Activity {
                     }
                     break;
                 case  R.id.menuItemTrace:
-                    if (envProvider.isExecuting()) {
+                    if (envProvider.isLocked()) {
                         item.setVisible(false);
                     } else {
                         item.setVisible(true);
@@ -345,7 +345,7 @@ public class SetlXforAndroidActivity extends Activity {
                         item.setEnabled(true);
                         enableDebuggingCount = 0;
                     }
-                    if (envProvider.isExecuting()) {
+                    if (envProvider.isLocked()) {
                         item.setVisible(false);
                     } else {
                         if (item.isEnabled()) {
