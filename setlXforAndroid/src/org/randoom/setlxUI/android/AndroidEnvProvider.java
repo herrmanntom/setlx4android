@@ -18,6 +18,7 @@ import java.util.Locale;
     private final static String ERROR_KEY    = "\0\0sETLx_eRRoR_@48456890012\0\0";
     private final static String PROMPT_KEY   = "\0\0sETLx_pROMpT_@8478904199\0\0";
     private final static String CODE_DIR     = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
+    private final static String CODE_DIR_low = CODE_DIR.toLowerCase(Locale.US);
     private final static String LIBRARY_DIR  = CODE_DIR + "library/";
     public  final static int    ECUTE_CODE   = 88;
     public  final static int    EXECUTE_FILE = 99;
@@ -250,10 +251,15 @@ import java.util.Locale;
     // get path relative to sCODE_DIR
     /*package*/ String stripPath(String fileName) {
         fileName = fileName.trim();
-        if (fileName.charAt(0) != '/' || ! fileName.startsWith(CODE_DIR)) {
+        if (fileName.charAt(0) != '/' ||
+            ! fileName.toLowerCase(Locale.US).startsWith(CODE_DIR_low)
+        ) {
             return fileName;
         } else /* if (fileName.startsWith(sCODE_DIR)) */ {
-            return fileName.replace(CODE_DIR, "");
+            String tmpName = fileName.toLowerCase(Locale.US);
+            tmpName = tmpName.replace(CODE_DIR_low, "");
+
+            return fileName.substring(fileName.length() - tmpName.length());
         }
     }
 
