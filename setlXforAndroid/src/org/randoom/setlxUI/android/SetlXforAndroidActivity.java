@@ -54,49 +54,52 @@ import android.widget.Toast;
 
 public class SetlXforAndroidActivity extends Activity {
 
-    private final static String  SETL_X_URL           = "http://setlX.randoom.org/";
-    private final static String  ANTLR_URL            = "http://www.antlr.org/";
-    private final static String  FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
-    private final static String  SETL_X_C_YEARS       = "2011-2013";
+    private     final static String  SETL_X_URL           = "http://setlX.randoom.org/";
+    private     final static String  ANTLR_URL            = "http://www.antlr.org/";
+    private     final static String  FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
+    private     final static String  SETL_X_C_YEARS       = "2011-2013";
 
-    private final static int     INTERACTIVE_MODE     = 23;
-    private final static int     FILE_MODE            = 42;
+    private     final static int     INTERACTIVE_MODE     = 23;
+    private     final static int     FILE_MODE            = 42;
 
-    /*package*/ final static int STDOUT               = 3;
-    /*package*/ final static int STDERR               = 5;
-    /*package*/ final static int STDIN                = 7;
+    /*package*/ final static int     STDOUT               = 3;
+    /*package*/ final static int     STDERR               = 5;
+    /*package*/ final static int     STDIN                = 7;
 
     // flag for file open intent
-    private final static int     REQEST_FILE_FLAG     = 0;
+    private     final static int     REQEST_FILE_FLAG     = 0;
 
-    private       static State   state;
-    private       static boolean isAutoResetEnabled   = true;
+    private static BottomScroller outputScroller      = null;
+    private static UiLocker       lockEnabler         = null;
+    private static UiLocker       lockDisabler        = null;
 
-    private Handler              uiThreadHandler;
-    private boolean              uiThreadHasWork;
+    private static State          state;
+    private static boolean        isAutoResetEnabled   = true;
 
-    private AndroidEnvProvider   envProvider;
+    private Handler               uiThreadHandler;
+    private boolean               uiThreadHasWork;
 
-    private TextView             prompt;
-    private TextView             load;
-    private EditText             inputInteractive;
-    private EditText             inputFileMode;
-    private ImageButton          openFileBtn;
-    private Button               modeSwitchBtn;
-    private Button               executeBtn;
-    private ScrollView           outputScrollView;
-    private BottomScroller       outputScroller;
-    private TextView             output;
+    private AndroidEnvProvider    envProvider;
+
+    private TextView              prompt;
+    private TextView              load;
+    private EditText              inputInteractive;
+    private EditText              inputFileMode;
+    private ImageButton           openFileBtn;
+    private Button                modeSwitchBtn;
+    private Button                executeBtn;
+    private ScrollView            outputScrollView;
+    private TextView              output;
 
     // counter to enable interpreter debugging options
-    private int                  enableDebuggingCount;
+    private int                   enableDebuggingCount;
 
     // current state
-    private Editable             inputInteractiveTxt;
-    private int                  mode;
-    private boolean              outputIsGreeting;
-    private boolean              isActive;
-    private boolean              isKilling;
+    private Editable              inputInteractiveTxt;
+    private int                   mode;
+    private boolean               outputIsGreeting;
+    private boolean               isActive;
+    private boolean               isKilling;
 
     private class OpenListener implements View.OnClickListener {
         @Override
@@ -155,6 +158,12 @@ public class SetlXforAndroidActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main);
+
+        if (outputScroller == null || lockEnabler == null || lockDisabler == null) {
+            outputScroller = new BottomScroller();
+            lockEnabler    = new UiLocker(true);
+            lockDisabler   = new UiLocker(false);
+        }
 
         uiThreadHandler = new Handler();
         uiThreadHasWork = false;
@@ -571,7 +580,7 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     /*package*/ void lockUI(final boolean lock) {
-        uiThreadHandler.post(new UiLocker(lock));
+        uiThreadHandler.post( lock? lockEnabler : lockDisabler);
     }
 
     /*package*/ void postExecute() {
@@ -628,7 +637,6 @@ public class SetlXforAndroidActivity extends Activity {
         modeSwitchBtn    = (Button)      findViewById(R.id.buttonModeSwitch);
         executeBtn       = (Button)      findViewById(R.id.buttonExecute);
         outputScrollView = (ScrollView)  findViewById(R.id.scrollViewOutput);
-        outputScroller   = new BottomScroller();
         output           = (TextView)    findViewById(R.id.textViewOutput);
 
         // (re) initialize setlX Environment
@@ -775,7 +783,7 @@ public class SetlXforAndroidActivity extends Activity {
     private class UiLocker implements Runnable {
         private final boolean locked;
 
-        public UiLocker(final boolean locked) {
+        private UiLocker(final boolean locked) {
             this.locked = locked;
         }
 
@@ -802,7 +810,7 @@ public class SetlXforAndroidActivity extends Activity {
         private final int toastID;
         private final int duration;
 
-        public Toaster(final int toastID, final int duration) {
+        private Toaster(final int toastID, final int duration) {
             this.toastID  = toastID;
             this.duration = duration;
         }
@@ -818,7 +826,7 @@ public class SetlXforAndroidActivity extends Activity {
         private final String usedCPU;
         private final String usedMemory;
 
-        public StatsUpdater(final String ticks, final String usedCPU, final String usedMemory) {
+        private StatsUpdater(final String ticks, final String usedCPU, final String usedMemory) {
             this.ticks      = ticks;
             this.usedCPU    = usedCPU;
             this.usedMemory = usedMemory;
@@ -842,7 +850,7 @@ public class SetlXforAndroidActivity extends Activity {
         private final int    type;
         private final String msg;
 
-        /*package*/ OutputPoster(final int type, final String msg) {
+        private OutputPoster(final int type, final String msg) {
             this.type = type;
             this.msg  = msg;
         }
@@ -879,7 +887,7 @@ public class SetlXforAndroidActivity extends Activity {
         private final String   prompt;
         private final Activity activity;
 
-        /*package*/ InputReader(final String prompt, final Activity activity) {
+        private InputReader(final String prompt, final Activity activity) {
             this.prompt   = prompt;
             this.activity = activity;
         }
