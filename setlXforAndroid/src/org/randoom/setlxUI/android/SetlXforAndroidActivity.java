@@ -199,7 +199,7 @@ public class SetlXforAndroidActivity extends Activity {
             envProvider = (AndroidEnvProvider) state.getEnvironmentProvider();
             if (outputHtml.equals("") &&
                 envProvider.isMessagesBufferEmpty() &&
-                ( ! envProvider.isExecuting())
+                ( ! envProvider.isLocked())
             ) {
                 outputIsGreeting = true;
             }
@@ -425,7 +425,7 @@ public class SetlXforAndroidActivity extends Activity {
 
                 return true;
             case R.id.menuItemRandom:
-                if (envProvider.isExecuting()) {
+                if (envProvider.isLocked()) {
                     uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.isRandoomPredictable()) {
@@ -443,7 +443,7 @@ public class SetlXforAndroidActivity extends Activity {
                 } else {
                     enableDebuggingCount = 0;
                 }
-                if (envProvider.isExecuting()) {
+                if (envProvider.isLocked()) {
                     uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.areAssertsDisabled()) {
@@ -461,7 +461,7 @@ public class SetlXforAndroidActivity extends Activity {
                 } else {
                     enableDebuggingCount = 0;
                 }
-                if (envProvider.isExecuting()) {
+                if (envProvider.isLocked()) {
                     uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.traceAssignments) {
@@ -474,7 +474,7 @@ public class SetlXforAndroidActivity extends Activity {
                 }
                 return true;
             case R.id.menuItemRuntimeDebugging:
-                if (envProvider.isExecuting()) {
+                if (envProvider.isLocked()) {
                     uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     if (state.isRuntimeDebuggingEnabled()) {
@@ -487,7 +487,7 @@ public class SetlXforAndroidActivity extends Activity {
                 }
                 return true;
             case R.id.menuItemClear:
-                if (envProvider.isExecuting()) {
+                if (envProvider.isLocked()) {
                     uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     setInteractiveInput("");
@@ -501,7 +501,7 @@ public class SetlXforAndroidActivity extends Activity {
                 }
                 return true;
             case R.id.menuItemReset:
-                if (envProvider.isExecuting()) {
+                if (envProvider.isLocked()) {
                     uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     state.resetState();

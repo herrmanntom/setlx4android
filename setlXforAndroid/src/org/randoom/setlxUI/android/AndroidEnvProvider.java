@@ -1,11 +1,9 @@
 package org.randoom.setlxUI.android;
 
 import org.randoom.setlx.exceptions.JVMIOException;
-import org.randoom.setlx.exceptions.ParserException;
-import org.randoom.setlx.statements.Block;
 import org.randoom.setlx.utilities.EnvironmentProvider;
-import org.randoom.setlx.utilities.ParseSetlX;
 import org.randoom.setlx.utilities.State;
+
 import org.randoom.util.AndroidUItools;
 
 import java.util.LinkedList;
@@ -26,35 +24,62 @@ import java.util.Locale;
     private final static int    sMAX_CHARS  = 25000;
 
     private SetlXforAndroidActivity  activity;
+    private Executioner              executioner;
     private String                   lastPrompt;
     private final LinkedList<String> messageBuffer;
     private boolean                  isLocked;
     private String                   currentDir;
     private String                   input;
 
-    private Thread                   statsUpdate;
-    private float                    cpuUsage;
-    private long                     memoryUsage;
-    private int                      ticks;
-    private Thread                   execution;
 
     /*package*/ AndroidEnvProvider(final SetlXforAndroidActivity activity) {
         this.activity       = activity;
+        this.executioner    = null;
         this.lastPrompt     = null;
         this.messageBuffer  = new LinkedList<String>();
         this.isLocked       = false;
         this.currentDir     = CODE_DIR;
         this.input          = null;
-
-        this.statsUpdate    = null;
-        this.cpuUsage       = 0.0f;
-        this.memoryUsage    = 0;
-        this.ticks          = 0;
-        this.execution      = null;
     }
 
     /*package*/ void updateUI(final SetlXforAndroidActivity activity) {
         this.activity   = activity;
+    }
+
+    /*package*/ void setLocked(final boolean isLocked) {
+        this.isLocked = isLocked;
+    }
+
+    /*package*/ boolean isLocked() {
+        return this.isLocked;
+    }
+
+    /*package*/ void setCurrentDir(final String currentDir) {
+        this.currentDir = currentDir;
+    }
+
+    /*package*/ void setInput(final String input) {
+        this.input = input;
+    }
+
+    /*package*/ String getCodeDir() {
+        return CODE_DIR;
+    }
+
+    /*package*/ void execute(final State state, final String code) {
+        executioner = new Executioner(state, activity);
+        executioner.execute(code);
+    }
+
+    /*package*/ void executeFile(final State state, final String fileName) {
+        executioner = new Executioner(state, activity);
+        executioner.executeFile(fileName);
+    }
+
+    /*package*/ void interrupt() {
+        if (executioner != null) {
+            executioner.interrupt();
+        }
     }
 
     /*package*/ boolean isMessagesBufferEmpty() {
@@ -75,157 +100,6 @@ import java.util.Locale;
         }
     }
 
-    /*package*/ void execute(final State state, final String code) {
-        this.currentDir = CODE_DIR;
-        execute(state, ECUTE_CODE, code);
-    }
-
-    /*package*/ void executeFile(final State state, final String fileName) {
-        if (fileName.lastIndexOf('/') != -1) {
-            this.currentDir = fileName.substring(0, fileName.lastIndexOf('/') + 1);
-        } else {
-            this.currentDir = CODE_DIR;
-        }
-        execute(state, EXECUTE_FILE, fileName);
-    }
-
-    private void execute(final State state, final int mode, final String setlXobject) {
-        this.isLocked = true;
-        this.activity.lockUI(true);
-
-        final AndroidEnvProvider startEnv = this;
-        try {
-            statsUpdate = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            cpuUsage    = AndroidUItools.getCPUusage(248);
-                            memoryUsage = AndroidUItools.getUsedMemory();
-                            ++ticks;
-                            startEnv.updateStats(ticks, cpuUsage, memoryUsage);
-                            Thread.sleep(250);
-                        }
-                    } catch (final InterruptedException e) {
-                        // while is already broken here => done
-                    }
-                }
-            });
-            statsUpdate.setPriority(Thread.MAX_PRIORITY);
-
-            execution = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    state.resetParserErrorCount();
-                    Block b = null;
-                    try {
-                        if (mode == ECUTE_CODE) {
-                            b = ParseSetlX.parseStringToBlock(state, setlXobject);
-                            b.markLastExprStatement();
-                        } else /* if (mode == sEXECUTE_FILE) */ {
-                            b = ParseSetlX.parseFile(state, setlXobject);
-                        }
-                    } catch (final ParserException pe) {
-                        state.errWriteLn(pe.getMessage());
-                        b = null;
-                    } catch (final StackOverflowError soe) {
-                        state.errWriteOutOfStack(soe, true);
-                        b = null;
-                    } catch (final OutOfMemoryError oome) { // Somehow this never works properly on ANDROID ;-(
-                        try {
-                            // free some memory
-                            state.resetState();
-                            // give hint to the garbage collector
-                            Runtime.getRuntime().gc();
-                            // sleep a while
-                            Thread.sleep(50);
-                        } catch (final InterruptedException e) {
-                            /* don't care anymore */
-                        }
-
-                        state.errWriteOutOfMemory(false, true);
-                        b = null;
-                    } catch (final Exception e) { // this should never happen...
-                        state.errWriteInternalError(e);
-                        b = null;
-                    }
-                    if (b != null) {
-                        b.executeWithErrorHandling(state, false);
-                    }
-
-                    try {
-                        while (isUpdatingStats()) {
-                            statsUpdate.interrupt();
-                            // wait until thread dies
-                            Thread.sleep(10);
-                        }
-                    } catch (final InterruptedException e) {}
-
-                    if (startEnv == state.getEnvironmentProvider()) {
-                        isLocked = false;
-                        activity.lockUI(false);
-                        activity.postExecute();
-                    }
-                }
-            });
-            execution.setPriority(Thread.MIN_PRIORITY);
-
-            statsUpdate.start();
-            execution.start();
-        } catch (final StackOverflowError soe) {
-            state.errWriteOutOfStack(soe, false);
-        } catch (final OutOfMemoryError oome) { // Somehow this never works properly on ANDROID ;-(
-            try {
-                // free some memory
-                state.resetState();
-                // give hint to the garbage collector
-                Runtime.getRuntime().gc();
-                // sleep a while
-                Thread.sleep(50);
-            } catch (final InterruptedException e) {
-                /* don't care anymore */
-            }
-
-            state.errWriteOutOfMemory(false, true);
-        } catch (final Exception e) { // this should never happen...
-            state.errWriteInternalError(e);
-        }
-    }
-
-    /*package*/ boolean isLocked() {
-        return this.isLocked;
-    }
-
-    /*package*/ boolean isExecuting() {
-        return (execution != null && execution.isAlive());
-    }
-
-    /*package*/ boolean isUpdatingStats() {
-        return (statsUpdate != null && statsUpdate.isAlive());
-    }
-
-    /*package*/ void interrupt() {
-        while (isExecuting() || isUpdatingStats()) {
-            try {
-                while (isExecuting()) {
-                    execution.interrupt();
-                    // wait until thread dies
-                    Thread.sleep(250);
-                }
-
-                while (isUpdatingStats()) {
-                    statsUpdate.interrupt();
-                    // wait until thread dies
-                    Thread.sleep(10);
-                }
-            } catch (final InterruptedException e) {}
-        }
-    }
-
-    /*package*/ void setInput(final String input) {
-        this.input = input;
-    }
-
     /*package*/ void updateStats(final int ticks, final float usedCPU, final long usedMemory) {
         if (activity.isActive()) {
             final String ticksStr = String.format(Locale.ENGLISH, "%3d", ticks);
@@ -233,10 +107,6 @@ import java.util.Locale;
             final String memUsage = String.format(Locale.ENGLISH, "%3d", usedMemory / (1024 * 1024));
             activity.updateStats(ticksStr, cpuUsage, memUsage);
         }
-    }
-
-    /*package*/ String getCodeDir() {
-        return CODE_DIR;
     }
 
     // create code directory, if it does not exist
