@@ -132,15 +132,7 @@ public class SetlXforAndroidActivity extends Activity {
     private class ExecListener implements View.OnClickListener {
         @Override
         public void onClick(final View v) {
-            AndroidUItools.hideKeyboard(v);
-            output.setText("", BufferType.SPANNABLE);
-            if (outputIsGreeting) {
-                output.setGravity(Gravity.LEFT);
-                output.setTypeface(Typeface.MONOSPACE);
-                outputIsGreeting = false;
-            }
-
-            storeState(false); // better safe than sorry ;-)
+            preExecute(v);
 
             if (mode == FILE_MODE) {
                 final String fileName = inputFileMode.getText().toString();
@@ -579,8 +571,40 @@ public class SetlXforAndroidActivity extends Activity {
         }
     }
 
-    /*package*/ void lockUI(final boolean lock) {
-        uiThreadHandler.post( lock? lockEnabler : lockDisabler);
+    /*package*/ void lockUI(final boolean locked) {
+        if (uiThreadHandler.getLooper().getThread() != Thread.currentThread()) {
+            while (uiThreadHasWork) {
+                try {
+                    Thread.sleep(1);
+                } catch (final InterruptedException e) {}
+            }
+
+            uiThreadHasWork = true;
+            uiThreadHandler.post(locked? lockEnabler : lockDisabler);
+
+            do {
+                try {
+                    Thread.sleep(1);
+                } catch (final InterruptedException e) {}
+            } while (uiThreadHasWork && ! state.isExecutionStopped);
+        } else {
+            uiLock(locked);
+        }
+    }
+
+    /*package*/ void preExecute(final View v) {
+        envProvider.setLocked(true);
+        lockUI(true);
+
+        storeState(/*storeOutput = */false); // better safe than sorry ;-)
+
+        output.setText("", BufferType.SPANNABLE);
+        if (outputIsGreeting) {
+            output.setGravity(Gravity.LEFT);
+            output.setTypeface(Typeface.MONOSPACE);
+            outputIsGreeting = false;
+        }
+        AndroidUItools.hideKeyboard(v);
     }
 
     /*package*/ void postExecute() {
@@ -591,6 +615,8 @@ public class SetlXforAndroidActivity extends Activity {
         if (! state.isRuntimeDebuggingEnabled()) {
             load.post(new StatsUpdater("", "", ""));
         }
+        envProvider.setLocked(false);
+        lockUI(false);
     }
 
     /*package*/ boolean isActive() {
@@ -789,21 +815,28 @@ public class SetlXforAndroidActivity extends Activity {
 
         @Override
         public void run() {
-            if (locked) {
-                getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
-            } else {
-                getWindow().clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
-            }
-            inputInteractive.setClickable           (! locked);
-            inputInteractive.setFocusable           (! locked);
-            inputInteractive.setFocusableInTouchMode(! locked);
-            inputFileMode.setClickable              (! locked);
-            inputFileMode.setFocusable              (! locked);
-            inputFileMode.setFocusableInTouchMode   (! locked);
-            openFileBtn.setEnabled                  (! locked);
-            modeSwitchBtn.setEnabled                (! locked);
-            executeBtn.setEnabled                   (! locked);
+            uiLock(locked);
+            uiThreadHasWork = false;
         }
+    }
+
+    private void uiLock(final boolean locked) {
+        if (locked) {
+            getWindow().addFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            getWindow().clearFlags(LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+        inputInteractive.setClickable           (! locked);
+        inputInteractive.setFocusable           (! locked);
+        inputInteractive.setFocusableInTouchMode(! locked);
+        inputFileMode.setClickable              (! locked);
+        inputFileMode.setFocusable              (! locked);
+        inputFileMode.setFocusableInTouchMode   (! locked);
+        openFileBtn.setEnabled                  (! locked);
+        modeSwitchBtn.setEnabled                (! locked);
+        executeBtn.setEnabled                   (! locked);
+
+        invalidateOptionsMenu();
     }
 
     private class Toaster implements Runnable {

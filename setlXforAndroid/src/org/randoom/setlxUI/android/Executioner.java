@@ -48,9 +48,6 @@ import org.randoom.util.AndroidUItools;
     }
 
     private void execute(final int mode, final String setlXobject) {
-        activity.lockUI(true);
-        envProvider.setLocked(true);
-
         try {
             statsUpdate = new Thread(new Runnable() {
                 @Override
@@ -119,9 +116,7 @@ import org.randoom.util.AndroidUItools;
                     } catch (final InterruptedException e) {}
 
                     if (envProvider == state.getEnvironmentProvider()) {
-                        envProvider.setLocked(false);
                         activity.postExecute();
-                        activity.lockUI(false);
                     }
                 }
             });
