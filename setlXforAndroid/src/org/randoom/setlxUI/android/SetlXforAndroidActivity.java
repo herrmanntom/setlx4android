@@ -280,7 +280,7 @@ public class SetlXforAndroidActivity extends Activity {
         if (item.getTitle() == getString(R.string.menuCopy)) {
             // place text of output into the clipboard
             final ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            clipboard.setPrimaryClip(ClipData.newPlainText("setlX output", output.getText()));
+            clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.clipBoardKey), output.getText()));
 
             // show user what was done
             uiThreadHandler.post(new Toaster(R.string.toastCopy, Toast.LENGTH_SHORT));
@@ -396,14 +396,12 @@ public class SetlXforAndroidActivity extends Activity {
 
                     @Override
                     public void run() {
+                        appendOut(STDERR, getString(R.string.msgKillStarted));
+
                         envProvider.interrupt();
 
                         envProvider = new AndroidEnvProvider(_this);
                         state       = new StateImplementation(envProvider);
-
-                        // announce reset of memory to user
-                        uiThreadHandler.post(new Toaster(R.string.toastKill, Toast.LENGTH_LONG));
-                        appendOut(STDERR, "\nExecution was stopped.");
 
                         // give hint to the garbage collector
                         Runtime.getRuntime().gc();
@@ -416,11 +414,12 @@ public class SetlXforAndroidActivity extends Activity {
                             load.post(new StatsUpdater("", "", ""));
                         }
 
+                        // announce reset of memory to user
+                        appendOut(STDERR, getString(R.string.msgKill));
+
                         isKilling = false;
                     }
                 });
-
-                uiThreadHandler.post(new Toaster(R.string.toastKillStarted, Toast.LENGTH_LONG));
 
                 killer.start();
 
