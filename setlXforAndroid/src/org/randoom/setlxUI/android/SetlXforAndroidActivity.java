@@ -625,7 +625,8 @@ public class SetlXforAndroidActivity extends Activity {
     /*package*/ void appendOut(final int type, final String msg) {
         try {
             final boolean isNotUiThread = uiThreadHandler.getLooper().getThread() != Thread.currentThread();
-            while (isNotUiThread && uiThreadHasWork && ! state.isExecutionStopped) {
+
+            while (isNotUiThread && uiThreadHasWork) {
                 Thread.sleep(1);
             }
 
@@ -635,7 +636,7 @@ public class SetlXforAndroidActivity extends Activity {
             if (isNotUiThread) {
                 do {
                     Thread.sleep(1);
-                } while (uiThreadHasWork && ! state.isExecutionStopped);
+                } while (uiThreadHasWork);
             }
 
             uiThreadHasWork = true;
