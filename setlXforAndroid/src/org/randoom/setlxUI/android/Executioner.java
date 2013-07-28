@@ -53,15 +53,15 @@ import org.randoom.util.AndroidUItools;
                 @Override
                 public void run() {
                     try {
-                        while (true) {
+                        do {
                             cpuUsage    = AndroidUItools.getCPUusage(248);
                             memoryUsage = AndroidUItools.getUsedMemory();
                             ++ticks;
                             envProvider.updateStats(ticks, cpuUsage, memoryUsage);
                             Thread.sleep(250);
-                        }
+                        } while (isExecuting());
                     } catch (final InterruptedException e) {
-                        // while is already broken here => done
+                        // loop is already broken here => done
                     }
                 }
             });
