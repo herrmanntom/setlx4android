@@ -52,6 +52,9 @@ import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
+/**
+ * Main UI class of setlX for Android.
+ */
 public class SetlXforAndroidActivity extends Activity {
 
     private     final static String  SETL_X_URL           = "http://setlX.randoom.org/";
@@ -62,11 +65,26 @@ public class SetlXforAndroidActivity extends Activity {
     private     final static int     INTERACTIVE_MODE     = 23;
     private     final static int     FILE_MODE            = 42;
 
+    /**
+     * Flag for appendOut() to print a standard message.
+     *
+     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
+     */
     /*package*/ final static int     STDOUT               = 3;
+    /**
+     * Flag for appendOut() to print an error message.
+     *
+     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
+     */
     /*package*/ final static int     STDERR               = 5;
+    /**
+     * Flag for appendOut() to print a prompt message.
+     *
+     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
+     */
     /*package*/ final static int     STDIN                = 7;
 
-    // flag for file open intent
+    // flag for the file-open-intent
     private     final static int     REQEST_FILE_FLAG     = 0;
 
     private static BottomScroller outputScroller      = null;
@@ -570,6 +588,11 @@ public class SetlXforAndroidActivity extends Activity {
         }
     }
 
+    /**
+     * Lock the UI in a thread safe manor, e.g. disable buttons.
+     *
+     * @param locked lockstatus to set.
+     */
     /*package*/ void lockUI(final boolean locked) {
         if (uiThreadHandler.getLooper().getThread() != Thread.currentThread()) {
             while (uiThreadHasWork) {
@@ -591,6 +614,11 @@ public class SetlXforAndroidActivity extends Activity {
         }
     }
 
+    /**
+     * Actions to perform before executing setlX-code.
+     *
+     * @param v Reference to the current UI view object.
+     */
     /*package*/ void preExecute(final View v) {
         envProvider.setLocked(true);
         lockUI(true);
@@ -606,6 +634,9 @@ public class SetlXforAndroidActivity extends Activity {
         AndroidUItools.hideKeyboard(v);
     }
 
+    /**
+     * Actions to perform after executing setlX-code.
+     */
     /*package*/ void postExecute() {
         if (isAutoResetEnabled && mode == FILE_MODE) {
             uiThreadHandler.post(new Toaster(R.string.toastAutoReset, Toast.LENGTH_SHORT));
@@ -618,16 +649,28 @@ public class SetlXforAndroidActivity extends Activity {
         lockUI(false);
     }
 
+    /**
+     * Check if this activity is still visible to the user.
+     *
+     * @return True if the UI is still visible.
+     */
     /*package*/ boolean isActive() {
         return isActive;
     }
 
+    /**
+     * Append a message to the UIs output in a thread safe manor.
+     * Automatically scrolls the output view to the last message before returning.
+     *
+     * @param type Message type (see STDOUT, STDERR & STDIN flags)
+     * @param msg  Message to append.
+     */
     /*package*/ void appendOut(final int type, final String msg) {
         try {
             final boolean isNotUiThread = uiThreadHandler.getLooper().getThread() != Thread.currentThread();
 
             while (isNotUiThread && uiThreadHasWork) {
-                Thread.sleep(1);
+                Thread.sleep(10);
             }
 
             uiThreadHasWork = true;
@@ -635,7 +678,7 @@ public class SetlXforAndroidActivity extends Activity {
 
             if (isNotUiThread) {
                 do {
-                    Thread.sleep(1);
+                    Thread.sleep(10);
                 } while (uiThreadHasWork);
             }
 
@@ -646,10 +689,22 @@ public class SetlXforAndroidActivity extends Activity {
         }
     }
 
+    /**
+     * Prompt the user for input.
+     *
+     * @param prompt Message to prompt the user with.
+     */
     /*package*/ void readLine(final String prompt) {
         uiThreadHandler.post(new InputReader(prompt, this));
     }
 
+    /**
+     * Update the UI display of current resource usage.
+     *
+     * @param ticks      Number of ticks passed.
+     * @param usedCPU    CPU usage in percent.
+     * @param usedMemory Amount of used memory in MB.
+     */
     /*package*/ void updateStats(final String ticks, final String usedCPU, final String usedMemory) {
         load.post(new StatsUpdater(ticks, usedCPU, usedMemory));
     }

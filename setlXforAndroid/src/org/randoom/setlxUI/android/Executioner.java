@@ -6,6 +6,10 @@ import org.randoom.setlx.utilities.ParseSetlX;
 import org.randoom.setlx.utilities.State;
 import org.randoom.util.AndroidUItools;
 
+/**
+ * Class handling the execution on setlX code and the concurrent update of the
+ * statistics display.
+ */
 /*package*/ class Executioner {
     private final static int              ECUTE_CODE   = 88;
     private final static int              EXECUTE_FILE = 99;
@@ -21,6 +25,12 @@ import org.randoom.util.AndroidUItools;
 
     private       Thread                  execution;
 
+    /**
+     * Create a new Executioner.
+     *
+     * @param state    Current state of the running setlX program.
+     * @param activity setlX main UI.
+     */
     /*package*/ Executioner(final State state, final SetlXforAndroidActivity activity) {
         this.state       = state;
         this.envProvider = (AndroidEnvProvider) state.getEnvironmentProvider();
@@ -33,11 +43,21 @@ import org.randoom.util.AndroidUItools;
         this.execution   = null;
     }
 
+    /**
+     * Execute a string of setlX-code.
+     *
+     * @param code setlX-code to execute.
+     */
     /*package*/ void execute(final String code) {
         envProvider.setCurrentDir(envProvider.getCodeDir());
         execute(ECUTE_CODE, code);
     }
 
+    /**
+     * Execute a file containing setlX-code.
+     *
+     * @param fileName Name of the file to parse and execute.
+     */
     /*package*/ void executeFile(final String fileName) {
         if (fileName.lastIndexOf('/') != -1) {
             envProvider.setCurrentDir(fileName.substring(0, fileName.lastIndexOf('/') + 1));
