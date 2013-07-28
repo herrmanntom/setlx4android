@@ -152,6 +152,11 @@ import org.randoom.util.AndroidUItools;
         return (statsUpdate != null && statsUpdate.isAlive());
     }
 
+    /**
+     * Interrupt current execution.
+     *
+     * Returns only after all previously spawned threads are dead.
+     */
     /*package*/ void interrupt() {
         while (isExecuting() || isUpdatingStats()) {
             try {

@@ -9,19 +9,20 @@ import org.randoom.util.AndroidUItools;
 import java.util.LinkedList;
 import java.util.Locale;
 
-// This provides access to the I/O mechanisms of Android
+/**
+ *  This provides access to the I/O mechanisms of Android.
+ */
 /*package*/ class AndroidEnvProvider implements EnvironmentProvider {
-    private final static String TAB          = "\t";
-    private final static String ENDL         = "\n";
-    private final static String ERROR_KEY    = "\0\0sETLx_eRRoR_@48456890012\0\0";
-    private final static String PROMPT_KEY   = "\0\0sETLx_pROMpT_@8478904199\0\0";
-    private final static String CODE_DIR     = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
-    private final static String CODE_DIR_low = CODE_DIR.toLowerCase(Locale.US);
-    private final static String LIBRARY_DIR  = CODE_DIR + "library/";
-    public  final static int    ECUTE_CODE   = 88;
-    public  final static int    EXECUTE_FILE = 99;
+    private final static String TAB              = "\t";
+    private final static String ENDL             = "\n";
+    private final static String ERROR_KEY        = "\0\0sETLx_eRRoR_@48456890012\0\0";
+    private final static String PROMPT_KEY       = "\0\0sETLx_pROMpT_@8478904199\0\0";
+    private final static String CODE_DIR         = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
+    private final static String CODE_DIR_low     = CODE_DIR.toLowerCase(Locale.US);
+    private final static String LIBRARY_DIR      = CODE_DIR + "library/";
 
-    private final static int    sMAX_CHARS  = 25000;
+    private final static int    MAX_CHARS        = 25000;
+    private       static int    STACK_ESTIMATION = -1;
 
     private SetlXforAndroidActivity  activity;
     private Executioner              executioner;
@@ -145,7 +146,6 @@ import java.util.Locale;
 
     /* interface functions */
 
-    // read from input
     @Override
     public boolean inReady() {
         return false;
@@ -170,17 +170,16 @@ import java.util.Locale;
         return input;
     }
 
-    // write to standard output
     @Override
     public void outWrite(final String msg) {
         final int length;
-        if ((length = msg.length()) < sMAX_CHARS) {
+        if ((length = msg.length()) < MAX_CHARS) {
             messageBuffer.addLast(msg);
         } else {
             // work around text corruption with very very long strings
-            for (int i = 0; i < length; i += sMAX_CHARS) {
-                if (i + sMAX_CHARS < length) {
-                    messageBuffer.addLast(msg.substring(i, i + sMAX_CHARS) + "\n");
+            for (int i = 0; i < length; i += MAX_CHARS) {
+                if (i + MAX_CHARS < length) {
+                    messageBuffer.addLast(msg.substring(i, i + MAX_CHARS) + "\n");
                 } else {
                     messageBuffer.addLast(msg.substring(i));
                 }
@@ -189,20 +188,17 @@ import java.util.Locale;
         depleteMessageBuffer();
     }
 
-    // write to standard error
     @Override
     public void errWrite(final String msg) {
         outWrite(ERROR_KEY + msg);
     }
 
-    // prompt user for input
     @Override
     public void promptForInput(final String msg) {
         outWrite(PROMPT_KEY + msg);
         lastPrompt = msg;
     }
 
-    // some text format stuff
     @Override
     public String getTab() {
         return TAB;
@@ -214,12 +210,6 @@ import java.util.Locale;
     }
 
     @Override
-    public int getMaxStackSize() {
-        return 175;
-    }
-
-    // allow modification of fileName/path when reading files
-    @Override
     public String filterFileName(String fileName) {
         fileName = fileName.trim();
         if (fileName.length() < 1 || fileName.charAt(0) == '/') {
@@ -230,7 +220,6 @@ import java.util.Locale;
         }
     }
 
-    // allow modification of library name
     @Override
     public String filterLibraryName(String name) {
         name = name.trim();
