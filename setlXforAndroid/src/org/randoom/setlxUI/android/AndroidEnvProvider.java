@@ -13,16 +13,15 @@ import java.util.Locale;
  *  This provides access to the I/O mechanisms of Android.
  */
 /*package*/ class AndroidEnvProvider implements EnvironmentProvider {
-    private final static String TAB              = "\t";
-    private final static String ENDL             = "\n";
-    private final static String ERROR_KEY        = "\0\0sETLx_eRRoR_@48456890012\0\0";
-    private final static String PROMPT_KEY       = "\0\0sETLx_pROMpT_@8478904199\0\0";
-    private final static String CODE_DIR         = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
-    private final static String CODE_DIR_low     = CODE_DIR.toLowerCase(Locale.US);
-    private final static String LIBRARY_DIR      = CODE_DIR + "library/";
+    private final static String TAB          = "\t";
+    private final static String ENDL         = "\n";
+    private final static String ERROR_KEY    = "\0\0sETLx_eRRoR_@48456890012\0\0";
+    private final static String PROMPT_KEY   = "\0\0sETLx_pROMpT_@8478904199\0\0";
+    private final static String CODE_DIR     = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
+    private final static String CODE_DIR_low = CODE_DIR.toLowerCase(Locale.US);
+    private final static String LIBRARY_DIR  = CODE_DIR + "library/";
 
-    private final static int    MAX_CHARS        = 25000;
-    private       static int    STACK_ESTIMATION = -1;
+    private final static int    MAX_CHARS    = 25000;
 
     private SetlXforAndroidActivity  activity;
     private Executioner              executioner;

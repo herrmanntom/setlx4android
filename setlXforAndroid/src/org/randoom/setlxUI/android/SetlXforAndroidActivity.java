@@ -595,20 +595,27 @@ public class SetlXforAndroidActivity extends Activity {
      */
     /*package*/ void lockUI(final boolean locked) {
         if (uiThreadHandler.getLooper().getThread() != Thread.currentThread()) {
-            while (uiThreadHasWork) {
+
+            int elapsedSeconds = 0;
+
+            while (uiThreadHasWork && elapsedSeconds < 1000) {
                 try {
-                    Thread.sleep(1);
+                    Thread.sleep(10);
+                    elapsedSeconds += 10;
                 } catch (final InterruptedException e) {}
             }
 
             uiThreadHasWork = true;
             uiThreadHandler.post(locked? lockEnabler : lockDisabler);
 
+            elapsedSeconds = 0;
+
             do {
                 try {
-                    Thread.sleep(1);
+                    Thread.sleep(10);
+                    elapsedSeconds += 10;
                 } catch (final InterruptedException e) {}
-            } while (uiThreadHasWork && ! state.isExecutionStopped);
+            } while (uiThreadHasWork && elapsedSeconds < 1000);
         } else {
             uiLock(locked);
         }
@@ -669,17 +676,24 @@ public class SetlXforAndroidActivity extends Activity {
         try {
             final boolean isNotUiThread = uiThreadHandler.getLooper().getThread() != Thread.currentThread();
 
-            while (isNotUiThread && uiThreadHasWork) {
+            int elapsedSeconds = 0;
+
+            while (isNotUiThread && uiThreadHasWork && elapsedSeconds < 1000) {
                 Thread.sleep(10);
+                elapsedSeconds += 10;
             }
 
             uiThreadHasWork = true;
             uiThreadHandler.post(new OutputPoster(type, msg));
 
+
+            elapsedSeconds = 0;
+
             if (isNotUiThread) {
                 do {
                     Thread.sleep(10);
-                } while (uiThreadHasWork);
+                    elapsedSeconds += 10;
+                } while (uiThreadHasWork && elapsedSeconds < 1000);
             }
 
             uiThreadHasWork = true;
