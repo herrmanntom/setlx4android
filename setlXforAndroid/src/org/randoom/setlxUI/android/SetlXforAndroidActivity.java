@@ -87,10 +87,6 @@ public class SetlXforAndroidActivity extends Activity {
     // flag for the file-open-intent
     private     final static int     REQEST_FILE_FLAG     = 0;
 
-    private static BottomScroller outputScroller      = null;
-    private static UiLocker       lockEnabler         = null;
-    private static UiLocker       lockDisabler        = null;
-
     private static State          state;
     private static boolean        isAutoResetEnabled   = true;
 
@@ -168,12 +164,6 @@ public class SetlXforAndroidActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main);
-
-        if (outputScroller == null || lockEnabler == null || lockDisabler == null) {
-            outputScroller = new BottomScroller();
-            lockEnabler    = new UiLocker(true);
-            lockDisabler   = new UiLocker(false);
-        }
 
         uiThreadHandler = new Handler();
         uiThreadHasWork = false;
@@ -606,7 +596,7 @@ public class SetlXforAndroidActivity extends Activity {
             }
 
             uiThreadHasWork = true;
-            uiThreadHandler.post(locked? lockEnabler : lockDisabler);
+            uiThreadHandler.post(new UiLocker(locked));
 
             elapsedSeconds = 0;
 
@@ -697,7 +687,7 @@ public class SetlXforAndroidActivity extends Activity {
             }
 
             uiThreadHasWork = true;
-            uiThreadHandler.post(outputScroller);
+            uiThreadHandler.post(new BottomScroller());
         } catch (final InterruptedException e) {
             uiThreadHasWork = false;
         }

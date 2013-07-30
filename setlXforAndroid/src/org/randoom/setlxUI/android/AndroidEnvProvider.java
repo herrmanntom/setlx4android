@@ -15,28 +15,26 @@ import java.util.Locale;
 /*package*/ class AndroidEnvProvider implements EnvironmentProvider {
     private final static String TAB          = "\t";
     private final static String ENDL         = "\n";
-    private final static String ERROR_KEY    = "\0\0sETLx_eRRoR_@48456890012\0\0";
-    private final static String PROMPT_KEY   = "\0\0sETLx_pROMpT_@8478904199\0\0";
     private final static String CODE_DIR     = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
     private final static String CODE_DIR_low = CODE_DIR.toLowerCase(Locale.US);
     private final static String LIBRARY_DIR  = CODE_DIR + "library/";
 
     private final static int    MAX_CHARS    = 25000;
 
-    private SetlXforAndroidActivity  activity;
-    private Executioner              executioner;
-    private String                   lastPrompt;
-    private final LinkedList<String> messageBuffer;
-    private boolean                  isLocked;
-    private String                   currentDir;
-    private String                   input;
+    private SetlXforAndroidActivity   activity;
+    private Executioner               executioner;
+    private String                    lastPrompt;
+    private final LinkedList<Message> messageBuffer;
+    private boolean                   isLocked;
+    private String                    currentDir;
+    private String                    input;
 
 
     /*package*/ AndroidEnvProvider(final SetlXforAndroidActivity activity) {
         this.activity       = activity;
         this.executioner    = null;
         this.lastPrompt     = null;
-        this.messageBuffer  = new LinkedList<String>();
+        this.messageBuffer  = new LinkedList<Message>();
         this.isLocked       = false;
         this.currentDir     = CODE_DIR;
         this.input          = null;
@@ -62,10 +60,6 @@ import java.util.Locale;
         this.input = input;
     }
 
-    /*package*/ String getCodeDir() {
-        return CODE_DIR;
-    }
-
     /*package*/ void execute(final State state, final String code) {
         executioner = new Executioner(state, activity);
         executioner.execute(code);
@@ -87,19 +81,21 @@ import java.util.Locale;
     }
 
     /*package*/ void depleteMessageBuffer() {
-        String msg;
+        Message msg;
         while (activity.isActive() && ! messageBuffer.isEmpty()) {
             msg = messageBuffer.pollFirst();
-            if (msg.startsWith(ERROR_KEY)) {
-                activity.appendOut(SetlXforAndroidActivity.STDERR, msg.substring(ERROR_KEY.length()));
-            } else if (msg.startsWith(PROMPT_KEY)) {
-                activity.appendOut(SetlXforAndroidActivity.STDIN, msg.substring(PROMPT_KEY.length()));
-            } else {
-                activity.appendOut(SetlXforAndroidActivity.STDOUT, msg);
-            }
+            activity.appendOut(msg.type, msg.text);
         }
     }
 
+    /**
+     * Updates the statistics display in the UI.
+     * Callback for statistics updater.
+     *
+     * @param ticks      Number of ticks passed.
+     * @param usedCPU    CPU usage between 0.0 and 1.0
+     * @param usedMemory Amount of used memory in Bytes.
+     */
     /*package*/ void updateStats(final int ticks, final float usedCPU, final long usedMemory) {
         if (activity.isActive()) {
             final String ticksStr = String.format(Locale.ENGLISH, "%3d", ticks);
@@ -109,16 +105,21 @@ import java.util.Locale;
         }
     }
 
-    // create code directory, if it does not exist
-    /*package*/ boolean createCodeDir() {
-        final boolean result = AndroidUItools.createDirIfNotExists(CODE_DIR);
-        if ( ! result) {
-            return result;
-        }
-        return AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
+    /**
+     * Get path of the default source code directory.
+     *
+     * @return Path of the default source code directory.
+     */
+    /*package*/ String getCodeDir() {
+        return CODE_DIR;
     }
 
-    // get path relative to sCODE_DIR
+    /**
+     * Get path relative to the default source code directory from absolute path.
+     *
+     * @param fileName Absolute file path.
+     * @return         Relative file path.
+     */
     /*package*/ String stripPath(String fileName) {
         fileName = fileName.trim();
         if (fileName.charAt(0) != '/' ||
@@ -133,13 +134,58 @@ import java.util.Locale;
         }
     }
 
-    // get absolute path from one relative to sCODE_DIR
+    /**
+     * Get absolute path from one relative to the default source code directory.
+     *
+     * @param fileName Relative file path.
+     * @return         Absolute file path.
+     */
     /*package*/ String expandPath(String fileName) {
         fileName = fileName.trim();
         if (fileName.length() < 1 || fileName.charAt(0) == '/') {
             return fileName;
         } else {
             return CODE_DIR + fileName;
+        }
+    }
+
+    /**
+     * Create the default source code directory, if it does not exist.
+     *
+     * @return True on success.
+     */
+    /*package*/ boolean createCodeDir() {
+        final boolean result = AndroidUItools.createDirIfNotExists(CODE_DIR);
+        if ( ! result) {
+            return result;
+        }
+        return AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
+    }
+
+    private void appendMessage(final int type, final String msg) {
+        final int length;
+        if ((length = msg.length()) < MAX_CHARS) {
+            messageBuffer.addLast(new Message(type, msg));
+        } else {
+            // work around text corruption with very very long strings
+            for (int i = 0; i < length; i += MAX_CHARS) {
+                if (i + MAX_CHARS < length) {
+                    messageBuffer.addLast(new Message(type, msg.substring(i, i + MAX_CHARS) + "\n"));
+                } else {
+                    messageBuffer.addLast(new Message(type, msg.substring(i)));
+                }
+            }
+        }
+        depleteMessageBuffer();
+    }
+
+    private class Message {
+        /*package*/ int    type;
+        /*package*/ String text;
+
+        /*package*/ Message(final int type, final String text) {
+            this.type = type;
+            this.text = text;
         }
     }
 
@@ -171,30 +217,17 @@ import java.util.Locale;
 
     @Override
     public void outWrite(final String msg) {
-        final int length;
-        if ((length = msg.length()) < MAX_CHARS) {
-            messageBuffer.addLast(msg);
-        } else {
-            // work around text corruption with very very long strings
-            for (int i = 0; i < length; i += MAX_CHARS) {
-                if (i + MAX_CHARS < length) {
-                    messageBuffer.addLast(msg.substring(i, i + MAX_CHARS) + "\n");
-                } else {
-                    messageBuffer.addLast(msg.substring(i));
-                }
-            }
-        }
-        depleteMessageBuffer();
+        appendMessage(SetlXforAndroidActivity.STDOUT, msg);
     }
 
     @Override
     public void errWrite(final String msg) {
-        outWrite(ERROR_KEY + msg);
+        appendMessage(SetlXforAndroidActivity.STDERR, msg);
     }
 
     @Override
     public void promptForInput(final String msg) {
-        outWrite(PROMPT_KEY + msg);
+        appendMessage(SetlXforAndroidActivity.STDIN, msg);
         lastPrompt = msg;
     }
 
