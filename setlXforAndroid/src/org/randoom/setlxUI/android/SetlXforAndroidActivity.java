@@ -755,7 +755,7 @@ public class SetlXforAndroidActivity extends Activity {
         final DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 
-        if (AndroidUItools.isTablet(displaymetrics)) {
+        if (AndroidUItools.isTablet(this)) {
             if (AndroidUItools.isInPortrait(displaymetrics)) {
                 inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 2);
             } else {
@@ -763,13 +763,6 @@ public class SetlXforAndroidActivity extends Activity {
             }
         } else {
             inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 3);
-            // use smaller font on non-tablet device
-            final float SCALE_FACTOR = 0.6f;
-            inputInteractive.setTextSize(inputInteractive.getTextSize() * SCALE_FACTOR);
-            inputFileMode.setTextSize   (inputFileMode.getTextSize()    * SCALE_FACTOR);
-            modeSwitchBtn.setTextSize   (modeSwitchBtn.getTextSize()    * SCALE_FACTOR);
-            executeBtn.setTextSize      (executeBtn.getTextSize()       * SCALE_FACTOR);
-            output.setTextSize          (output.getTextSize()           * SCALE_FACTOR);
         }
 
         // align file open and execute buttons

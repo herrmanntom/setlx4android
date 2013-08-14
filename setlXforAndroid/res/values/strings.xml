@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="layoutID">default</string>
     <string name="promptStatements">Enter SetlX statements:</string>
     <string name="load">($TICKS$/$CPU$%/$MEM$MB)</string>
     <string name="promptFile">Enter path to SetlX file:</string>
