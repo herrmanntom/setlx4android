@@ -10,7 +10,6 @@ import org.randoom.setlx.types.SetlList;
 import org.randoom.setlx.utilities.DummyEnvProvider;
 import org.randoom.setlx.utilities.EnvironmentProvider;
 import org.randoom.setlx.utilities.State;
-import org.randoom.setlx.utilities.StateImplementation;
 import org.randoom.util.AndroidDataStorage;
 import org.randoom.util.AndroidUItools;
 
@@ -92,6 +91,7 @@ public class SetlXforAndroidActivity extends Activity {
 
     private Handler               uiThreadHandler;
     private boolean               uiThreadHasWork;
+    private StatsUpdater          currentStatsUpdater;
 
     private AndroidEnvProvider    envProvider;
 
@@ -165,8 +165,9 @@ public class SetlXforAndroidActivity extends Activity {
 
         setContentView(R.layout.main);
 
-        uiThreadHandler = new Handler();
-        uiThreadHasWork = false;
+        uiThreadHandler     = new Handler();
+        uiThreadHasWork     = false;
+        currentStatsUpdater = null;
 
         // get persistent state
         AndroidDataStorage dh = new AndroidDataStorage(getBaseContext());
@@ -409,7 +410,7 @@ public class SetlXforAndroidActivity extends Activity {
                         envProvider.interrupt();
 
                         envProvider = new AndroidEnvProvider(_this);
-                        state       = new StateImplementation(envProvider);
+                        state       = new State(envProvider);
 
                         // give hint to the garbage collector
                         Runtime.getRuntime().gc();
@@ -581,7 +582,7 @@ public class SetlXforAndroidActivity extends Activity {
     /**
      * Lock the UI in a thread safe manor, e.g. disable buttons.
      *
-     * @param locked lockstatus to set.
+     * @param locked lock-status to set.
      */
     /*package*/ void lockUI(final boolean locked) {
         if (uiThreadHandler.getLooper().getThread() != Thread.currentThread()) {
@@ -676,7 +677,6 @@ public class SetlXforAndroidActivity extends Activity {
             uiThreadHasWork = true;
             uiThreadHandler.post(new OutputPoster(type, msg));
 
-
             elapsedSeconds = 0;
 
             if (isNotUiThread) {
@@ -710,7 +710,10 @@ public class SetlXforAndroidActivity extends Activity {
      * @param usedMemory Amount of used memory in MB.
      */
     /*package*/ void updateStats(final String ticks, final String usedCPU, final String usedMemory) {
-        load.post(new StatsUpdater(ticks, usedCPU, usedMemory));
+        if (currentStatsUpdater != null) {
+            uiThreadHandler.removeCallbacks(currentStatsUpdater);
+        }
+        uiThreadHandler.post(currentStatsUpdater = new StatsUpdater(ticks, usedCPU, usedMemory));
     }
 
     private void setup(final boolean outputIsReset) {
@@ -733,7 +736,7 @@ public class SetlXforAndroidActivity extends Activity {
         }
         if (state == null || envProvider == null) {
             envProvider = new AndroidEnvProvider(this);
-            state       = new StateImplementation(envProvider);
+            state       = new State(envProvider);
             if (! outputIsReset) {
                 state.resetState();
                 // announce reset of memory to user

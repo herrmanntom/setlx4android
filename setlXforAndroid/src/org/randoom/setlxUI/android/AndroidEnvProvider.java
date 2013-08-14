@@ -76,15 +76,28 @@ import java.util.Locale;
         }
     }
 
+    /**
+     * Test if the message buffer contains messages.
+     *
+     * @return True if the buffer contains messages, false otherwise.
+     */
     /*package*/ boolean isMessagesBufferEmpty() {
-        return this.messageBuffer.isEmpty();
+        synchronized (messageBuffer) {
+            return this.messageBuffer.isEmpty();
+        }
     }
 
+    /**
+     * Poll messages from the buffer and put them into the activities output,
+     * as long as the activity is active or the buffer is depleted.
+     */
     /*package*/ void depleteMessageBuffer() {
-        Message msg;
-        while (activity.isActive() && ! messageBuffer.isEmpty()) {
-            msg = messageBuffer.pollFirst();
-            activity.appendOut(msg.type, msg.text);
+        synchronized (messageBuffer) {
+            Message msg;
+            while (activity.isActive() && ! messageBuffer.isEmpty()) {
+                msg = messageBuffer.pollFirst();
+                activity.appendOut(msg.type, msg.text);
+            }
         }
     }
 
@@ -163,16 +176,18 @@ import java.util.Locale;
     }
 
     private void appendMessage(final int type, final String msg) {
-        final int length;
-        if ((length = msg.length()) < MAX_CHARS) {
-            messageBuffer.addLast(new Message(type, msg));
-        } else {
-            // work around text corruption with very very long strings
-            for (int i = 0; i < length; i += MAX_CHARS) {
-                if (i + MAX_CHARS < length) {
-                    messageBuffer.addLast(new Message(type, msg.substring(i, i + MAX_CHARS) + "\n"));
-                } else {
-                    messageBuffer.addLast(new Message(type, msg.substring(i)));
+        synchronized (messageBuffer) {
+            final int length;
+            if ((length = msg.length()) < MAX_CHARS) {
+                messageBuffer.addLast(new Message(type, msg));
+            } else {
+                // work around text corruption with very very long strings
+                for (int i = 0; i < length; i += MAX_CHARS) {
+                    if (i + MAX_CHARS < length) {
+                        messageBuffer.addLast(new Message(type, msg.substring(i, i + MAX_CHARS) + "\n"));
+                    } else {
+                        messageBuffer.addLast(new Message(type, msg.substring(i)));
+                    }
                 }
             }
         }
