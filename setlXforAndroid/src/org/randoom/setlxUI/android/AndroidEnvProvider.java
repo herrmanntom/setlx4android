@@ -30,7 +30,11 @@ import java.util.Locale;
     private String                    currentDir;
     private String                    input;
 
-
+    /**
+     * Create a new AndroidEnvProvider linked to the specified activity.
+     *
+     * @param activity Activity (i.e. GUI) to link to.
+     */
     /*package*/ AndroidEnvProvider(final SetlXforAndroidActivity activity) {
         this.activity       = activity;
         this.executioner    = null;
@@ -41,36 +45,86 @@ import java.util.Locale;
         this.input          = null;
     }
 
+    /**
+     * Link to the specified activity after the old one was destroyed.
+     * This is required after closing and reopening the app while running.
+     *
+     * @param activity Activity (i.e. GUI) to link to.
+     */
     /*package*/ void updateUI(final SetlXforAndroidActivity activity) {
         this.activity   = activity;
     }
 
+    /**
+     * Store lock state of the activity. In this state the user is unable to
+     * click any buttons or to change options, except to kill the execution.
+     *
+     * This state is not (only) stored in the activity itself, because it might get
+     * destroyed while the interpreter continues to run.
+     *
+     * @param isLocked True to lock, false to unlock.
+     */
     /*package*/ void setLocked(final boolean isLocked) {
         this.isLocked = isLocked;
     }
 
+    /**
+     * Query lock state of the activity. In this state the user is unable to
+     * click any buttons or to change options, except to kill the execution.
+     *
+     * This state is not (only) stored in the activity itself, because it might get
+     * destroyed while the interpreter continues to run.
+     *
+     * @return True if locked, false if unlocked.
+     */
     /*package*/ boolean isLocked() {
         return this.isLocked;
     }
 
+    /**
+     * Set current directory for file API commands.
+     *
+     * @param currentDir Current directory to set.
+     */
     /*package*/ void setCurrentDir(final String currentDir) {
         this.currentDir = currentDir;
     }
 
+    /**
+     * Send some input back into the (waiting) environment provider after
+     * it launched the activity to query something.
+     *
+     * @param input Input from the activity (GUI).
+     */
     /*package*/ void setInput(final String input) {
         this.input = input;
     }
 
+    /**
+     * Execute a snippet of SetlX code.
+     *
+     * @param state Internal state reference to use during the execution (stores variables in current scope etc).
+     * @param code  SetlX statements to execute.
+     */
     /*package*/ void execute(final State state, final String code) {
         executioner = new Executioner(state, activity);
         executioner.execute(code);
     }
 
+    /**
+     * Execute a snippet of SetlX code.
+     *
+     * @param state    Internal state reference to use during the execution (stores variables in current scope etc).
+     * @param fileName File expected to contain SetlX statements to execute.
+     */
     /*package*/ void executeFile(final State state, final String fileName) {
         executioner = new Executioner(state, activity);
         executioner.executeFile(fileName);
     }
 
+    /**
+     * Try to stop the current execution by sending it an interrupt signal.
+     */
     /*package*/ void interrupt() {
         if (executioner != null) {
             executioner.interrupt();
