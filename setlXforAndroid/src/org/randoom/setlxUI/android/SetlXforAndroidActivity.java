@@ -703,6 +703,16 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     /**
+     * Prompt the user to select one answer.
+     *
+     * @param question Question to prompt the user with.
+     * @param answers  Answers to select from.
+     */
+    /*package*/ void selectFromAnswers(final String question, final List<String> answers) {
+        uiThreadHandler.post(new InputSelector(question, answers, this));
+    }
+
+    /**
      * Update the UI display of current resource usage.
      *
      * @param ticks      Number of ticks passed.
@@ -995,6 +1005,40 @@ public class SetlXforAndroidActivity extends Activity {
                 @Override
                 public void onClick(final DialogInterface dialog, final int whichButton) {
                     envProvider.setInput(inputBox.getText().toString());
+                }
+            });
+
+            alert.setCancelable(false);
+
+            alert.show();
+        }
+    }
+
+    private class InputSelector implements Runnable {
+        private final String         question;
+        private final CharSequence[] answers;
+        private final Activity       activity;
+
+        private InputSelector(final String question, final List<String> answers, final Activity activity) {
+            this.question = question;
+            this.answers  = new CharSequence[answers.size()];
+            for (int i = 0; i < answers.size(); ++i) {
+                this.answers[i] = answers.get(i);
+            }
+            this.activity = activity;
+        }
+
+        @Override
+        public void run() {
+            final AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+
+            alert.setTitle(question);
+
+            alert.setItems((CharSequence[]) answers, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(final DialogInterface dialog, final int whichButton) {
+                    envProvider.setInput(answers[whichButton].toString());
+                    dialog.cancel();
                 }
             });
 

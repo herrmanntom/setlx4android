@@ -7,6 +7,7 @@ import org.randoom.setlx.utilities.State;
 import org.randoom.util.AndroidUItools;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -247,6 +248,30 @@ import java.util.Locale;
     }
 
     @Override
+    public String promptSelectionFromAnswers(final String question, final List<String> answers) throws JVMIOException {
+        this.input = null;
+
+        outWrite(question + ENDL);
+        for (final String answer : answers) {
+            outWrite("- " + answer + ENDL);
+        }
+        outWrite("Select one answer:" + ENDL);
+
+        activity.selectFromAnswers(question, answers);
+
+        while (input == null) {
+            try {
+                Thread.sleep(100);
+            } catch (final InterruptedException e) {
+                throw new JVMIOException("Unable to read input!");
+            }
+        }
+        outWrite(input + ENDL);
+
+        return input;
+    }
+
+    @Override
     public String getTab() {
         return TAB;
     }
@@ -254,6 +279,11 @@ import java.util.Locale;
     @Override
     public String getEndl() {
         return ENDL;
+    }
+
+    @Override
+    public String getOsID() {
+        return "Android";
     }
 
     @Override
