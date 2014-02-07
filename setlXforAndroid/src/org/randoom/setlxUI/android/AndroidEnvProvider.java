@@ -280,7 +280,7 @@ import java.util.Locale;
                 throw new JVMIOException("Unable to read input!");
             }
         }
-        outWrite(input + ENDL);
+        appendMessage(SetlXforAndroidActivity.STDIN, input + ENDL);
 
         return input;
     }
@@ -297,7 +297,7 @@ import java.util.Locale;
 
     @Override
     public void promptForInput(final String msg) {
-        appendMessage(SetlXforAndroidActivity.STDIN, msg);
+        appendMessage(SetlXforAndroidActivity.PROMPT, msg);
         lastPrompt = msg;
     }
 
@@ -305,11 +305,11 @@ import java.util.Locale;
     public String promptSelectionFromAnswers(final String question, final List<String> answers) throws JVMIOException {
         this.input = null;
 
-        outWrite(question + ENDL);
+        appendMessage(SetlXforAndroidActivity.PROMPT, question + ENDL);
         for (final String answer : answers) {
-            outWrite("- " + answer + ENDL);
+            appendMessage(SetlXforAndroidActivity.PROMPT, "- " + answer + ENDL);
         }
-        outWrite("Select one answer:" + ENDL);
+        appendMessage(SetlXforAndroidActivity.PROMPT, "Select one answer: ");
 
         activity.selectFromAnswers(question, answers);
 
@@ -320,7 +320,7 @@ import java.util.Locale;
                 throw new JVMIOException("Unable to read input!");
             }
         }
-        outWrite(input + ENDL);
+        appendMessage(SetlXforAndroidActivity.STDIN, input + ENDL);
 
         return input;
     }

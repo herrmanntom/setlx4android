@@ -37,14 +37,19 @@ import android.util.DisplayMetrics;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -77,11 +82,17 @@ public class SetlXforAndroidActivity extends Activity {
      */
     /*package*/ final static int     STDERR               = 5;
     /**
-     * Flag for appendOut() to print a prompt message.
+     * Flag for appendOut() to print user input.
      *
      * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
      */
     /*package*/ final static int     STDIN                = 7;
+    /**
+     * Flag for appendOut() to print a prompt message.
+     *
+     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
+     */
+    /*package*/ final static int     PROMPT               = 9;
 
     // flag for the file-open-intent
     private     final static int     REQEST_FILE_FLAG     = 0;
@@ -972,6 +983,9 @@ public class SetlXforAndroidActivity extends Activity {
                     // show errors in red
                     content.setSpan(new ForegroundColorSpan(0xFFFF0000), pre, post, 0);
                 } else if (type == STDIN) {
+                    // show user input in light blue
+                    content.setSpan(new ForegroundColorSpan(0xFF00AAFF), pre, post, 0);
+                } else if (type == PROMPT) {
                     // show prompts in green
                     content.setSpan(new ForegroundColorSpan(0xFF00FF00), pre, post, 0);
                 }
@@ -1015,34 +1029,48 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     private class InputSelector implements Runnable {
-        private final String         question;
-        private final CharSequence[] answers;
-        private final Activity       activity;
+        private final String      question;
+        private final String[]    answers;
+        private final Activity    activity;
+        private       AlertDialog alert;
 
         private InputSelector(final String question, final List<String> answers, final Activity activity) {
             this.question = question;
-            this.answers  = new CharSequence[answers.size()];
+            this.answers  = new String[answers.size()];
             for (int i = 0; i < answers.size(); ++i) {
                 this.answers[i] = answers.get(i);
             }
             this.activity = activity;
+            this.alert    = null;
         }
 
         @Override
         public void run() {
-            final AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+            final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
 
-            alert.setTitle(question);
+            final LayoutInflater inflator     = LayoutInflater.from(activity);
+            final View           alertContent = inflator.inflate(R.layout.select_dialog, null);
 
-            alert.setItems((CharSequence[]) answers, new DialogInterface.OnClickListener() {
+            final TextView message = (TextView) alertContent.findViewById(R.id.messageText);
+            message.setText(question);
+
+            final ListView buttons = (ListView) alertContent.findViewById(R.id.list);
+            buttons.setAdapter(new ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, answers));
+            buttons.setOnItemClickListener(new OnItemClickListener() {
                 @Override
-                public void onClick(final DialogInterface dialog, final int whichButton) {
+                public void onItemClick(final AdapterView<?> arg0, final View view,
+                        final int whichButton, final long arg3) {
                     envProvider.setInput(answers[whichButton].toString());
-                    dialog.cancel();
+                    alert.cancel();
                 }
             });
+            buttons.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
-            alert.setCancelable(false);
+            alertBuilder.setView(alertContent);
+
+            alertBuilder.setCancelable(false);
+
+            alert = alertBuilder.create();
 
             alert.show();
         }
