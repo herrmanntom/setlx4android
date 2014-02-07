@@ -6,38 +6,54 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 
+/**
+ * Simple class to provide access to persistent storage of key-value pairs.
+ */
 public class AndroidDataStorage {
 
     private static final String DATABASE_NAME    = "persistentStorage.db";
     private static final int    DATABASE_VERSION = 1;
 
-    private final Context             context;
+    private final Context       context;
     private SQLiteDatabase      db;
     private OpenHelper          oh;
 
+    /**
+     * Create new handle for persistent storage.
+     *
+     * @param context Android Context.
+     */
     public AndroidDataStorage(final Context context) {
         this.context = context;
         this.oh = new OpenHelper(this.context);
         this.db = oh.getWritableDatabase();
-
     }
 
+    /**
+     * Close database connections.
+     */
     public void close() {
-        if (db != null && db.isOpen()) {
-            try {
+        try {
+            if (db != null && db.isOpen()) {
                 db.close();
-            } catch (final NullPointerException npe) {
-                /* screw you Android for crashing my application */
             }
-        }
-        if (oh != null) {
-            oh.close();
+            if (oh != null) {
+                oh.close();
+            }
+        } catch (final NullPointerException npe) {
+            /* screw you Android for crashing my application */
         }
         db = null;
         oh = null;
         SQLiteDatabase.releaseMemory();
     }
 
+    /**
+     * Add some value into the database.
+     *
+     * @param codeName  Name to store the value under (i.e. key).
+     * @param codeValue Value to store.
+     */
     public void setCode(final String codeName, final String codeValue) {
         SQLiteStatement stmt;
 
@@ -62,6 +78,13 @@ public class AndroidDataStorage {
         }
     }
 
+    /**
+     * Get some value from the database.
+     *
+     * @param codeName     Name to get the value from (i.e. key).
+     * @param defaultValue Value return when nothing is stored.
+     * @return             Value stored in database, or default.
+     */
     public String getCode(final String codeName, final String defaultValue) {
 
         // check to see if it already exists
