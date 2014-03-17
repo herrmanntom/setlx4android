@@ -11,8 +11,10 @@ import org.randoom.util.AndroidUItools;
  * statistics display.
  */
 /*package*/ class Executioner {
-    private final static int              ECUTE_CODE   = 88;
-    private final static int              EXECUTE_FILE = 99;
+    private enum ExecutionMode {
+        EXECUTE_CODE,
+        EXECUTE_FILE
+    }
 
     private final State                   state;
     private final AndroidEnvProvider      envProvider;
@@ -50,7 +52,7 @@ import org.randoom.util.AndroidUItools;
      */
     /*package*/ void execute(final String code) {
         envProvider.setCurrentDir(envProvider.getCodeDir());
-        execute(ECUTE_CODE, code);
+        execute(ExecutionMode.EXECUTE_CODE, code);
     }
 
     /**
@@ -64,10 +66,10 @@ import org.randoom.util.AndroidUItools;
         } else {
             envProvider.setCurrentDir(envProvider.getCodeDir());
         }
-        execute(EXECUTE_FILE, fileName);
+        execute(ExecutionMode.EXECUTE_FILE, fileName);
     }
 
-    private void execute(final int mode, final String setlXobject) {
+    private void execute(final ExecutionMode mode, final String setlXobject) {
         try {
             statsUpdate = new Thread(new Runnable() {
                 @Override
@@ -93,7 +95,7 @@ import org.randoom.util.AndroidUItools;
                     state.resetParserErrorCount();
                     Block b = null;
                     try {
-                        if (mode == ECUTE_CODE) {
+                        if (mode == ExecutionMode.EXECUTE_CODE) {
                             b = ParseSetlX.parseStringToBlock(state, setlXobject);
                             b.markLastExprStatement();
                         } else /* if (mode == sEXECUTE_FILE) */ {

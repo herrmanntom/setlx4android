@@ -3,6 +3,7 @@ package org.randoom.setlxUI.android;
 import org.randoom.setlx.exceptions.JVMIOException;
 import org.randoom.setlx.utilities.EnvironmentProvider;
 import org.randoom.setlx.utilities.State;
+import org.randoom.setlxUI.android.SetlXforAndroidActivity.IO_Stream;
 
 import org.randoom.util.AndroidUItools;
 
@@ -230,7 +231,7 @@ import java.util.Locale;
         return AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
     }
 
-    private void appendMessage(final int type, final String msg) {
+    private void appendMessage(final IO_Stream type, final String msg) {
         synchronized (messageBuffer) {
             final int length;
             if ((length = msg.length()) < MAX_CHARS) {
@@ -250,10 +251,10 @@ import java.util.Locale;
     }
 
     private class Message {
-        /*package*/ int    type;
-        /*package*/ String text;
+        /*package*/ IO_Stream type;
+        /*package*/ String    text;
 
-        /*package*/ Message(final int type, final String text) {
+        /*package*/ Message(final IO_Stream type, final String text) {
             this.type = type;
             this.text = text;
         }
@@ -280,24 +281,24 @@ import java.util.Locale;
                 throw new JVMIOException("Unable to read input!");
             }
         }
-        appendMessage(SetlXforAndroidActivity.STDIN, input + ENDL);
+        appendMessage(IO_Stream.STDIN, input + ENDL);
 
         return input;
     }
 
     @Override
     public void outWrite(final String msg) {
-        appendMessage(SetlXforAndroidActivity.STDOUT, msg);
+        appendMessage(IO_Stream.STDOUT, msg);
     }
 
     @Override
     public void errWrite(final String msg) {
-        appendMessage(SetlXforAndroidActivity.STDERR, msg);
+        appendMessage(IO_Stream.STDERR, msg);
     }
 
     @Override
     public void promptForInput(final String msg) {
-        appendMessage(SetlXforAndroidActivity.PROMPT, msg);
+        appendMessage(IO_Stream.PROMPT, msg);
         lastPrompt = msg;
     }
 
@@ -305,11 +306,11 @@ import java.util.Locale;
     public String promptSelectionFromAnswers(final String question, final List<String> answers) throws JVMIOException {
         this.input = null;
 
-        appendMessage(SetlXforAndroidActivity.PROMPT, question + ENDL);
+        appendMessage(IO_Stream.PROMPT, question + ENDL);
         for (final String answer : answers) {
-            appendMessage(SetlXforAndroidActivity.PROMPT, "- " + answer + ENDL);
+            appendMessage(IO_Stream.PROMPT, "- " + answer + ENDL);
         }
-        appendMessage(SetlXforAndroidActivity.PROMPT, "Select one answer: ");
+        appendMessage(IO_Stream.PROMPT, "Select one answer: ");
 
         activity.selectFromAnswers(question, answers);
 
@@ -320,7 +321,7 @@ import java.util.Locale;
                 throw new JVMIOException("Unable to read input!");
             }
         }
-        appendMessage(SetlXforAndroidActivity.STDIN, input + ENDL);
+        appendMessage(IO_Stream.STDIN, input + ENDL);
 
         return input;
     }

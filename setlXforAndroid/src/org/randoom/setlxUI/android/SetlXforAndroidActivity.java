@@ -64,35 +64,42 @@ public class SetlXforAndroidActivity extends Activity {
     private     final static String  SETL_X_URL           = "http://setlX.randoom.org/";
     private     final static String  ANTLR_URL            = "http://www.antlr.org/";
     private     final static String  FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
-    private     final static String  SETL_X_C_YEARS       = "2011-2013";
+    private     final static String  SETL_X_C_YEARS       = "2011-2014";
 
-    private     final static int     INTERACTIVE_MODE     = 23;
-    private     final static int     FILE_MODE            = 42;
+    private enum ExecutionMode {
+        INTERACTIVE_MODE,
+        FILE_MODE
+    }
 
     /**
-     * Flag for appendOut() to print a standard message.
-     *
-     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
+     * Flags for appendOut() to define which sort of message to print.
      */
-    /*package*/ final static int     STDOUT               = 3;
-    /**
-     * Flag for appendOut() to print an error message.
-     *
-     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
-     */
-    /*package*/ final static int     STDERR               = 5;
-    /**
-     * Flag for appendOut() to print user input.
-     *
-     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
-     */
-    /*package*/ final static int     STDIN                = 7;
-    /**
-     * Flag for appendOut() to print a prompt message.
-     *
-     * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(int, String)
-     */
-    /*package*/ final static int     PROMPT               = 9;
+    /*package*/ enum IO_Stream {
+        /**
+         * Flag for appendOut() to print a standard message.
+         *
+         * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(IO_Stream, String)
+         */
+        STDOUT,
+        /**
+         * Flag for appendOut() to print an error message.
+         *
+         * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(IO_Stream, String)
+         */
+        STDERR,
+        /**
+         * Flag for appendOut() to print user input.
+         *
+         * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(IO_Stream, String)
+         */
+        STDIN,
+        /**
+         * Flag for appendOut() to print a prompt message.
+         *
+         * @see org.randoom.setlxUI.android.SetlXforAndroidActivity#appendOut(IO_Stream, String)
+         */
+        PROMPT
+    }
 
     // flag for the file-open-intent
     private     final static int     REQEST_FILE_FLAG     = 0;
@@ -121,7 +128,7 @@ public class SetlXforAndroidActivity extends Activity {
 
     // current state
     private Editable              inputInteractiveTxt;
-    private int                   mode;
+    private ExecutionMode         mode;
     private boolean               outputIsGreeting;
     private boolean               isActive;
     private boolean               isKilling;
@@ -145,10 +152,10 @@ public class SetlXforAndroidActivity extends Activity {
     private class ModeListener implements View.OnClickListener {
         @Override
         public void onClick(final View v) {
-            if (mode == FILE_MODE) {
-                mode = INTERACTIVE_MODE;
-            } else /* if (mode == INTERACTIVE_MODE) */ {
-                mode = FILE_MODE;
+            if (mode == ExecutionMode.FILE_MODE) {
+                mode =  ExecutionMode.INTERACTIVE_MODE;
+            } else /* if (mode == ExecutionMode.INTERACTIVE_MODE) */ {
+                mode = ExecutionMode.FILE_MODE;
             }
             switchMode();
         }
@@ -159,10 +166,10 @@ public class SetlXforAndroidActivity extends Activity {
         public void onClick(final View v) {
             preExecute(v);
 
-            if (mode == FILE_MODE) {
+            if (mode == ExecutionMode.FILE_MODE) {
                 final String fileName = inputFileMode.getText().toString();
                 envProvider.executeFile(state, envProvider.expandPath(fileName));
-            } else /* if (mode == INTERACTIVE_MODE) */ {
+            } else /* if (mode == ExecutionMode.INTERACTIVE_MODE) */ {
                 final String code = getInteractiveInput().toString();
                 envProvider.execute(state, code);
             }
@@ -201,12 +208,12 @@ public class SetlXforAndroidActivity extends Activity {
             }
             inputInteractiveText = sharedText;
             outputHtml           = "";
-            mode = INTERACTIVE_MODE;
+            mode                 = ExecutionMode.INTERACTIVE_MODE;
         } else {
             // Handle other intents, such as being started from the home screen
             inputInteractiveText = dh.getCode("inputInteractiveText", "");
             outputHtml           = dh.getCode("outputHtml", "");
-            mode                 = Integer.valueOf(dh.getCode("inputMode", String.valueOf(INTERACTIVE_MODE)));;
+            mode                 = ExecutionMode.valueOf(dh.getCode("inputMode", ExecutionMode.INTERACTIVE_MODE.name()));
         }
         inputFileModeText        = dh.getCode("inputFileModeText", "");
 
@@ -382,7 +389,7 @@ public class SetlXforAndroidActivity extends Activity {
                     }
                     break;
                 case R.id.menuItemAutoReset:
-                    if (mode == FILE_MODE) {
+                    if (mode == ExecutionMode.FILE_MODE) {
                         item.setVisible(true);
                         if (isAutoResetEnabled) {
                             item.setTitle(R.string.menuAutoReset2OFF);
@@ -416,7 +423,7 @@ public class SetlXforAndroidActivity extends Activity {
 
                     @Override
                     public void run() {
-                        appendOut(STDERR, getString(R.string.msgKillStarted));
+                        appendOut(IO_Stream.STDERR, getString(R.string.msgKillStarted));
 
                         envProvider.interrupt();
 
@@ -435,7 +442,7 @@ public class SetlXforAndroidActivity extends Activity {
                         }
 
                         // announce reset of memory to user
-                        appendOut(STDERR, getString(R.string.msgKill));
+                        appendOut(IO_Stream.STDERR, getString(R.string.msgKill));
 
                         isKilling = false;
                     }
@@ -513,7 +520,7 @@ public class SetlXforAndroidActivity extends Activity {
                     setInteractiveInput("");
                     inputFileMode   .setText("");
                     output.setText("", BufferType.SPANNABLE);
-                    if (mode == INTERACTIVE_MODE) {
+                    if (mode == ExecutionMode.INTERACTIVE_MODE) {
                         inputInteractive.requestFocus();
                     } else /* if (mode == FILE_MODE) */ {
                         inputFileMode   .requestFocus();
@@ -647,7 +654,7 @@ public class SetlXforAndroidActivity extends Activity {
      * Actions to perform after executing setlX-code.
      */
     /*package*/ void postExecute() {
-        if (isAutoResetEnabled && mode == FILE_MODE) {
+        if (isAutoResetEnabled && mode == ExecutionMode.FILE_MODE) {
             uiThreadHandler.post(new Toaster(R.string.toastAutoReset, Toast.LENGTH_SHORT));
             state.resetState();
         }
@@ -674,7 +681,7 @@ public class SetlXforAndroidActivity extends Activity {
      * @param type Message type (see STDOUT, STDERR & STDIN flags)
      * @param msg  Message to append.
      */
-    /*package*/ void appendOut(final int type, final String msg) {
+    /*package*/ void appendOut(final IO_Stream type, final String msg) {
         try {
             final boolean isNotUiThread = uiThreadHandler.getLooper().getThread() != Thread.currentThread();
 
@@ -811,7 +818,7 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     private Editable getInteractiveInput() {
-        if (mode == INTERACTIVE_MODE) {
+        if (mode == ExecutionMode.INTERACTIVE_MODE) {
             this.inputInteractiveTxt = this.inputInteractive.getText();
         }
         return this.inputInteractiveTxt;
@@ -824,13 +831,13 @@ public class SetlXforAndroidActivity extends Activity {
     private void setInteractiveInput(final Editable content) {
         this.inputInteractive.setText(content);
         this.inputInteractiveTxt = this.inputInteractive.getText();
-        if (mode == FILE_MODE) {
+        if (mode == ExecutionMode.FILE_MODE) {
             this.inputInteractive.setText("");
         }
     }
 
     private void switchMode() {
-        if (mode == FILE_MODE) {
+        if (mode == ExecutionMode.FILE_MODE) {
             this.inputInteractiveTxt = this.inputInteractive.getText();
             this.inputInteractive.setText("");
             this.inputInteractive.setVisibility(View.INVISIBLE);
@@ -841,7 +848,7 @@ public class SetlXforAndroidActivity extends Activity {
             this.openFileBtn.setVisibility(View.VISIBLE);
 
             state.setInteractive(false);
-        } else /* if (mode == INTERACTIVE_MODE) */ {
+        } else /* if (mode == ExecutionMode.INTERACTIVE_MODE) */ {
             this.inputInteractive.setText(this.inputInteractiveTxt);
             this.inputFileMode.setVisibility(View.INVISIBLE);
             this.openFileBtn.setVisibility(View.INVISIBLE);
@@ -859,7 +866,7 @@ public class SetlXforAndroidActivity extends Activity {
         AndroidDataStorage dh   = new AndroidDataStorage(getBaseContext());
         dh.setCode("inputInteractiveText", getInteractiveInput().toString());
         dh.setCode("inputFileModeText",    inputFileMode   .getText().toString());
-        dh.setCode("inputMode",            String.valueOf(mode));
+        dh.setCode("inputMode",            mode.name());
         String outputHtml = "";
         if ( ! outputIsGreeting && storeOutput && output.getText().length() > 0) {
             outputHtml  = Html.toHtml((Spannable) output.getText());
@@ -956,10 +963,10 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     private class OutputPoster implements Runnable {
-        private final int    type;
-        private final String msg;
+        private final IO_Stream type;
+        private final String    msg;
 
-        private OutputPoster(final int type, final String msg) {
+        private OutputPoster(final IO_Stream type, final String msg) {
             this.type = type;
             this.msg  = msg;
         }
@@ -977,15 +984,15 @@ public class SetlXforAndroidActivity extends Activity {
             } else {
                 output.append(msg);
             }
-            if (type != STDOUT) {
+            if (type != IO_Stream.STDOUT) {
                 final SpannableStringBuilder content = new SpannableStringBuilder(output.getText());
-                if (type == STDERR) {
+                if (type == IO_Stream.STDERR) {
                     // show errors in red
                     content.setSpan(new ForegroundColorSpan(0xFFFF0000), pre, post, 0);
-                } else if (type == STDIN) {
+                } else if (type == IO_Stream.STDIN) {
                     // show user input in light blue
                     content.setSpan(new ForegroundColorSpan(0xFF00AAFF), pre, post, 0);
-                } else if (type == PROMPT) {
+                } else if (type ==IO_Stream.PROMPT) {
                     // show prompts in green
                     content.setSpan(new ForegroundColorSpan(0xFF00FF00), pre, post, 0);
                 }
