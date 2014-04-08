@@ -213,7 +213,11 @@ public class SetlXforAndroidActivity extends Activity {
             // Handle other intents, such as being started from the home screen
             inputInteractiveText = dh.getCode("inputInteractiveText", "");
             outputHtml           = dh.getCode("outputHtml", "");
-            mode                 = ExecutionMode.valueOf(dh.getCode("inputMode", ExecutionMode.INTERACTIVE_MODE.name()));
+            try {
+                mode             = ExecutionMode.valueOf(dh.getCode("inputMode", ExecutionMode.INTERACTIVE_MODE.name()));
+            } catch (final IllegalArgumentException iae) { // invalid enum value
+                mode             = ExecutionMode.INTERACTIVE_MODE;
+            }
         }
         inputFileModeText        = dh.getCode("inputFileModeText", "");
 
