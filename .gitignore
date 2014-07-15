@@ -1,9 +1,13 @@
 /android_keystore
+/.idea
 /.metadata
+/build
+/*/build
 /*/bin
 /*/gen
 /setlXforAndroid/libs/*.jar
 /setlXforAndroid/libs/jar-documentation/*.jar
 /*.zip
 /*.apk
+/local.properties
 
