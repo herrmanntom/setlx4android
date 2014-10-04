@@ -93,13 +93,18 @@ import org.randoom.util.AndroidUItools;
                 @Override
                 public void run() {
                     state.resetParserErrorCount();
-                    Block b = null;
+                    Block b;
                     try {
                         if (mode == ExecutionMode.EXECUTE_CODE) {
                             b = ParseSetlX.parseStringToBlock(state, setlXobject);
                             b.markLastExprStatement();
                         } else /* if (mode == sEXECUTE_FILE) */ {
                             b = ParseSetlX.parseFile(state, setlXobject);
+                        }
+                        try {
+                            Thread.sleep(50); // give optimizer some time
+                        } catch (final InterruptedException e) {
+                            // don' care
                         }
                     } catch (final ParserException pe) {
                         state.errWriteLn(pe.getMessage());
@@ -135,7 +140,9 @@ import org.randoom.util.AndroidUItools;
                             // wait until thread dies
                             Thread.sleep(10);
                         }
-                    } catch (final InterruptedException e) {}
+                    } catch (final InterruptedException e) {
+                        // don' care
+                    }
 
                     if (envProvider == state.getEnvironmentProvider()) {
                         activity.postExecute();
@@ -193,7 +200,9 @@ import org.randoom.util.AndroidUItools;
                     // wait until thread dies
                     Thread.sleep(10);
                 }
-            } catch (final InterruptedException e) {}
+            } catch (final InterruptedException e) {
+                // don't care
+            }
         }
     }
 }
