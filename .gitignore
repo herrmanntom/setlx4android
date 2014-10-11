@@ -7,6 +7,7 @@
 /*/gen
 /setlXforAndroid/libs/*.jar
 /setlXforAndroid/libs/jar-documentation/*.jar
+/setlXforAndroid/src/org/randoom/setlxUI/android/SourceVersion.java
 /*.zip
 /*.apk
 /local.properties

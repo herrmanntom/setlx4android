@@ -33,3 +33,18 @@ android {
         release.setRoot('build-types/release')
     }
 }
+
+preBuild {
+    doFirst {
+        tasks.generateVersionJava.execute()
+    }
+}
+
+task generateVersionJava {
+    doLast {
+        def script = "bash setlXforAndroid/libs/generateVersionJava.sh".execute()
+        script.in.eachLine {line -> println line}
+        script.err.eachLine {line -> println "ERROR: " + line}
+        script.waitFor()
+    }
+}

@@ -102,7 +102,7 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     // flag for the file-open-intent
-    private     final static int     REQEST_FILE_FLAG     = 0;
+    private final static int      REQEST_FILE_FLAG     = 0;
 
     private static State          state;
     private static boolean        isAutoResetEnabled   = true;
@@ -124,6 +124,7 @@ public class SetlXforAndroidActivity extends Activity {
     private TextView              output;
 
     // counter to enable interpreter debugging options
+    // using menu options: trace, assert, about, trace, assert
     private int                   enableDebuggingCount;
 
     // current state
@@ -141,7 +142,7 @@ public class SetlXforAndroidActivity extends Activity {
             intent.putExtra(FileChooserActivity._Rootpath, (Parcelable) new LocalFile(envProvider.getCodeDir()));
             // pre-select last file
             final String currentFile = inputFileMode.getText().toString();
-            if (currentFile != "") {
+            if (! currentFile.equals("")) {
                 intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(envProvider.expandPath(currentFile)));
             }
             // start selection dialog
@@ -615,7 +616,9 @@ public class SetlXforAndroidActivity extends Activity {
                 try {
                     Thread.sleep(10);
                     elapsedSeconds += 10;
-                } catch (final InterruptedException e) {}
+                } catch (final InterruptedException e) {
+                    // don't care
+                }
             }
 
             uiThreadHasWork = true;
@@ -627,7 +630,9 @@ public class SetlXforAndroidActivity extends Activity {
                 try {
                     Thread.sleep(10);
                     elapsedSeconds += 10;
-                } catch (final InterruptedException e) {}
+                } catch (final InterruptedException e) {
+                    // don't care
+                }
             } while (uiThreadHasWork && elapsedSeconds < 1000);
         } else {
             uiLock(locked);
@@ -789,12 +794,12 @@ public class SetlXforAndroidActivity extends Activity {
 
         if (AndroidUItools.isTablet(this)) {
             if (AndroidUItools.isInPortrait(displaymetrics)) {
-                inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 2);
+                inputInteractive.setMaxHeight(displaymetrics.heightPixels / 2);
             } else {
                 inputInteractive.setMaxHeight((11 * displaymetrics.heightPixels) / 30);
             }
         } else {
-            inputInteractive.setMaxHeight((1 * displaymetrics.heightPixels) / 3);
+            inputInteractive.setMaxHeight(displaymetrics.heightPixels / 3);
         }
 
         // align file open and execute buttons
@@ -867,7 +872,7 @@ public class SetlXforAndroidActivity extends Activity {
 
     // set persistent state
     private void storeState(final boolean storeOutput) {
-        AndroidDataStorage dh   = new AndroidDataStorage(getBaseContext());
+        AndroidDataStorage dh = new AndroidDataStorage(getBaseContext());
         dh.setCode("inputInteractiveText", getInteractiveInput().toString());
         dh.setCode("inputFileModeText",    inputFileMode   .getText().toString());
         dh.setCode("inputMode",            mode.name());
@@ -877,7 +882,6 @@ public class SetlXforAndroidActivity extends Activity {
         }
         dh.setCode("outputHtml", outputHtml);
         dh.close();
-        dh = null;
     }
 
     private String formatVersionText(String text){
@@ -886,11 +890,22 @@ public class SetlXforAndroidActivity extends Activity {
         } catch (final NameNotFoundException e) {
             text = text.replace("$VERSION$", "??");
         }
+        text = text.replace("$BASE_VERSION$", filterVersionString(SourceVersion.SETL_X_BASE_VERSION));
+        text = text.replace("$SHELL_VERSION$", filterVersionString(SourceVersion.SETL_X_SHELL_VERSION));
         text = text.replace("$URL_START$", "<a href=\""+ SETL_X_URL + "\">");
         text = text.replace("$ANTLR_URL_START$", "<a href=\""+ ANTLR_URL + "\">");
         text = text.replace("$FILECHOOSER_URL_START$", "<a href=\""+ FILECHOOSER_URL + "\">");
         text = text.replace("$URL_END$", "</a>");
         return text.replace("$YEARS$", SETL_X_C_YEARS);
+    }
+
+    private String filterVersionString(String setlXBaseVersion) {
+        if (setlXBaseVersion.endsWith("-dirty")) {
+            setlXBaseVersion = setlXBaseVersion.substring(0, 19) + "-dirty";
+        } else {
+            setlXBaseVersion = setlXBaseVersion.substring(0, 19);
+        }
+        return setlXBaseVersion;
     }
 
     private class UiLocker implements Runnable {
@@ -1059,8 +1074,8 @@ public class SetlXforAndroidActivity extends Activity {
         public void run() {
             final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
 
-            final LayoutInflater inflator     = LayoutInflater.from(activity);
-            final View           alertContent = inflator.inflate(R.layout.select_dialog, null);
+            final LayoutInflater inflater     = LayoutInflater.from(activity);
+            final View           alertContent = inflater.inflate(R.layout.select_dialog, null);
 
             final TextView message = (TextView) alertContent.findViewById(R.id.messageText);
             message.setText(question);
@@ -1071,7 +1086,7 @@ public class SetlXforAndroidActivity extends Activity {
                 @Override
                 public void onItemClick(final AdapterView<?> arg0, final View view,
                         final int whichButton, final long arg3) {
-                    envProvider.setInput(answers[whichButton].toString());
+                    envProvider.setInput(answers[whichButton]);
                     alert.cancel();
                 }
             });

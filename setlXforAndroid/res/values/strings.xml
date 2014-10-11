@@ -5,7 +5,7 @@
     <string name="load">($TICKS$/$CPU$%/$MEM$MB)</string>
     <string name="promptFile">Enter path to SetlX file:</string>
     <string name="app_name">setlX</string>
-    <string name="output">&lt;br />&lt;b>setlX v$VERSION$&lt;/b>&lt;br />&lt;br />Open Source Software from&lt;br />$URL_START$setlx.randoom.org$URL_END$&lt;br />© $YEARS$ by Herrmann, Tom</string>
+    <string name="output">&lt;br />&lt;b>setlX v$VERSION$&lt;/b>&lt;br />&lt;br />Open Source Software from&lt;br />$URL_START$setlx.randoom.org$URL_END$&lt;br />&lt;br />&lt;small>© $YEARS$ by Herrmann, Tom&lt;/small></string>
     <string name="buttonExecute">Execute</string>
     <string name="buttonOpenFile">Open</string>
     <string name="menuClear">Clear</string>
@@ -39,7 +39,7 @@
     <string name="menuKill">Terminate Execution</string>
     <string name="msgKillStarted">\nExecution will be terminated. This may take a while.</string>
     <string name="msgKill">\nExecution terminated, memory contents reset.</string>
-    <string name="about">&lt;b>setlX v$VERSION$&lt;/b>&lt;br />&lt;br />Open Source Software from&lt;br />$URL_START$setlx.randoom.org$URL_END$&lt;br />© $YEARS$ by Herrmann, Tom&lt;br />&lt;br />This program uses the&lt;br />$ANTLR_URL_START$ANTLR parser generator$URL_END$&lt;br />and the&lt;br />$FILECHOOSER_URL_START$android-filechooser$URL_END$&lt;br />library.&lt;br/></string>
+    <string name="about">&lt;b>setlX v$VERSION$&lt;/b>&lt;br />&lt;small>(Base v$BASE_VERSION$)&lt;br />(Shell A$SHELL_VERSION$)&lt;/small>&lt;br />&lt;br />Open Source Software from&lt;br />$URL_START$setlx.randoom.org$URL_END$&lt;br />&lt;br />&lt;small>© $YEARS$ by Herrmann, Tom&lt;/small>&lt;br />&lt;br />This program uses the&lt;br />$ANTLR_URL_START$ANTLR parser generator$URL_END$&lt;br />and the&lt;br />$FILECHOOSER_URL_START$android-filechooser$URL_END$&lt;br />library.&lt;br/></string>
     <string name="buttonModeFile">→ File Mode</string>
     <string name="buttonModeInteractive">→ Interactive</string>
     <string name="toastNotPossibleWhileRunning">This action may not be performed during execution.</string>
