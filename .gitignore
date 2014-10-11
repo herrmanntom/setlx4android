@@ -1,5 +1,6 @@
 /android_keystore
 /.idea
+/.gradle
 /.metadata
 /build
 /*/build
