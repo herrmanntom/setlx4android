@@ -32,9 +32,9 @@
     <string name="toastAssertsOff">Assertions disabled.\nMemory contents was reset.</string>
     <string name="menuAutoReset2ON">Enable Auto Reset</string>
     <string name="menuAutoReset2OFF">Disable Auto Reset</string>
-    <string name="toastAutoResetON">Auto Reset enabled.\nMemory contents will be reset after executing files.</string>
-    <string name="toastAutoResetOFF">Auto Reset disabled.\nMemory contents will not be reset after executing files.</string>
-    <string name="toastAutoReset">Memory contents was automatically reset.</string>
+    <string name="toastAutoResetON">Auto Reset enabled.\nMemory content will be reset after executing files.</string>
+    <string name="toastAutoResetOFF">Auto Reset disabled.\nMemory content will not be reset after executing files.</string>
+    <string name="toastAutoReset">Memory content automatically reset.</string>
     <string name="menuAbout">About</string>
     <string name="menuKill">Terminate Execution</string>
     <string name="msgKillStarted">\nExecution will be terminated. This may take a while.</string>
