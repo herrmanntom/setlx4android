@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.randoom.setlxUI.android"
     android:installLocation="auto"
-    android:versionCode="72"
-    android:versionName="2.3.2 (A2.5.3)" >
+    android:versionCode="73"
+    android:versionName="2.3.2+ (A2.5.3+)" >
 
     <uses-sdk
         android:minSdkVersion="14"

@@ -225,10 +225,7 @@ import java.util.Locale;
      */
     /*package*/ boolean createCodeDir() {
         final boolean result = AndroidUItools.createDirIfNotExists(CODE_DIR);
-        if ( ! result) {
-            return result;
-        }
-        return AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
+        return result && AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
     }
 
     private void appendMessage(final IO_Stream type, final String msg) {
@@ -361,5 +358,15 @@ import java.util.Locale;
             AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
             return LIBRARY_DIR + name;
         }
+    }
+
+    @Override
+    public int getMaximumNumberOfThreads() {
+        return 64;
+    }
+
+    @Override
+    public int getStackSizeWishInKb() {
+        return 128;
     }
 }
