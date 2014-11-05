@@ -275,7 +275,7 @@ import java.util.Locale;
             try {
                 Thread.sleep(100);
             } catch (final InterruptedException e) {
-                throw new JVMIOException("Unable to read input!");
+                throw new JVMIOException("Unable to read input!", e);
             }
         }
         appendMessage(IO_Stream.STDIN, input + ENDL);
@@ -315,7 +315,7 @@ import java.util.Locale;
             try {
                 Thread.sleep(100);
             } catch (final InterruptedException e) {
-                throw new JVMIOException("Unable to read input!");
+                throw new JVMIOException("Unable to read input!", e);
             }
         }
         appendMessage(IO_Stream.STDIN, input + ENDL);
@@ -367,6 +367,6 @@ import java.util.Locale;
 
     @Override
     public int getStackSizeWishInKb() {
-        return 128;
+        return 256;
     }
 }
