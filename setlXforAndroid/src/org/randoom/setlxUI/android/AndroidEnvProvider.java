@@ -361,12 +361,17 @@ import java.util.Locale;
     }
 
     @Override
-    public int getMaximumNumberOfThreads() {
-        return 64;
+    public int getStackSizeWishInKb() {
+        return 8 * 1024;
     }
 
     @Override
-    public int getStackSizeWishInKb() {
+    public int getMediumStackSizeWishInKb() {
         return 256;
+    }
+
+    @Override
+    public int getSmallStackSizeWishInKb() {
+        return 0;
     }
 }
