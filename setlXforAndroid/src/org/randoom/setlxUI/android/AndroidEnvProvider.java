@@ -362,7 +362,7 @@ import java.util.Locale;
 
     @Override
     public int getStackSizeWishInKb() {
-        return 8 * 1024;
+        return 16 * 1024;
     }
 
     @Override

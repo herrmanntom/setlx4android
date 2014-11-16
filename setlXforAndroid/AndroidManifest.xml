@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.randoom.setlxUI.android"
     android:installLocation="auto"
-    android:versionCode="76"
+    android:versionCode="77"
     android:versionName="2.3.3.Alpha (A2.5.4.Alpha)" >
 
     <uses-sdk
