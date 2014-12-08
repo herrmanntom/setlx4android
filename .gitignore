@@ -12,4 +12,4 @@
 /*.zip
 /*.apk
 /local.properties
-
+*.iml
