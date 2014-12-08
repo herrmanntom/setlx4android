@@ -75,5 +75,13 @@
         android:title="@string/menuAbout"
         android:visible="true">
     </item>
+    <item
+        android:id="@+id/menuItemQuit"
+        android:checkable="false"
+        android:checked="false"
+        android:enabled="true"
+        android:title="@string/menuQuit"
+        android:visible="true">
+    </item>
 
 </menu>

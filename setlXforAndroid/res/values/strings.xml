@@ -36,6 +36,7 @@
     <string name="toastAutoResetOFF">Auto Reset disabled.\nMemory content will not be reset after executing files.</string>
     <string name="toastAutoReset">Memory content automatically reset.</string>
     <string name="menuAbout">About</string>
+    <string name="menuQuit">Quit</string>
     <string name="menuKill">Terminate Execution</string>
     <string name="msgKillStarted">\nExecution will be terminated. This may take a while.</string>
     <string name="msgKill">\nExecution terminated, memory contents reset.</string>

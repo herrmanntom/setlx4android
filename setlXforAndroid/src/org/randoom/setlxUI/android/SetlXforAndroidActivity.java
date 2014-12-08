@@ -416,6 +416,7 @@ public class SetlXforAndroidActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menuItemQuit:
             case R.id.menuItemKill:
                 isKilling = true;
 
@@ -425,6 +426,9 @@ public class SetlXforAndroidActivity extends Activity {
 
                 final SetlXforAndroidActivity _this  = this;
                 final Thread                  killer = new Thread(new Runnable() {
+
+                    final boolean quitApp = (item.getItemId() == R.id.menuItemQuit);
+                    final boolean runtimeDebugging = state.isRuntimeDebuggingEnabled();
 
                     @Override
                     public void run() {
@@ -442,7 +446,7 @@ public class SetlXforAndroidActivity extends Activity {
                         lockUI(envProvider.isLocked());
 
                         // delete load text
-                        if (! state.isRuntimeDebuggingEnabled()) {
+                        if (! runtimeDebugging) {
                             load.post(new StatsUpdater("", "", ""));
                         }
 
@@ -450,6 +454,10 @@ public class SetlXforAndroidActivity extends Activity {
                         appendOut(IO_Stream.STDERR, getString(R.string.msgKill));
 
                         isKilling = false;
+
+                        if (quitApp) {
+                            android.os.Process.killProcess(android.os.Process.myPid());
+                        }
                     }
                 });
 
@@ -537,6 +545,10 @@ public class SetlXforAndroidActivity extends Activity {
                     uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
                 } else {
                     state.resetState();
+
+                    // give hint to the garbage collector
+                    Runtime.getRuntime().gc();
+
                     uiThreadHandler.post(new Toaster(R.string.toastReset, Toast.LENGTH_LONG));
                 }
                 return true;
