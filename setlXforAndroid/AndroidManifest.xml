@@ -3,11 +3,11 @@
     package="org.randoom.setlxUI.android"
     android:installLocation="auto"
     android:versionCode="78"
-    android:versionName="2.3.3.Alpha (A2.5.4.Alpha)" >
+    android:versionName="2.3.3 (A2.5.4)" >
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
