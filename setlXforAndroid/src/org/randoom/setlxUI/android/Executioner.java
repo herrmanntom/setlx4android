@@ -16,14 +16,13 @@ import org.randoom.util.AndroidUItools;
         EXECUTE_FILE
     }
 
+    private final static int NUMBER_OF_SAMPLES = 12;
+
     private final State                   state;
     private final AndroidEnvProvider      envProvider;
     private final SetlXforAndroidActivity activity;
 
     private       Thread                  statsUpdate;
-    private       float                   cpuUsage;
-    private       long                    memoryUsage;
-    private       int                     ticks;
 
     private       Thread                  execution;
 
@@ -39,9 +38,6 @@ import org.randoom.util.AndroidUItools;
         this.activity    = activity;
 
         this.statsUpdate = null;
-        this.cpuUsage    = 0.0f;
-        this.memoryUsage = 0;
-        this.ticks       = 0;
         this.execution   = null;
     }
 
@@ -75,11 +71,28 @@ import org.randoom.util.AndroidUItools;
                 @Override
                 public void run() {
                     try {
+                        float[] cpuUsage = new float[NUMBER_OF_SAMPLES];
+                        long[] memoryUsage = new long[NUMBER_OF_SAMPLES];
+                        int ticks = 0;
                         do {
-                            cpuUsage    = AndroidUItools.getCPUusage(248);
-                            memoryUsage = AndroidUItools.getUsedMemory();
+                            int index = ticks % NUMBER_OF_SAMPLES;
+                            cpuUsage[index]    = AndroidUItools.getCPUusage(248);
+                            memoryUsage[index] = AndroidUItools.getUsedMemory();
+                            float cpuAvg = 0.0f;
+                            long memoryAvg = 0l;
+                            if (ticks >= NUMBER_OF_SAMPLES) {
+                                for (float sample : cpuUsage) {
+                                    cpuAvg += sample;
+                                }
+                                for (long sample : memoryUsage) {
+                                    memoryAvg += sample;
+                                }
+                            } else {
+                                cpuAvg = cpuUsage[index] * NUMBER_OF_SAMPLES;
+                                memoryAvg = memoryUsage[index] * NUMBER_OF_SAMPLES;
+                            }
                             ++ticks;
-                            envProvider.updateStats(ticks, cpuUsage, memoryUsage);
+                            envProvider.updateStats(ticks, cpuAvg / NUMBER_OF_SAMPLES, memoryAvg / NUMBER_OF_SAMPLES);
                             Thread.sleep(250);
                         } while (isExecuting());
                     } catch (final InterruptedException e) {
