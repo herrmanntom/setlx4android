@@ -1,18 +1,6 @@
 package org.randoom.setlxUI.android;
 
-import group.pals.android.lib.ui.filechooser.FileChooserActivity;
-import group.pals.android.lib.ui.filechooser.io.localfile.LocalFile;
-
-import java.util.List;
-
-import org.randoom.setlx.exceptions.IllegalRedefinitionException;
-import org.randoom.setlx.types.SetlList;
-import org.randoom.setlx.utilities.DummyEnvProvider;
-import org.randoom.setlx.utilities.EnvironmentProvider;
-import org.randoom.setlx.utilities.State;
-import org.randoom.util.AndroidDataStorage;
-import org.randoom.util.AndroidUItools;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -56,6 +44,19 @@ import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
+import org.randoom.setlx.exceptions.IllegalRedefinitionException;
+import org.randoom.setlx.types.SetlList;
+import org.randoom.setlx.utilities.DummyEnvProvider;
+import org.randoom.setlx.utilities.EnvironmentProvider;
+import org.randoom.setlx.utilities.State;
+import org.randoom.util.AndroidDataStorage;
+import org.randoom.util.AndroidUItools;
+
+import java.util.List;
+
+import group.pals.android.lib.ui.filechooser.FileChooserActivity;
+import group.pals.android.lib.ui.filechooser.io.localfile.LocalFile;
+
 /**
  * Main UI class of setlX for Android.
  */
@@ -64,7 +65,7 @@ public class SetlXforAndroidActivity extends Activity {
     private     final static String  SETL_X_URL           = "http://setlX.randoom.org/";
     private     final static String  ANTLR_URL            = "http://www.antlr.org/";
     private     final static String  FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
-    private     final static String  SETL_X_C_YEARS       = "2011-2014";
+    private     final static String  SETL_X_C_YEARS       = "2011-2016";
 
     private enum ExecutionMode {
         INTERACTIVE_MODE,
@@ -223,7 +224,6 @@ public class SetlXforAndroidActivity extends Activity {
         inputFileModeText        = dh.getCode("inputFileModeText", "");
 
         dh.close();
-        dh = null;
 
         // display greeting if environment is not present OR
         // (output is empty, no output is queued and nothing executes)
@@ -315,7 +315,7 @@ public class SetlXforAndroidActivity extends Activity {
             clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.clipBoardKey), output.getText()));
 
             // show user what was done
-            uiThreadHandler.post(new Toaster(R.string.toastCopy, Toast.LENGTH_SHORT));
+            uiThreadHandler.post(new Toaster(R.string.toastCopy, ToasterDuration.SHORT));
             return true;
         } else {
             return super.onContextItemSelected(item);
@@ -466,14 +466,14 @@ public class SetlXforAndroidActivity extends Activity {
                 return true;
             case R.id.menuItemRandom:
                 if (envProvider.isLocked()) {
-                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, ToasterDuration.LONG));
                 } else {
                     if (state.isRandoomPredictable()) {
                         state.setRandoomPredictable(false);
-                        uiThreadHandler.post(new Toaster(R.string.toastRandomON, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastRandomON, ToasterDuration.SHORT));
                     } else {
                         state.setRandoomPredictable(true);
-                        uiThreadHandler.post(new Toaster(R.string.toastRandomOFF, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastRandomOFF, ToasterDuration.SHORT));
                     }
                 }
                 return true;
@@ -484,14 +484,14 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
                 if (envProvider.isLocked()) {
-                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, ToasterDuration.LONG));
                 } else {
                     if (state.areAssertsDisabled()) {
                         state.setAssertsDisabled(false);
-                        uiThreadHandler.post(new Toaster(R.string.toastAssertsOn, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastAssertsOn, ToasterDuration.SHORT));
                     } else {
                         state.setAssertsDisabled(true);
-                        uiThreadHandler.post(new Toaster(R.string.toastAssertsOff, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastAssertsOff, ToasterDuration.SHORT));
                     }
                 }
                 return true;
@@ -502,33 +502,33 @@ public class SetlXforAndroidActivity extends Activity {
                     enableDebuggingCount = 0;
                 }
                 if (envProvider.isLocked()) {
-                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, ToasterDuration.LONG));
                 } else {
                     if (state.traceAssignments) {
                         state.setTraceAssignments(false);
-                        uiThreadHandler.post(new Toaster(R.string.toastTraceOff, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastTraceOff, ToasterDuration.SHORT));
                     } else {
                         state.setTraceAssignments(true);
-                        uiThreadHandler.post(new Toaster(R.string.toastTraceOn, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.toastTraceOn, ToasterDuration.SHORT));
                     }
                 }
                 return true;
             case R.id.menuItemRuntimeDebugging:
                 if (envProvider.isLocked()) {
-                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, ToasterDuration.LONG));
                 } else {
                     if (state.isRuntimeDebuggingEnabled()) {
                         state.setRuntimeDebugging(false);
-                        uiThreadHandler.post(new Toaster(R.string.runtimeDebuggingOff, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.runtimeDebuggingOff, ToasterDuration.SHORT));
                     } else {
                         state.setRuntimeDebugging(true);
-                        uiThreadHandler.post(new Toaster(R.string.runtimeDebuggingOn, Toast.LENGTH_SHORT));
+                        uiThreadHandler.post(new Toaster(R.string.runtimeDebuggingOn, ToasterDuration.SHORT));
                     }
                 }
                 return true;
             case R.id.menuItemClear:
                 if (envProvider.isLocked()) {
-                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, ToasterDuration.LONG));
                 } else {
                     setInteractiveInput("");
                     inputFileMode   .setText("");
@@ -542,23 +542,23 @@ public class SetlXforAndroidActivity extends Activity {
                 return true;
             case R.id.menuItemReset:
                 if (envProvider.isLocked()) {
-                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastNotPossibleWhileRunning, ToasterDuration.LONG));
                 } else {
                     state.resetState();
 
                     // give hint to the garbage collector
                     Runtime.getRuntime().gc();
 
-                    uiThreadHandler.post(new Toaster(R.string.toastReset, Toast.LENGTH_LONG));
+                    uiThreadHandler.post(new Toaster(R.string.toastReset, ToasterDuration.LONG));
                 }
                 return true;
             case R.id.menuItemAutoReset:
                 if (isAutoResetEnabled) {
                     isAutoResetEnabled = false;
-                    uiThreadHandler.post(new Toaster(R.string.toastAutoResetOFF, Toast.LENGTH_SHORT));
+                    uiThreadHandler.post(new Toaster(R.string.toastAutoResetOFF, ToasterDuration.SHORT));
                 } else {
                     isAutoResetEnabled = true;
-                    uiThreadHandler.post(new Toaster(R.string.toastAutoResetON, Toast.LENGTH_SHORT));
+                    uiThreadHandler.post(new Toaster(R.string.toastAutoResetON, ToasterDuration.SHORT));
                 }
                 return true;
             case R.id.menuItemAbout:
@@ -656,6 +656,7 @@ public class SetlXforAndroidActivity extends Activity {
      *
      * @param v Reference to the current UI view object.
      */
+    @SuppressLint("RtlHardcoded")
     /*package*/ void preExecute(final View v) {
         envProvider.setLocked(true);
         lockUI(true);
@@ -676,7 +677,7 @@ public class SetlXforAndroidActivity extends Activity {
      */
     /*package*/ void postExecute() {
         if (isAutoResetEnabled && mode == ExecutionMode.FILE_MODE) {
-            uiThreadHandler.post(new Toaster(R.string.toastAutoReset, Toast.LENGTH_SHORT));
+            uiThreadHandler.post(new Toaster(R.string.toastAutoReset, ToasterDuration.SHORT));
             state.resetState();
         }
         if (! state.isRuntimeDebuggingEnabled()) {
@@ -789,7 +790,7 @@ public class SetlXforAndroidActivity extends Activity {
             if (! outputIsReset) {
                 state.resetState();
                 // announce reset of memory to user
-                uiThreadHandler.post(new Toaster(R.string.toastRestart, Toast.LENGTH_LONG));
+                uiThreadHandler.post(new Toaster(R.string.toastRestart, ToasterDuration.LONG));
             }
             // Android version cannot pass parameters to programs (yet?)
             try {
@@ -953,18 +954,27 @@ public class SetlXforAndroidActivity extends Activity {
         invalidateOptionsMenu();
     }
 
+    private enum ToasterDuration {
+        LONG,
+        SHORT
+    }
+
     private class Toaster implements Runnable {
         private final int toastID;
-        private final int duration;
+        private final ToasterDuration duration;
 
-        private Toaster(final int toastID, final int duration) {
+        private Toaster(final int toastID, final ToasterDuration duration) {
             this.toastID  = toastID;
             this.duration = duration;
         }
 
         @Override
         public void run() {
-            Toast.makeText(getBaseContext(), toastID, duration).show();
+            if (duration == ToasterDuration.LONG) {
+                Toast.makeText(getBaseContext(), toastID, Toast.LENGTH_LONG).show();
+            } else if (duration == ToasterDuration.SHORT) {
+                Toast.makeText(getBaseContext(), toastID, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -1003,6 +1013,7 @@ public class SetlXforAndroidActivity extends Activity {
         }
 
         @Override
+        @SuppressLint("RtlHardcoded")
         public void run() {
             final int pre  = (outputIsGreeting)? 0 : output.getText().length();
             final int post = pre + msg.length();
@@ -1087,13 +1098,14 @@ public class SetlXforAndroidActivity extends Activity {
             final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(activity);
 
             final LayoutInflater inflater     = LayoutInflater.from(activity);
+            @SuppressLint("InflateParams")
             final View           alertContent = inflater.inflate(R.layout.select_dialog, null);
 
             final TextView message = (TextView) alertContent.findViewById(R.id.messageText);
             message.setText(question);
 
             final ListView buttons = (ListView) alertContent.findViewById(R.id.list);
-            buttons.setAdapter(new ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, answers));
+            buttons.setAdapter(new ArrayAdapter<>(activity, android.R.layout.select_dialog_item, answers));
             buttons.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(final AdapterView<?> arg0, final View view,

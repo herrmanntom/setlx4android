@@ -55,26 +55,34 @@ public class AndroidDataStorage {
      * @param codeValue Value to store.
      */
     public void setCode(final String codeName, final String codeValue) {
-        SQLiteStatement stmt;
-
-
-        final Cursor codeRow = db.rawQuery(
-            "SELECT * FROM code WHERE codeName = ?",
-            new String[] {codeName}
-        );
-
-        if (codeRow.getCount() > 0) {// exists-- update
-            db.execSQL(
-                "UPDATE code SET codeValue = ? WHERE codeName = ?",
-                new String[] {codeValue, codeName}
+        Cursor codeRow = null;
+        SQLiteStatement stmt = null;
+        try {
+            codeRow = db.rawQuery(
+                    "SELECT * FROM code WHERE codeName = ?",
+                    new String[]{codeName}
             );
-        } else { // does not exist, insert
-            stmt = db.compileStatement(
-                "INSERT INTO code(codeName, codeValue) values (?, ?)"
-            );
-            stmt.bindString(1, codeName);
-            stmt.bindString(2, codeValue);
-            stmt.executeInsert();
+
+            if (codeRow.getCount() > 0) {// exists-- update
+                db.execSQL(
+                        "UPDATE code SET codeValue = ? WHERE codeName = ?",
+                        new String[]{codeValue, codeName}
+                );
+            } else { // does not exist, insert
+                stmt = db.compileStatement(
+                        "INSERT INTO code(codeName, codeValue) values (?, ?)"
+                );
+                stmt.bindString(1, codeName);
+                stmt.bindString(2, codeValue);
+                stmt.executeInsert();
+            }
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+            if (codeRow != null) {
+                codeRow.close();
+            }
         }
     }
 
@@ -86,17 +94,23 @@ public class AndroidDataStorage {
      * @return             Value stored in database, or default.
      */
     public String getCode(final String codeName, final String defaultValue) {
+        Cursor codeRow = null;
+        try {
+            // check to see if it already exists
+            codeRow = db.rawQuery(
+                    "SELECT * FROM code WHERE codeName = ?",
+                    new String[]{codeName}
+            );
 
-        // check to see if it already exists
-        final Cursor codeRow = db.rawQuery(
-            "SELECT * FROM code WHERE codeName = ?",
-            new String[] {codeName}
-        );
-
-        if (codeRow.moveToFirst()) {
-            return codeRow.getString(codeRow.getColumnIndex("codeValue"));
-        } else {
-            return defaultValue;
+            if (codeRow.moveToFirst()) {
+                return codeRow.getString(codeRow.getColumnIndex("codeValue"));
+            } else {
+                return defaultValue;
+            }
+        } finally {
+            if (codeRow != null) {
+                codeRow.close();
+            }
         }
     }
 
