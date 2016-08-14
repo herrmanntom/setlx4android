@@ -1,12 +1,16 @@
 package org.randoom.setlxUI.android;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Environment;
+
 import org.randoom.setlx.exceptions.JVMIOException;
 import org.randoom.setlx.utilities.EnvironmentProvider;
 import org.randoom.setlx.utilities.State;
 import org.randoom.setlxUI.android.SetlXforAndroidActivity.IO_Stream;
 
-import org.randoom.util.AndroidUItools;
-
+import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -17,11 +21,17 @@ import java.util.Locale;
 /*package*/ class AndroidEnvProvider implements EnvironmentProvider {
     private final static String TAB          = "\t";
     private final static String ENDL         = "\n";
-    private final static String CODE_DIR     = android.os.Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
+    private final static String CODE_DIR     = Environment.getExternalStorageDirectory().getAbsolutePath() + "/SetlX/";
     private final static String CODE_DIR_low = CODE_DIR.toLowerCase(Locale.US);
     private final static String LIBRARY_DIR  = CODE_DIR + "library/";
 
     private final static int    MAX_CHARS    = 25000;
+
+    // permission request flags
+    private final static int FILE_IO_PERMISSION_REQUEST_CODE = 42;
+    private final static String[] PERMISSIONS_TO_REQUEST = new String[]{
+            "android.permission.WRITE_EXTERNAL_STORAGE"
+    };
 
     private SetlXforAndroidActivity   activity;
     private Executioner               executioner;
@@ -40,7 +50,7 @@ import java.util.Locale;
         this.activity       = activity;
         this.executioner    = null;
         this.lastPrompt     = null;
-        this.messageBuffer  = new LinkedList<Message>();
+        this.messageBuffer  = new LinkedList<>();
         this.isLocked       = false;
         this.currentDir     = CODE_DIR;
         this.input          = null;
@@ -224,8 +234,43 @@ import java.util.Locale;
      * @return True on success.
      */
     /*package*/ boolean createCodeDir() {
-        final boolean result = AndroidUItools.createDirIfNotExists(CODE_DIR);
-        return result && AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
+        if (checkAndRequestFileIOPermission()) {
+            final boolean result = createDirIfNotExists(CODE_DIR);
+            return result && createDirIfNotExists(LIBRARY_DIR);
+        }
+        return false;
+    }
+
+    /*package*/ static int getFileIOPermissionRequestCode() {
+        return FILE_IO_PERMISSION_REQUEST_CODE;
+    }
+
+    /*package*/ static boolean isFileIOPermissionRequestGranted(int[] grantResults) {
+        return (grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
+    }
+
+    private boolean checkAndRequestFileIOPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            activity.requestPermissions(PERMISSIONS_TO_REQUEST, FILE_IO_PERMISSION_REQUEST_CODE);
+            return false;
+        }
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    /**
+     * Create a directory at the given path, if necessary.
+     *
+     * @param path Path of the directory to create.
+     * @return True if the directory is present.
+     */
+    public static boolean createDirIfNotExists(final String path) {
+        final File file = new File(path);
+        if (file.exists()) {
+            return file.isDirectory();
+        } else {
+            return file.mkdirs();
+        }
     }
 
     private void appendMessage(final IO_Stream type, final String msg) {
@@ -340,22 +385,24 @@ import java.util.Locale;
 
     @Override
     public String filterFileName(String fileName) {
+        checkAndRequestFileIOPermission();
         fileName = fileName.trim();
         if (fileName.length() < 1 || fileName.charAt(0) == '/') {
             return fileName;
         } else {
-            AndroidUItools.createDirIfNotExists(CODE_DIR);
+            createDirIfNotExists(CODE_DIR);
             return currentDir + fileName;
         }
     }
 
     @Override
     public String filterLibraryName(String name) {
+        checkAndRequestFileIOPermission();
         name = name.trim();
         if (name.length() < 1 || name.charAt(0) == '/') {
             return name;
         } else {
-            AndroidUItools.createDirIfNotExists(LIBRARY_DIR);
+            createDirIfNotExists(LIBRARY_DIR);
             return LIBRARY_DIR + name;
         }
     }

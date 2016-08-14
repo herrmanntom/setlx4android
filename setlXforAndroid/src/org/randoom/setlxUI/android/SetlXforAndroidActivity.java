@@ -1,18 +1,5 @@
 package org.randoom.setlxUI.android;
 
-import group.pals.android.lib.ui.filechooser.FileChooserActivity;
-import group.pals.android.lib.ui.filechooser.io.localfile.LocalFile;
-
-import java.util.List;
-
-import org.randoom.setlx.exceptions.IllegalRedefinitionException;
-import org.randoom.setlx.types.SetlList;
-import org.randoom.setlx.utilities.DummyEnvProvider;
-import org.randoom.setlx.utilities.EnvironmentProvider;
-import org.randoom.setlx.utilities.State;
-import org.randoom.util.AndroidDataStorage;
-import org.randoom.util.AndroidUItools;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -55,6 +42,19 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.TextView.BufferType;
 import android.widget.Toast;
+
+import org.randoom.setlx.exceptions.IllegalRedefinitionException;
+import org.randoom.setlx.types.SetlList;
+import org.randoom.setlx.utilities.DummyEnvProvider;
+import org.randoom.setlx.utilities.EnvironmentProvider;
+import org.randoom.setlx.utilities.State;
+import org.randoom.util.AndroidDataStorage;
+import org.randoom.util.AndroidUItools;
+
+import java.util.List;
+
+import group.pals.android.lib.ui.filechooser.FileChooserActivity;
+import group.pals.android.lib.ui.filechooser.io.localfile.LocalFile;
 
 /**
  * Main UI class of setlX for Android.
@@ -102,10 +102,10 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     // flag for the file-open-intent
-    private final static int      REQEST_FILE_FLAG     = 0;
+    private final static int      REQUEST_FILE_FLAG = 0;
 
     private static State          state;
-    private static boolean        isAutoResetEnabled   = true;
+    private static boolean        isAutoResetEnabled = true;
 
     private Handler               uiThreadHandler;
     private boolean               uiThreadHasWork;
@@ -138,15 +138,20 @@ public class SetlXforAndroidActivity extends Activity {
         @Override
         public void onClick(final View v) {
             final Intent intent = new Intent(v.getContext(), FileChooserActivity.class);
-            // pre-select root dir
-            intent.putExtra(FileChooserActivity._Rootpath, (Parcelable) new LocalFile(envProvider.getCodeDir()));
-            // pre-select last file
-            final String currentFile = inputFileMode.getText().toString();
-            if (! currentFile.equals("")) {
-                intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(envProvider.expandPath(currentFile)));
+            if (envProvider.createCodeDir()) {
+                // pre-select root dir
+                String codeDir = envProvider.getCodeDir();
+                intent.putExtra(FileChooserActivity._Rootpath, (Parcelable) new LocalFile(codeDir));
+                // pre-select last file
+                final String currentFile = inputFileMode.getText().toString();
+                if (!currentFile.equals("")) {
+                    intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(envProvider.expandPath(currentFile)));
+                }
+                // start selection dialog
+                startActivityForResult(intent, REQUEST_FILE_FLAG);
+            } else {
+                Toast.makeText(v.getContext(), "External storage cannot be accessed.", Toast.LENGTH_LONG).show();
             }
-            // start selection dialog
-            startActivityForResult(intent, REQEST_FILE_FLAG);
         }
     }
 
@@ -242,8 +247,6 @@ public class SetlXforAndroidActivity extends Activity {
 
         // setup GUI and environment
         setup(outputIsGreeting);
-
-        envProvider.createCodeDir();
 
         /* launch time only GUI setup */
         setInteractiveInput(inputInteractiveText);
@@ -596,7 +599,7 @@ public class SetlXforAndroidActivity extends Activity {
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
-            case REQEST_FILE_FLAG:
+            case REQUEST_FILE_FLAG:
                 if (resultCode == RESULT_OK) {
 
                 /*
@@ -611,6 +614,16 @@ public class SetlXforAndroidActivity extends Activity {
                 }
             }
             break;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == AndroidEnvProvider.getFileIOPermissionRequestCode()) {
+            if (!AndroidEnvProvider.isFileIOPermissionRequestGranted(grantResults)) {
+                Toast.makeText(this, "External storage cannot be accessed.", Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -1093,7 +1106,7 @@ public class SetlXforAndroidActivity extends Activity {
             message.setText(question);
 
             final ListView buttons = (ListView) alertContent.findViewById(R.id.list);
-            buttons.setAdapter(new ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, answers));
+            buttons.setAdapter(new ArrayAdapter<>(activity, android.R.layout.select_dialog_item, answers));
             buttons.setOnItemClickListener(new OnItemClickListener() {
                 @Override
                 public void onItemClick(final AdapterView<?> arg0, final View view,

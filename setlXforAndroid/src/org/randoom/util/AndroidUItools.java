@@ -68,21 +68,6 @@ public class AndroidUItools {
     }
 
     /**
-     * Create a directory at the given path, if necessary.
-     *
-     * @param path Path of the directory to create.
-     * @return True if the directory is present.
-     */
-    public static boolean createDirIfNotExists(final String path) {
-        final File file = new File(path);
-        if (file.exists()) {
-            return file.isDirectory();
-        } else {
-            return file.mkdirs();
-        }
-    }
-
-    /**
      * Get the amount of currently used memory of this program in Bytes.
      *
      * @return Amount of currently used memory in Bytes.
