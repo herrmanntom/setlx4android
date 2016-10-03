@@ -5,13 +5,13 @@ repositories {
 }
 
 dependencies {
-    compile 'org.randoom.setlx:setlX-core:2.5.0-SNAPSHOT'
+    compile 'org.randoom.setlx:setlX-core:2.5.0'
     compile project(':android-filechooser')
 }
 
 android {
     compileSdkVersion 23
-    buildToolsVersion '24.0.0'
+    buildToolsVersion '24.0.3'
 
     sourceSets {
         main {
