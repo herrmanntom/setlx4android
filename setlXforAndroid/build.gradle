@@ -1,7 +1,11 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    mavenLocal()
+}
+
 dependencies {
-    compile fileTree(include: '*.jar', dir: 'libs')
+    compile 'org.randoom.setlx:setlX-core:2.5.0-SNAPSHOT'
     compile project(':android-filechooser')
 }
 
@@ -32,19 +36,33 @@ android {
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    lintOptions {
+        disable 'InvalidPackage','GoogleAppIndexingWarning','RtlHardcoded'
+    }
 }
 
-preBuild {
-    doFirst {
-        tasks.generateVersionJava.execute()
-    }
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn generateVersionJava
 }
 
 task generateVersionJava {
     doLast {
-        def script = "bash setlXforAndroid/libs/generateVersionJava.sh".execute()
+        def script = "bash setlXforAndroid/generateVersionJava.sh".execute()
         script.in.eachLine {line -> println line}
         script.err.eachLine {line -> println "ERROR: " + line}
         script.waitFor()
     }
 }
+
+task copyDeps(type: Copy) {
+  from configurations.compile
+  into 'build/libraries'
+}
+
+generateVersionJava.dependsOn(copyDeps)
+
