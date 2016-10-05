@@ -5,7 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
 
-import org.randoom.setlx.exceptions.JVMIOException;
+import org.randoom.setlx.exceptions.JVMException;
 import org.randoom.setlx.utilities.EnvironmentProvider;
 import org.randoom.setlx.utilities.State;
 import org.randoom.setlxUI.android.SetlXforAndroidActivity.IO_Stream;
@@ -264,7 +264,7 @@ import java.util.Locale;
      * @param path Path of the directory to create.
      * @return True if the directory is present.
      */
-    public static boolean createDirIfNotExists(final String path) {
+    private static boolean createDirIfNotExists(final String path) {
         final File file = new File(path);
         if (file.exists()) {
             return file.isDirectory();
@@ -310,7 +310,7 @@ import java.util.Locale;
     }
 
     @Override
-    public String inReadLine() throws JVMIOException {
+    public String inReadLine() throws JVMException {
         this.input = null;
 
         activity.readLine(lastPrompt);
@@ -320,7 +320,7 @@ import java.util.Locale;
             try {
                 Thread.sleep(100);
             } catch (final InterruptedException e) {
-                throw new JVMIOException("Unable to read input!", e);
+                throw new JVMException("Unable to read input!", e);
             }
         }
         appendMessage(IO_Stream.STDIN, input + ENDL);
@@ -345,7 +345,7 @@ import java.util.Locale;
     }
 
     @Override
-    public String promptSelectionFromAnswers(final String question, final List<String> answers) throws JVMIOException {
+    public String promptSelectionFromAnswers(final String question, final List<String> answers) throws JVMException {
         this.input = null;
 
         appendMessage(IO_Stream.PROMPT, question + ENDL);
@@ -360,7 +360,7 @@ import java.util.Locale;
             try {
                 Thread.sleep(100);
             } catch (final InterruptedException e) {
-                throw new JVMIOException("Unable to read input!", e);
+                throw new JVMException("Unable to read input!", e);
             }
         }
         appendMessage(IO_Stream.STDIN, input + ENDL);
