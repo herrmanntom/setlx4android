@@ -40,6 +40,7 @@
     <string name="menuWriteFilesLibrary">Library</string>
     <string name="menuWriteFilesExamples">Examples</string>
     <string name="menuWriteFilesCancel">Cancel</string>
+    <string name="menuWriteFilesSuccess">Files written: </string>
     <string name="menuWriteFilesFailed">Writing files failed…</string>
     <string name="menuAbout">About</string>
     <string name="menuQuit">Quit</string>

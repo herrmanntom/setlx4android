@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Message;
 
 import org.randoom.setlx.exceptions.JVMException;
 import org.randoom.setlx.utilities.EnvironmentProvider;
@@ -249,13 +250,13 @@ import java.util.Locale;
         return (grantResults.length >= 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED);
     }
 
-    private boolean checkAndRequestFileIOPermission() {
+    /*package*/ boolean checkAndRequestFileIOPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             activity.requestPermissions(PERMISSIONS_TO_REQUEST, FILE_IO_PERMISSION_REQUEST_CODE);
             return false;
         }
         String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
+        return Environment.MEDIA_MOUNTED.equals(state) && new File(getCodeDir()).canWrite();
     }
 
     /**
@@ -271,6 +272,29 @@ import java.util.Locale;
         } else {
             return file.mkdirs();
         }
+    }
+
+    /**
+     * delete a directory at the given path, if it exists.
+     *
+     * @param path Path of the directory to create.
+     * @return True if the directory was deleted.
+     */
+    /*package*/ boolean deleteDirectory(String path) {
+        return deleteRecursively(new File(path));
+    }
+
+    private boolean deleteRecursively(File path) {
+        if (path.isDirectory()) {
+            for (File child : path.listFiles()) {
+                boolean success = deleteRecursively(child);
+                if (!success) {
+                    return false;
+                }
+            }
+        }
+
+        return path.delete();
     }
 
     private void appendMessage(final IO_Stream type, final String msg) {

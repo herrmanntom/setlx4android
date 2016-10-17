@@ -56,7 +56,6 @@ import org.randoom.setlx.utilities.State;
 import org.randoom.util.AndroidDataStorage;
 import org.randoom.util.AndroidUItools;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -583,19 +582,8 @@ public class SetlXforAndroidActivity extends Activity {
                         R.string.menuWriteFilesLibrary,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                if (writingFilesSeemsPossible()) {
-                                    try {
-                                        EncodedFilesWriter.writeLibraryFiles(
-                                                state,
-                                                EncodedLibraryFiles.getBase64EncodedFiles()
-                                        );
-                                    } catch (JVMIOException e) {
-                                        handleWritingFailed();
-                                    }
-                                } else {
-                                    handleWritingFailed();
-                                }
-                                writingFilesSeemsPossible();
+                                writeFiles(true);
+                                dialog.cancel();
                             }
                         }
                 );
@@ -604,26 +592,7 @@ public class SetlXforAndroidActivity extends Activity {
                         R.string.menuWriteFilesExamples,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                if (writingFilesSeemsPossible()) {
-                                    try {
-                                        EncodedFilesWriter.write(
-                                                state,
-                                                envProvider.getCodeDir(),
-                                                new HashSet<>(
-                                                        Arrays.asList(
-                                                                "animation_testcode",
-                                                                "plotting_test_code",
-                                                                "simple_examples/gfx_addon"
-                                                        )
-                                                ),
-                                                EncodedExampleFiles.getBase64EncodedFiles()
-                                        );
-                                    } catch (JVMIOException e) {
-                                        handleWritingFailed();
-                                    }
-                                } else {
-                                    handleWritingFailed();
-                                }
+                                writeFiles(false);
                                 dialog.cancel();
                             }
                         }
@@ -675,18 +644,42 @@ public class SetlXforAndroidActivity extends Activity {
         }
     }
 
-    private boolean writingFilesSeemsPossible() {
-        String fileName = envProvider.filterFileName("a");
-        File parentFile = new File(fileName).getParentFile();
-        if (parentFile == null || !parentFile.canWrite()) {
+    private void writeFiles(boolean writeLibrary) {
+        if (envProvider.checkAndRequestFileIOPermission()) {
+            try {
+                List<String> filesWritten;
+                if (writeLibrary) {
+                    filesWritten = EncodedFilesWriter.writeLibraryFiles(
+                            state,
+                            EncodedLibraryFiles.getBase64EncodedFiles()
+                    );
+                } else {
+                    String examplesDirectory = envProvider.getCodeDir() + "/examples";
+                    envProvider.deleteDirectory(examplesDirectory);
+                    filesWritten = EncodedFilesWriter.write(
+                            state,
+                            examplesDirectory,
+                            new HashSet<>(
+                                    Arrays.asList(
+                                            "animation_testcode",
+                                            "plotting_test_code",
+                                            "simple_examples/gfx_addon"
+                                    )
+                            ),
+                            EncodedExampleFiles.getBase64EncodedFiles()
+                    );
+                }
+                handleWritingSuccess(filesWritten);
+            } catch (JVMIOException e) {
+                uiThreadHandler.post(new Toaster(R.string.menuWriteFilesFailed, ToasterDuration.LONG));
+            }
+        } else {
             uiThreadHandler.post(new Toaster(R.string.noAccessToExternalStorage, ToasterDuration.LONG));
-            return false;
         }
-        return true;
     }
 
-    private void handleWritingFailed() {
-        uiThreadHandler.post(new Toaster(R.string.menuWriteFilesFailed, ToasterDuration.LONG));
+    private void handleWritingSuccess(List<String> filesWritten) {
+        uiThreadHandler.post(new Toaster(R.string.menuWriteFilesSuccess + filesWritten.size(), ToasterDuration.SHORT));
     }
 
     @Override
