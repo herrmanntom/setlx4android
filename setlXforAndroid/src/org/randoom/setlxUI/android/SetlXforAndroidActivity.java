@@ -45,13 +45,20 @@ import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
 import org.randoom.setlx.exceptions.IllegalRedefinitionException;
+import org.randoom.setlx.exceptions.JVMIOException;
+import org.randoom.setlx.files.EncodedExampleFiles;
+import org.randoom.setlx.files.EncodedLibraryFiles;
 import org.randoom.setlx.types.SetlList;
 import org.randoom.setlx.utilities.DummyEnvProvider;
+import org.randoom.setlx.utilities.EncodedFilesWriter;
 import org.randoom.setlx.utilities.EnvironmentProvider;
 import org.randoom.setlx.utilities.State;
 import org.randoom.util.AndroidDataStorage;
 import org.randoom.util.AndroidUItools;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import group.pals.android.lib.ui.filechooser.FileChooserActivity;
@@ -408,6 +415,9 @@ public class SetlXforAndroidActivity extends Activity {
                         item.setVisible(false);
                     }
                     break;
+                case R.id.menuItemWriteFiles:
+                    item.setVisible(!envProvider.isLocked());
+                    break;
                 default:
                     break;
             }
@@ -564,6 +574,75 @@ public class SetlXforAndroidActivity extends Activity {
                     uiThreadHandler.post(new Toaster(R.string.toastAutoResetON, ToasterDuration.SHORT));
                 }
                 return true;
+            case R.id.menuItemWriteFiles:
+                final AlertDialog.Builder filesSelection = new AlertDialog.Builder(this);
+
+                filesSelection.setMessage(R.string.menuWriteFilesQuestion);
+
+                filesSelection.setPositiveButton(
+                        R.string.menuWriteFilesLibrary,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (writingFilesSeemsPossible()) {
+                                    try {
+                                        EncodedFilesWriter.writeLibraryFiles(
+                                                state,
+                                                EncodedLibraryFiles.getBase64EncodedFiles()
+                                        );
+                                    } catch (JVMIOException e) {
+                                        handleWritingFailed();
+                                    }
+                                } else {
+                                    handleWritingFailed();
+                                }
+                                writingFilesSeemsPossible();
+                            }
+                        }
+                );
+
+                filesSelection.setNegativeButton(
+                        R.string.menuWriteFilesExamples,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                if (writingFilesSeemsPossible()) {
+                                    try {
+                                        EncodedFilesWriter.write(
+                                                state,
+                                                envProvider.getCodeDir(),
+                                                new HashSet<>(
+                                                        Arrays.asList(
+                                                                "animation_testcode",
+                                                                "plotting_test_code",
+                                                                "simple_examples/gfx_addon"
+                                                        )
+                                                ),
+                                                EncodedExampleFiles.getBase64EncodedFiles()
+                                        );
+                                    } catch (JVMIOException e) {
+                                        handleWritingFailed();
+                                    }
+                                } else {
+                                    handleWritingFailed();
+                                }
+                                dialog.cancel();
+                            }
+                        }
+                );
+
+                filesSelection.setNeutralButton(
+                        R.string.menuWriteFilesCancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        }
+                );
+
+                filesSelection.setCancelable(true);
+
+                filesSelection.show();
+
+                return true;
             case R.id.menuItemAbout:
                 if (enableDebuggingCount == 2) {
                     enableDebuggingCount++;
@@ -596,6 +675,20 @@ public class SetlXforAndroidActivity extends Activity {
         }
     }
 
+    private boolean writingFilesSeemsPossible() {
+        String fileName = envProvider.filterFileName("a");
+        File parentFile = new File(fileName).getParentFile();
+        if (parentFile == null || !parentFile.canWrite()) {
+            uiThreadHandler.post(new Toaster(R.string.noAccessToExternalStorage, ToasterDuration.LONG));
+            return false;
+        }
+        return true;
+    }
+
+    private void handleWritingFailed() {
+        uiThreadHandler.post(new Toaster(R.string.menuWriteFilesFailed, ToasterDuration.LONG));
+    }
+
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         switch (requestCode) {
@@ -622,7 +715,7 @@ public class SetlXforAndroidActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == AndroidEnvProvider.getFileIOPermissionRequestCode()) {
             if (!AndroidEnvProvider.isFileIOPermissionRequestGranted(grantResults)) {
-                Toast.makeText(this, "External storage cannot be accessed.", Toast.LENGTH_LONG).show();
+                uiThreadHandler.post(new Toaster(R.string.noAccessToExternalStorage, ToasterDuration.LONG));
             }
         }
     }

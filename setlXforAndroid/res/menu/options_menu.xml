@@ -68,6 +68,14 @@
         android:visible="true">
     </item>
     <item
+        android:id="@+id/menuItemWriteFiles"
+        android:checkable="false"
+        android:checked="false"
+        android:enabled="true"
+        android:title="@string/menuWriteFiles"
+        android:visible="true">
+    </item>
+    <item
         android:id="@+id/menuItemAbout"
         android:checkable="false"
         android:checked="false"

@@ -35,6 +35,12 @@
     <string name="toastAutoResetON">Auto Reset enabled.\nMemory content will be reset after executing files.</string>
     <string name="toastAutoResetOFF">Auto Reset disabled.\nMemory content will not be reset after executing files.</string>
     <string name="toastAutoReset">Memory content automatically reset.</string>
+    <string name="menuWriteFiles">(Re)write Files</string>
+    <string name="menuWriteFilesQuestion">Which files should be (re)written?\n\nWarning:\nThis overwrites existing files.</string>
+    <string name="menuWriteFilesLibrary">Library</string>
+    <string name="menuWriteFilesExamples">Examples</string>
+    <string name="menuWriteFilesCancel">Cancel</string>
+    <string name="menuWriteFilesFailed">Writing files failed…</string>
     <string name="menuAbout">About</string>
     <string name="menuQuit">Quit</string>
     <string name="menuKill">Terminate Execution</string>
@@ -45,4 +51,6 @@
     <string name="buttonModeInteractive">→ Interactive</string>
     <string name="toastNotPossibleWhileRunning">This action may not be performed during execution.</string>
     <string name="clipBoardKey">setlX output</string>
+    <string name="noAccessToExternalStorage">External storage cannot be accessed.</string>
+
 </resources>
