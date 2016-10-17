@@ -5,7 +5,7 @@ repositories {
 }
 
 dependencies {
-    compile 'org.randoom.setlx:setlX-core:2.5.1-SNAPSHOT'
+    compile 'org.randoom.setlx:setlX-core:2.5.1'
     compile project(':android-filechooser')
 }
 
