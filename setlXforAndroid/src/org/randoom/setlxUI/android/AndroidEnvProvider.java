@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
-import android.os.Message;
 
 import org.randoom.setlx.exceptions.JVMException;
 import org.randoom.setlx.utilities.EnvironmentProvider;
@@ -256,7 +255,7 @@ import java.util.Locale;
             return false;
         }
         String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state) && new File(getCodeDir()).canWrite();
+        return Environment.MEDIA_MOUNTED.equals(state) && Environment.getExternalStorageDirectory().canWrite();
     }
 
     /**

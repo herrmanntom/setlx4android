@@ -52,6 +52,7 @@ import org.randoom.setlx.types.SetlList;
 import org.randoom.setlx.utilities.DummyEnvProvider;
 import org.randoom.setlx.utilities.EncodedFilesWriter;
 import org.randoom.setlx.utilities.EnvironmentProvider;
+import org.randoom.setlx.utilities.InputReader;
 import org.randoom.setlx.utilities.State;
 import org.randoom.util.AndroidDataStorage;
 import org.randoom.util.AndroidUItools;
@@ -669,17 +670,13 @@ public class SetlXforAndroidActivity extends Activity {
                             EncodedExampleFiles.getBase64EncodedFiles()
                     );
                 }
-                handleWritingSuccess(filesWritten);
+                uiThreadHandler.post(new Toaster(getString(R.string.menuWriteFilesSuccess) + filesWritten.size(), ToasterDuration.SHORT));
             } catch (JVMIOException e) {
                 uiThreadHandler.post(new Toaster(R.string.menuWriteFilesFailed, ToasterDuration.LONG));
             }
         } else {
             uiThreadHandler.post(new Toaster(R.string.noAccessToExternalStorage, ToasterDuration.LONG));
         }
-    }
-
-    private void handleWritingSuccess(List<String> filesWritten) {
-        uiThreadHandler.post(new Toaster(R.string.menuWriteFilesSuccess + filesWritten.size(), ToasterDuration.SHORT));
     }
 
     @Override
@@ -1060,19 +1057,35 @@ public class SetlXforAndroidActivity extends Activity {
 
     private class Toaster implements Runnable {
         private final int toastID;
+        private final String toastMessage;
         private final ToasterDuration duration;
 
         private Toaster(final int toastID, final ToasterDuration duration) {
-            this.toastID  = toastID;
+            this.toastID = toastID;
+            this.toastMessage = null;
+            this.duration = duration;
+        }
+
+        private Toaster(final String toastMessage, final ToasterDuration duration) {
+            this.toastID = Integer.MIN_VALUE;
+            this.toastMessage = toastMessage;
             this.duration = duration;
         }
 
         @Override
         public void run() {
             if (duration == ToasterDuration.LONG) {
-                Toast.makeText(getBaseContext(), toastID, Toast.LENGTH_LONG).show();
+                if (toastMessage != null) {
+                    Toast.makeText(getBaseContext(), toastMessage, Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getBaseContext(), toastID, Toast.LENGTH_LONG).show();
+                }
             } else if (duration == ToasterDuration.SHORT) {
-                Toast.makeText(getBaseContext(), toastID, Toast.LENGTH_SHORT).show();
+                if (toastMessage != null) {
+                    Toast.makeText(getBaseContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getBaseContext(), toastID, Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
