@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.randoom.setlxUI.android"
     android:installLocation="auto"
-    android:versionCode="94"
-    android:versionName="2.5.1 (A2.6.3)" >
+    android:versionCode="95"
+    android:versionName="2.5.1 (A2.6.4)" >
 
     <uses-sdk
         android:minSdkVersion="15"

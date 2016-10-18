@@ -40,8 +40,9 @@
     <string name="menuWriteFilesLibrary">Library</string>
     <string name="menuWriteFilesExamples">Examples</string>
     <string name="menuWriteFilesCancel">Cancel</string>
-    <string name="menuWriteFilesSuccess">Files written: </string>
-    <string name="menuWriteFilesFailed">Writing files failed…</string>
+    <string name="writeFilesStart">Writing files…</string>
+    <string name="writeFilesSuccess">Files written:</string>
+    <string name="writeFilesFailed">Writing files failed…</string>
     <string name="menuAbout">About</string>
     <string name="menuQuit">Quit</string>
     <string name="menuKill">Terminate Execution</string>
