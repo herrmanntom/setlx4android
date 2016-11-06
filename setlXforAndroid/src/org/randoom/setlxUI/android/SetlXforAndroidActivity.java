@@ -141,54 +141,6 @@ public class SetlXforAndroidActivity extends Activity {
     private boolean               isActive;
     private boolean               isKilling;
 
-    private class OpenListener implements View.OnClickListener {
-        @Override
-        public void onClick(final View v) {
-            final Intent intent = new Intent(v.getContext(), FileChooserActivity.class);
-            if (envProvider.createCodeDir()) {
-                // pre-select root dir
-                String codeDir = envProvider.getCodeDir();
-                intent.putExtra(FileChooserActivity._Rootpath, (Parcelable) new LocalFile(codeDir));
-                // pre-select last file
-                final String currentFile = inputFileMode.getText().toString();
-                if (!currentFile.equals("")) {
-                    intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(envProvider.expandPath(currentFile)));
-                }
-                // start selection dialog
-                startActivityForResult(intent, REQUEST_FILE_FLAG);
-            } else {
-                Toast.makeText(v.getContext(), "External storage cannot be accessed.", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    private class ModeListener implements View.OnClickListener {
-        @Override
-        public void onClick(final View v) {
-            if (mode == ExecutionMode.FILE_MODE) {
-                mode =  ExecutionMode.INTERACTIVE_MODE;
-            } else /* if (mode == ExecutionMode.INTERACTIVE_MODE) */ {
-                mode = ExecutionMode.FILE_MODE;
-            }
-            switchMode();
-        }
-    }
-
-    private class ExecListener implements View.OnClickListener {
-        @Override
-        public void onClick(final View v) {
-            preExecute(v);
-
-            if (mode == ExecutionMode.FILE_MODE) {
-                final String fileName = inputFileMode.getText().toString();
-                envProvider.executeFile(state, envProvider.expandPath(fileName));
-            } else /* if (mode == ExecutionMode.INTERACTIVE_MODE) */ {
-                final String code = getInteractiveInput().toString();
-                envProvider.execute(state, code);
-            }
-        }
-    }
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -897,9 +849,9 @@ public class SetlXforAndroidActivity extends Activity {
             output.setTypeface(Typeface.DEFAULT);
         }
 
-        openFileBtn.setOnClickListener(new OpenListener());
-        modeSwitchBtn.setOnClickListener(new ModeListener());
-        executeBtn.setOnClickListener(new ExecListener());
+        openFileBtn.setOnClickListener(new OpenListener(this));
+        modeSwitchBtn.setOnClickListener(new ModeListener(this));
+        executeBtn.setOnClickListener(new ExecListener(this));
 
         registerForContextMenu(output);
 
@@ -1011,6 +963,72 @@ public class SetlXforAndroidActivity extends Activity {
     private enum ToasterDuration {
         LONG,
         SHORT
+    }
+
+    private static class OpenListener implements View.OnClickListener {
+        private final SetlXforAndroidActivity activity;
+
+        private OpenListener(SetlXforAndroidActivity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onClick(final View v) {
+            final Intent intent = new Intent(v.getContext(), FileChooserActivity.class);
+            if (activity.envProvider.createCodeDir()) {
+                // pre-select root dir
+                String codeDir = activity.envProvider.getCodeDir();
+                intent.putExtra(FileChooserActivity._Rootpath, (Parcelable) new LocalFile(codeDir));
+                // pre-select last file
+                final String currentFile = activity.inputFileMode.getText().toString();
+                if (!currentFile.equals("")) {
+                    intent.putExtra(FileChooserActivity._SelectFile, (Parcelable) new LocalFile(activity.envProvider.expandPath(currentFile)));
+                }
+                // start selection dialog
+                activity.startActivityForResult(intent, REQUEST_FILE_FLAG);
+            } else {
+                Toast.makeText(v.getContext(), "External storage cannot be accessed.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private static class ModeListener implements View.OnClickListener {
+        private final SetlXforAndroidActivity activity;
+
+        private ModeListener(SetlXforAndroidActivity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onClick(final View v) {
+            if (activity.mode == ExecutionMode.FILE_MODE) {
+                activity.mode =  ExecutionMode.INTERACTIVE_MODE;
+            } else /* if (mode == ExecutionMode.INTERACTIVE_MODE) */ {
+                activity.mode = ExecutionMode.FILE_MODE;
+            }
+            activity.switchMode();
+        }
+    }
+
+    private static class ExecListener implements View.OnClickListener {
+        private final SetlXforAndroidActivity activity;
+
+        private ExecListener(SetlXforAndroidActivity activity) {
+            this.activity = activity;
+        }
+
+        @Override
+        public void onClick(final View v) {
+            activity.preExecute(v);
+
+            if (activity.mode == ExecutionMode.FILE_MODE) {
+                final String fileName = activity.inputFileMode.getText().toString();
+                activity.envProvider.executeFile(state, activity.envProvider.expandPath(fileName));
+            } else /* if (mode == ExecutionMode.INTERACTIVE_MODE) */ {
+                final String code = activity.getInteractiveInput().toString();
+                activity.envProvider.execute(state, code);
+            }
+        }
     }
 
     private static class UiLocker implements Runnable {

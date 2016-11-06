@@ -1,15 +1,14 @@
 package org.randoom.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-
-import org.randoom.setlxUI.android.R;
-
 import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+
+import org.randoom.setlxUI.android.R;
+
+import java.io.IOException;
+import java.io.RandomAccessFile;
 
 /**
  * Some simple utility functions.

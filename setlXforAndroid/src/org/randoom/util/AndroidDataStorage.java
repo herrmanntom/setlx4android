@@ -14,7 +14,6 @@ public class AndroidDataStorage {
     private static final String DATABASE_NAME    = "persistentStorage.db";
     private static final int    DATABASE_VERSION = 1;
 
-    private final Context       context;
     private SQLiteDatabase      db;
     private OpenHelper          oh;
 
@@ -24,8 +23,7 @@ public class AndroidDataStorage {
      * @param context Android Context.
      */
     public AndroidDataStorage(final Context context) {
-        this.context = context;
-        this.oh = new OpenHelper(this.context);
+        this.oh = new OpenHelper(context);
         this.db = oh.getWritableDatabase();
     }
 

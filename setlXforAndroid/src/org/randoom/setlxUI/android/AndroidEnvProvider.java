@@ -11,7 +11,7 @@ import org.randoom.setlx.utilities.State;
 import org.randoom.setlxUI.android.SetlXforAndroidActivity.IO_Stream;
 
 import java.io.File;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,7 +36,7 @@ import java.util.Locale;
     private SetlXforAndroidActivity   activity;
     private Executioner               executioner;
     private String                    lastPrompt;
-    private final LinkedList<Message> messageBuffer;
+    private final ArrayDeque<Message> messageBuffer;
     private boolean                   isLocked;
     private String                    currentDir;
     private String                    input;
@@ -50,7 +50,7 @@ import java.util.Locale;
         this.activity       = activity;
         this.executioner    = null;
         this.lastPrompt     = null;
-        this.messageBuffer  = new LinkedList<>();
+        this.messageBuffer  = new ArrayDeque<>();
         this.isLocked       = false;
         this.currentDir     = CODE_DIR;
         this.input          = null;
@@ -315,16 +315,6 @@ import java.util.Locale;
         depleteMessageBuffer();
     }
 
-    private class Message {
-        /*package*/ IO_Stream type;
-        /*package*/ String    text;
-
-        /*package*/ Message(final IO_Stream type, final String text) {
-            this.type = type;
-            this.text = text;
-        }
-    }
-
     /* interface functions */
 
     @Override
@@ -443,5 +433,15 @@ import java.util.Locale;
     @Override
     public int getSmallStackSizeWishInKb() {
         return 0;
+    }
+
+    private static class Message {
+        /*package*/ IO_Stream type;
+        /*package*/ String    text;
+
+        /*package*/ Message(final IO_Stream type, final String text) {
+            this.type = type;
+            this.text = text;
+        }
     }
 }
