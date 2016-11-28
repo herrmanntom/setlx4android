@@ -609,18 +609,19 @@ public class SetlXforAndroidActivity extends Activity {
             case REQUEST_FILE_FLAG:
                 if (resultCode == RESULT_OK) {
 
-                /*
-                 * a list of files will always return,
-                 * if selection mode is single, the list contains one file
-                 */
-                @SuppressWarnings("unchecked")
-                final
-                List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
-                for (final LocalFile f : files) {
-                    this.inputFileMode.setText(this.envProvider.stripPath(f.getAbsolutePath()));
+                    /*
+                     * file chooser always returns a list of files;
+                     * if selection mode is single, the list contains one file
+                     */
+                    @SuppressWarnings("unchecked")
+                    final
+                    List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
+                    for (final LocalFile f : files) {
+                        this.inputFileMode.setText(this.envProvider.stripPath(f.getAbsolutePath()));
+                    }
                 }
-            }
-            break;
+                lockUI(false);
+                break;
         }
     }
 
@@ -974,6 +975,7 @@ public class SetlXforAndroidActivity extends Activity {
 
         @Override
         public void onClick(final View v) {
+            activity.lockUI(true);
             final Intent intent = new Intent(v.getContext(), FileChooserActivity.class);
             if (activity.envProvider.createCodeDir()) {
                 // pre-select root dir
@@ -988,6 +990,7 @@ public class SetlXforAndroidActivity extends Activity {
                 activity.startActivityForResult(intent, REQUEST_FILE_FLAG);
             } else {
                 Toast.makeText(v.getContext(), "External storage cannot be accessed.", Toast.LENGTH_LONG).show();
+                activity.lockUI(false);
             }
         }
     }
