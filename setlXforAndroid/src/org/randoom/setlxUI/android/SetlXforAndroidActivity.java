@@ -71,7 +71,7 @@ public class SetlXforAndroidActivity extends Activity {
     private     final static String  SETL_X_URL           = "http://setlX.randoom.org/";
     private     final static String  ANTLR_URL            = "http://www.antlr.org/";
     private     final static String  FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
-    private     final static String  SETL_X_C_YEARS       = "2011-2016";
+    private     final static String  SETL_X_C_YEARS       = "2011-2017";
 
     private enum ExecutionMode {
         INTERACTIVE_MODE,
