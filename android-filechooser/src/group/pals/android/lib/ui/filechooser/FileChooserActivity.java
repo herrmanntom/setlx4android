@@ -84,13 +84,13 @@ import android.widget.TextView;
  * {@link DisplayPrefs#isRememberLastLocation(Context)}, the priorities of them
  * are:<br>
  * <li>1. {@link FileChooserActivity#_SelectFile}</li>
- * 
+ *
  * <li>2. {@link DisplayPrefs#isRememberLastLocation(Context)}</li>
- * 
+ *
  * <li>3. {@link FileChooserActivity#_Rootpath}</li>
- * 
+ *
  * @author Hai Bison
- * 
+ *
  */
 public class FileChooserActivity extends Activity {
 
@@ -101,11 +101,11 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Types of view.
-     * 
+     *
      * @author Hai Bison
      * @since v4.0 beta
      */
-    public static enum ViewType {
+    public enum ViewType {
         /**
          * Use {@link ListView} to display file list.
          */
@@ -123,15 +123,15 @@ public class FileChooserActivity extends Activity {
     /**
      * Sets value of this key to a theme in {@code android.R.style.Theme_*}.<br>
      * Default is:<br>
-     * 
+     *
      * <li>{@link android.R.style#Theme_DeviceDefault} for {@code SDK >= }
      * {@link Build.VERSION_CODES#ICE_CREAM_SANDWICH}</li>
-     * 
+     *
      * <li>{@link android.R.style#Theme_Holo} for {@code SDK >= }
      * {@link Build.VERSION_CODES#HONEYCOMB}</li>
-     * 
+     *
      * <li>{@link android.R.style#Theme} for older systems</li>
-     * 
+     *
      * @since v4.3 beta
      */
     public static final String _Theme = _ClassName + ".theme";
@@ -186,7 +186,7 @@ public class FileChooserActivity extends Activity {
      * directories. In older versions, double tapping is default. However, since
      * v4.7 beta, single tapping is default. So if you want to keep the old way,
      * please set this key to {@code true}.
-     * 
+     *
      * @since v4.7 beta
      */
     public static final String _DoubleTapToChooseFiles = _ClassName + ".double_tap_to_choose_files";
@@ -195,10 +195,10 @@ public class FileChooserActivity extends Activity {
      * an {@link IFile}.<br>
      * <b>Notes:</b><br>
      * <li>Currently this key is only used for single selection mode.</li>
-     * 
+     *
      * <li>If you use save dialog mode, this key will override key
      * {@link #_DefaultFilename}.</li>
-     * 
+     *
      * @since v4.7 beta
      */
     public static final String _SelectFile = _ClassName + ".select_file";
@@ -291,14 +291,7 @@ public class FileChooserActivity extends Activity {
          */
 
         if (getIntent().hasExtra(_Theme)) {
-            int theme;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-                theme = getIntent().getIntExtra(_Theme, android.R.style.Theme_DeviceDefault);
-            else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                theme = getIntent().getIntExtra(_Theme, android.R.style.Theme_Holo);
-            else
-                theme = getIntent().getIntExtra(_Theme, android.R.style.Theme);
-            setTheme(theme);
+            setTheme(getIntent().getIntExtra(_Theme, android.R.style.Theme_DeviceDefault));
         }
 
         super.onCreate(savedInstanceState);
@@ -322,15 +315,15 @@ public class FileChooserActivity extends Activity {
 
         // load controls
 
-        mViewGoBack = (ImageView) findViewById(R.id.afc_filechooser_activity_button_go_back);
-        mViewGoForward = (ImageView) findViewById(R.id.afc_filechooser_activity_button_go_forward);
-        mViewLocations = (ViewGroup) findViewById(R.id.afc_filechooser_activity_view_locations);
-        mViewLocationsContainer = (HorizontalScrollView) findViewById(R.id.afc_filechooser_activity_view_locations_container);
-        mTxtFullDirName = (TextView) findViewById(R.id.afc_filechooser_activity_textview_full_dir_name);
-        mViewFilesContainer = (ViewGroup) findViewById(R.id.afc_filechooser_activity_view_files_container);
-        mFooterView = (TextView) findViewById(R.id.afc_filechooser_activity_view_files_footer_view);
-        mTxtSaveas = (EditText) findViewById(R.id.afc_filechooser_activity_textview_saveas_filename);
-        mBtnOk = (Button) findViewById(R.id.afc_filechooser_activity_button_ok);
+        mViewGoBack = findViewById(R.id.afc_filechooser_activity_button_go_back);
+        mViewGoForward = findViewById(R.id.afc_filechooser_activity_button_go_forward);
+        mViewLocations = findViewById(R.id.afc_filechooser_activity_view_locations);
+        mViewLocationsContainer = findViewById(R.id.afc_filechooser_activity_view_locations_container);
+        mTxtFullDirName = findViewById(R.id.afc_filechooser_activity_textview_full_dir_name);
+        mViewFilesContainer = findViewById(R.id.afc_filechooser_activity_view_files_container);
+        mFooterView = findViewById(R.id.afc_filechooser_activity_view_files_footer_view);
+        mTxtSaveas = findViewById(R.id.afc_filechooser_activity_textview_saveas_filename);
+        mBtnOk = findViewById(R.id.afc_filechooser_activity_button_ok);
 
         // history
         if (savedInstanceState != null && savedInstanceState.get(_History) instanceof HistoryStore<?>)
@@ -490,7 +483,7 @@ public class FileChooserActivity extends Activity {
      * Connects to file provider service, then loads root directory. If can not,
      * then finishes this activity with result code =
      * {@link Activity#RESULT_CANCELED}
-     * 
+     *
      * @param savedInstanceState
      */
     private void bindService(final Bundle savedInstanceState) {
@@ -552,14 +545,14 @@ public class FileChooserActivity extends Activity {
 
                     /*
                      * Priorities for starting path:
-                     * 
+                     *
                      * 1. Current location (in case the activity has been killed
                      * after configurations changed).
-                     * 
+                     *
                      * 2. Selected file from key _SelectFile.
-                     * 
+                     *
                      * 3. Last location.
-                     * 
+                     *
                      * 4. Root path from key _Rootpath.
                      */
 
@@ -569,7 +562,7 @@ public class FileChooserActivity extends Activity {
                     // selected file
                     IFile selectedFile = null;
                     if (path == null) {
-                        selectedFile = (IFile) getIntent().getParcelableExtra(_SelectFile);
+                        selectedFile = getIntent().getParcelableExtra(_SelectFile);
                         if (selectedFile != null && selectedFile.exists())
                             path = selectedFile.parentFile();
                         if (path == null)
@@ -734,9 +727,9 @@ public class FileChooserActivity extends Activity {
          * explicit class
          */
         if (mViewFiles instanceof ListView)
-            ((ListView) mViewFiles).setAdapter(mFileAdapter);
+            mViewFiles.setAdapter(mFileAdapter);
         else
-            ((GridView) mViewFiles).setAdapter(mFileAdapter);
+            mViewFiles.setAdapter(mFileAdapter);
     }// createIFileAdapter()
 
     /**
@@ -748,8 +741,8 @@ public class FileChooserActivity extends Activity {
     private void setupFooter() {
         // by default, view group footer and all its child views are hidden
 
-        ViewGroup viewGroupFooterContainer = (ViewGroup) findViewById(R.id.afc_filechooser_activity_viewgroup_footer_container);
-        ViewGroup viewGroupFooter = (ViewGroup) findViewById(R.id.afc_filechooser_activity_viewgroup_footer);
+        ViewGroup viewGroupFooterContainer = findViewById(R.id.afc_filechooser_activity_viewgroup_footer_container);
+        ViewGroup viewGroupFooter = findViewById(R.id.afc_filechooser_activity_viewgroup_footer);
 
         if (mIsSaveDialog) {
             viewGroupFooterContainer.setVisibility(View.VISIBLE);
@@ -869,12 +862,11 @@ public class FileChooserActivity extends Activity {
 
         View view = getLayoutInflater().inflate(R.layout.afc_settings_sort_view, null);
         for (int i = 0; i < _BtnSortIds.length; i++) {
-            Button btn = (Button) view.findViewById(_BtnSortIds[i]);
+            Button btn = view.findViewById(_BtnSortIds[i]);
             btn.setOnClickListener(listener);
             if (i == btnCurrentSortTypeIdx) {
                 btn.setEnabled(false);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                    btn.setText(R.string.afc_ellipsize);
+                btn.setText(R.string.afc_ellipsize);
             }
         }
 
@@ -900,8 +892,7 @@ public class FileChooserActivity extends Activity {
         mFileProvider.setSortType(DisplayPrefs.getSortType(this));
         mFileProvider.setSortOrder(DisplayPrefs.isSortAscending(this) ? SortOrder.Ascending : SortOrder.Descending);
         doReloadCurrentLocation();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            ActivityCompat.invalidateOptionsMenu(this);
+        ActivityCompat.invalidateOptionsMenu(this);
     }// resortViewFiles()
 
     /**
@@ -925,8 +916,7 @@ public class FileChooserActivity extends Activity {
                 }
 
                 setupViewFiles();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-                    ActivityCompat.invalidateOptionsMenu(FileChooserActivity.this);
+                ActivityCompat.invalidateOptionsMenu(FileChooserActivity.this);
 
                 doReloadCurrentLocation();
             }// onPreExecute()
@@ -952,7 +942,7 @@ public class FileChooserActivity extends Activity {
         final AlertDialog _dlg = Dlg.newDlg(this);
 
         View view = getLayoutInflater().inflate(R.layout.afc_simple_text_input_view, null);
-        final EditText _textFile = (EditText) view.findViewById(R.id.afc_simple_text_input_view_text1);
+        final EditText _textFile = view.findViewById(R.id.afc_simple_text_input_view_text1);
         _textFile.setHint(R.string.afc_hint_folder_name);
         _textFile.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 
@@ -1018,7 +1008,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Updates UI that {@code data} will not be deleted.
-     * 
+     *
      * @param data
      *            {@link IFileDataModel}
      */
@@ -1029,7 +1019,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Deletes a file.
-     * 
+     *
      * @param file
      *            {@link IFile}
      */
@@ -1131,7 +1121,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * As the name means.
-     * 
+     *
      * @param filename
      * @since v1.91
      */
@@ -1162,7 +1152,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Gets current location.
-     * 
+     *
      * @return current location, can be {@code null}.
      */
     private IFile getLocation() {
@@ -1171,7 +1161,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Sets current location.
-     * 
+     *
      * @param path
      *            the path
      * @param listener
@@ -1185,7 +1175,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Sets current location.
-     * 
+     *
      * @param path
      *            the path
      * @param listener
@@ -1319,7 +1309,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Goes to a specified location.
-     * 
+     *
      * @param dir
      *            a directory, of course.
      * @return {@code true} if {@code dir} <b><i>can</i></b> be browsed to.
@@ -1415,7 +1405,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Finishes this activity.
-     * 
+     *
      * @param files
      *            list of {@link IFile}
      */
@@ -1428,7 +1418,7 @@ public class FileChooserActivity extends Activity {
 
     /**
      * Finishes this activity.
-     * 
+     *
      * @param files
      *            list of {@link IFile}
      */
@@ -1642,7 +1632,7 @@ public class FileChooserActivity extends Activity {
 
             /**
              * Gets {@link IFileDataModel} from {@code e}.
-             * 
+             *
              * @param e
              *            {@link MotionEvent}.
              * @return the data model, or {@code null} if not available.

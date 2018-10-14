@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Interface for {@link IFile} providers.<br>
  * <br>
- * 
+ *
  * @author Hai Bison
  * @since v2.1 alpha
  */
@@ -27,11 +27,11 @@ public interface IFileProvider {
      * - {@link #SortByName}<br>
      * - {@link #SortBySize}<br>
      * - {@link #SortByDate}
-     * 
+     *
      * @author Hai Bison
      * @since v2.1 alpha
      */
-    public static enum SortType {
+    enum SortType {
         /**
          * Sort by name, (directories first, case-insensitive)
          */
@@ -51,11 +51,11 @@ public interface IFileProvider {
      * Includes:<br>
      * - {@link #Ascending}<br>
      * - {@link #Descending}
-     * 
+     *
      * @author Hai Bison
      * @since v2.1 alpha
      */
-    public static enum SortOrder {
+    enum SortOrder {
         /**
          * Sort ascending.
          */
@@ -82,11 +82,11 @@ public interface IFileProvider {
      * - {@link #FilesOnly}<br>
      * - {@link #DirectoriesOnly}<br>
      * - {@link #FilesAndDirectories}
-     * 
+     *
      * @author Hai Bison
      * @since v2.1 alpha
      */
-    public static enum FilterMode {
+    enum FilterMode {
         /**
          * User can choose files only
          */
@@ -103,95 +103,95 @@ public interface IFileProvider {
 
     /**
      * Sets {@code true} if you want to display hidden files.
-     * 
+     *
      * @param display
      */
     void setDisplayHiddenFiles(boolean display);
 
     /**
-     * 
+     *
      * @return {@code true} if hidden files are displayed
      */
     boolean isDisplayHiddenFiles();
 
     /**
      * Sets regular expression for filter filename.
-     * 
+     *
      * @param regex
      */
     void setRegexFilenameFilter(String regex);
 
     /**
-     * 
+     *
      * @return the regular expression for file name filter
      */
     String getRegexFilenameFilter();
 
     /**
      * Sets filter mode.
-     * 
+     *
      * @param fm
      *            {@link FilterMode}
      */
     void setFilterMode(FilterMode fm);
 
     /**
-     * 
+     *
      * @return the {@link FilterMode}
      */
     FilterMode getFilterMode();
 
     /**
      * Sets sort type.
-     * 
+     *
      * @param st
      *            {@link SortType}
      */
     void setSortType(SortType st);
 
     /**
-     * 
+     *
      * @return the {@link SortType}
      */
     SortType getSortType();
 
     /**
      * Sets sort order.
-     * 
+     *
      * @param so
      *            {@link SortOrder}
      */
     void setSortOrder(SortOrder so);
 
     /**
-     * 
+     *
      * @return {@link SortOrder}
      */
     SortOrder getSortOrder();
 
     /**
      * Sets max file count allowed to be listed.
-     * 
+     *
      * @param max
      */
     void setMaxFileCount(int max);
 
     /**
-     * 
+     *
      * @return the max file count allowed to be listed
      */
     int getMaxFileCount();
 
     /**
      * Gets default path of file provider.
-     * 
+     *
      * @return {@link IFile}
      */
     IFile defaultPath();
 
     /**
      * Gets path from pathname.
-     * 
+     *
      * @param pathname
      *            a {@link String}
      * @return the path from {@code pathname}
@@ -201,9 +201,9 @@ public interface IFileProvider {
     /**
      * Lists files inside {@code dir}, the result should be sorted with
      * {@link SortType} and {@link SortOrder}
-     * 
+     *
      * @deprecated
-     * 
+     *
      * @param dir
      *            the root directory which needs to list files
      * @param hasMoreFiles
@@ -221,7 +221,7 @@ public interface IFileProvider {
     /**
      * Lists files inside {@code dir}, the result should be sorted with
      * {@link SortType} and {@link SortOrder}
-     * 
+     *
      * @param dir
      *            the root directory which needs to list files
      * @param hasMoreFiles
@@ -239,7 +239,7 @@ public interface IFileProvider {
 
     /**
      * Lists all files inside {@code dir}, <b><i>no</b></i> filter.
-     * 
+     *
      * @param dir
      *            the root directory which needs to list files
      * @return a list of files, or {@code null} if an exception occurs.
@@ -255,7 +255,7 @@ public interface IFileProvider {
      * files are returned as a list of files. Returns {@code null} if
      * {@code dir} is not a directory. If {@code filter} is {@code null} then
      * all files match.
-     * 
+     *
      * @param dir
      *            an {@link IFile}
      * @param filter
@@ -267,7 +267,7 @@ public interface IFileProvider {
 
     /**
      * Filters {@code pathname} based on this file provider configurations.
-     * 
+     *
      * @param pathname
      *            {@link IFile}
      * @return {@code true} if {@code pathname} passed all filter

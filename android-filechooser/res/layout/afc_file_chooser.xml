@@ -104,6 +104,7 @@
 
     <LinearLayout
         android:id="@+id/afc_filechooser_activity_viewgroup_footer_container"
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -118,6 +119,7 @@
 
         <LinearLayout
             android:id="@+id/afc_filechooser_activity_viewgroup_footer"
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -141,6 +143,7 @@
 
             <Button
                 android:id="@+id/afc_filechooser_activity_button_ok"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

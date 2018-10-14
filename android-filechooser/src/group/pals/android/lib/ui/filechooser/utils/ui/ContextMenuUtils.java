@@ -18,16 +18,16 @@ import android.widget.ListView;
 
 /**
  * Utilities for context menu.
- * 
+ *
  * @author Hai Bison
  * @since v4.3 beta
- * 
+ *
  */
 public class ContextMenuUtils {
 
     /**
      * Shows context menu.
-     * 
+     *
      * @param context
      *            {@link Context}
      * @param iconId
@@ -74,7 +74,7 @@ public class ContextMenuUtils {
 
     /**
      * Shows context menu.
-     * 
+     *
      * @param context
      *            {@link Context}
      * @param iconId
@@ -98,13 +98,13 @@ public class ContextMenuUtils {
     /**
      * @author Hai Bison
      * @since v4.3 beta
-     * 
+     *
      */
-    public static interface OnMenuItemClickListener {
+    public interface OnMenuItemClickListener {
 
         /**
          * This method will be called after the menu dismissed.
-         * 
+         *
          * @param resId
          *            the resource ID of the title of the menu item.
          */

@@ -70,8 +70,7 @@ public class SetlXforAndroidActivity extends Activity {
 
     private     final static String  SETL_X_URL           = "http://setlX.randoom.org/";
     private     final static String  ANTLR_URL            = "http://www.antlr.org/";
-    private     final static String  FILECHOOSER_URL      = "https://code.google.com/p/android-filechooser/";
-    private     final static String  SETL_X_C_YEARS       = "2011-2017";
+    private     final static String  SETL_X_C_YEARS       = "2011-2018";
 
     private enum ExecutionMode {
         INTERACTIVE_MODE,
@@ -165,7 +164,7 @@ public class SetlXforAndroidActivity extends Activity {
         final String action = intent.getAction();
         final String type   = intent.getType();
 
-        if (Intent.ACTION_SEND.equals(action) && type != null && "text/plain".equals(type)) {
+        if (Intent.ACTION_SEND.equals(action) && "text/plain".equals(type)) {
             // Handle text being sent
             String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
             if (sharedText == null) {
@@ -788,15 +787,15 @@ public class SetlXforAndroidActivity extends Activity {
     }
 
     private void setup(final boolean outputIsReset) {
-        prompt           = (TextView)    findViewById(R.id.textViewPrompt);
-        load             = (TextView)    findViewById(R.id.textViewLoad);
-        inputInteractive = (EditText)    findViewById(R.id.inputInteractiveMode);
-        inputFileMode    = (EditText)    findViewById(R.id.inputFileMode);
-        openFileBtn      = (ImageButton) findViewById(R.id.buttonOpenFile);
-        modeSwitchBtn    = (Button)      findViewById(R.id.buttonModeSwitch);
-        executeBtn       = (Button)      findViewById(R.id.buttonExecute);
-        outputScrollView = (ScrollView)  findViewById(R.id.scrollViewOutput);
-        output           = (TextView)    findViewById(R.id.textViewOutput);
+        prompt           = findViewById(R.id.textViewPrompt);
+        load             = findViewById(R.id.textViewLoad);
+        inputInteractive = findViewById(R.id.inputInteractiveMode);
+        inputFileMode    = findViewById(R.id.inputFileMode);
+        openFileBtn      = findViewById(R.id.buttonOpenFile);
+        modeSwitchBtn    = findViewById(R.id.buttonModeSwitch);
+        executeBtn       = findViewById(R.id.buttonExecute);
+        outputScrollView = findViewById(R.id.scrollViewOutput);
+        output           = findViewById(R.id.textViewOutput);
 
         // (re) initialize setlX Environment
         if (state != null) {
@@ -928,7 +927,6 @@ public class SetlXforAndroidActivity extends Activity {
         text = text.replace("$SHELL_VERSION$", filterVersionString(SourceVersion.SETL_X_SHELL_VERSION));
         text = text.replace("$URL_START$", "<a href=\""+ SETL_X_URL + "\">");
         text = text.replace("$ANTLR_URL_START$", "<a href=\""+ ANTLR_URL + "\">");
-        text = text.replace("$FILECHOOSER_URL_START$", "<a href=\""+ FILECHOOSER_URL + "\">");
         text = text.replace("$URL_END$", "</a>");
         return text.replace("$YEARS$", SETL_X_C_YEARS);
     }
@@ -936,7 +934,7 @@ public class SetlXforAndroidActivity extends Activity {
     private String filterVersionString(String setlXBaseVersion) {
         if (setlXBaseVersion.endsWith("-dirty")) {
             setlXBaseVersion = setlXBaseVersion.substring(0, 19) + "-dirty";
-        } else {
+        } else if (setlXBaseVersion.length() > 19) {
             setlXBaseVersion = setlXBaseVersion.substring(0, 19);
         }
         return setlXBaseVersion;
@@ -1206,10 +1204,10 @@ public class SetlXforAndroidActivity extends Activity {
             @SuppressLint("InflateParams")
             final View           alertContent = inflater.inflate(R.layout.select_dialog, null);
 
-            final TextView message = (TextView) alertContent.findViewById(R.id.messageText);
+            final TextView message = alertContent.findViewById(R.id.messageText);
             message.setText(question);
 
-            final ListView buttons = (ListView) alertContent.findViewById(R.id.list);
+            final ListView buttons = alertContent.findViewById(R.id.list);
             buttons.setAdapter(new ArrayAdapter<>(activity, android.R.layout.select_dialog_item, answers));
             buttons.setOnItemClickListener(new OnItemClickListener() {
                 @Override

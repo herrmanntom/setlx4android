@@ -14,7 +14,7 @@ import android.os.IBinder;
 
 /**
  * Base service for a file provider.
- * 
+ *
  * @author Hai Bison
  * @since v3.1
  */
@@ -58,7 +58,7 @@ public abstract class FileProviderService extends Service implements IFileProvid
     @Override
     public void setDisplayHiddenFiles(boolean display) {
         mDisplayHiddenFiles = display;
-    };
+    }
 
     @Override
     public boolean isDisplayHiddenFiles() {
@@ -68,7 +68,7 @@ public abstract class FileProviderService extends Service implements IFileProvid
     @Override
     public void setRegexFilenameFilter(String regex) {
         mRegexFilenameFilter = regex;
-    };
+    }
 
     @Override
     public String getRegexFilenameFilter() {
@@ -108,7 +108,7 @@ public abstract class FileProviderService extends Service implements IFileProvid
     @Override
     public void setMaxFileCount(int max) {
         mMaxFileCount = max;
-    };
+    }
 
     @Override
     public int getMaxFileCount() {

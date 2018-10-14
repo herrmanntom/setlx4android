@@ -8,12 +8,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="group.pals.android.lib.ui.filechooser"
-    android:versionCode="44"
+    android:versionCode="45"
     android:versionName="5.0" >
-
-    <uses-sdk
-        android:minSdkVersion="9"
-        android:targetSdkVersion="17" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 

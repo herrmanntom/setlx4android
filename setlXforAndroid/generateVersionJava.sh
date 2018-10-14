@@ -21,6 +21,9 @@ if [[ "$setlXLibrary" != "nil" ]]; then
             afterImplementation=0
         fi
     done < <( unzip -q -c "$setlXLibrary" "META-INF/MANIFEST.MF" | sed 's/\r$//' )
+else
+    echo "could not find setlX-core dependency" >&2
+    exit 1
 fi
 
 baseVersion=${baseVersion#*": v"}
