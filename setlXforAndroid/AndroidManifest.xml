@@ -3,7 +3,7 @@
     package="org.randoom.setlxUI.android"
     android:installLocation="auto"
     android:versionCode="101"
-    android:versionName="2.7.0 (A2.6.5)" >
+    android:versionName="2.7.1 (A2.6.5)" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 

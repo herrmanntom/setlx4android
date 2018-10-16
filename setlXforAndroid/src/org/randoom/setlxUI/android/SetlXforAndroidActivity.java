@@ -923,7 +923,7 @@ public class SetlXforAndroidActivity extends Activity {
         } catch (final NameNotFoundException e) {
             text = text.replace("$VERSION$", "??");
         }
-        text = text.replace("$BASE_VERSION$", filterVersionString(SourceVersion.SETL_X_BASE_VERSION));
+        text = text.replace("$BASE_VERSION$", filterVersionString(State.getSetlXBuildNumber()));
         text = text.replace("$SHELL_VERSION$", filterVersionString(SourceVersion.SETL_X_SHELL_VERSION));
         text = text.replace("$URL_START$", "<a href=\""+ SETL_X_URL + "\">");
         text = text.replace("$ANTLR_URL_START$", "<a href=\""+ ANTLR_URL + "\">");

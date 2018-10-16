@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.randoom.setlx:setlX-core:2.7.0'
+    implementation 'org.randoom.setlx:setlX-core:2.7.1'
     implementation project(':android-filechooser')
 }
 
@@ -53,8 +53,8 @@ task generateVersionJava {
 }
 
 task copyDeps(type: Copy) {
-  from configurations.compile
-  into 'build/libraries'
+    from configurations.compile
+    into "${buildDir}/outputs"
 }
 
 generateVersionJava.dependsOn(copyDeps)
