@@ -4,6 +4,7 @@ repositories {
     mavenLocal()
     mavenCentral()
     google()
+    jcenter()
 }
 
 dependencies {

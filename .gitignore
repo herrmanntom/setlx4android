@@ -3,6 +3,7 @@
 /.gradle
 /.metadata
 /build
+/release
 /*/build
 /*/bin
 /*/gen
