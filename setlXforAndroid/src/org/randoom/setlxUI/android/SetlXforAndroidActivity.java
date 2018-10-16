@@ -1271,6 +1271,7 @@ public class SetlXforAndroidActivity extends Activity {
                                     Arrays.asList(
                                             "animation_testcode",
                                             "plotting_test_code",
+                                            "stat_test_code",
                                             "simple_examples/gfx_addon"
                                     )
                             ),
