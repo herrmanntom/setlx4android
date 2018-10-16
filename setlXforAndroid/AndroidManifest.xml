@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.randoom.setlxUI.android"
     android:installLocation="auto"
-    android:versionCode="101"
+    android:versionCode="102"
     android:versionName="2.7.1 (A2.6.5)" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />

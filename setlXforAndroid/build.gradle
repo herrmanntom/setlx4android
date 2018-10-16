@@ -33,10 +33,11 @@ android {
     }
 
     lintOptions {
-        disable 'InvalidPackage','GoogleAppIndexingWarning','RtlHardcoded'
+        disable 'GoogleAppIndexingWarning','RtlHardcoded'
     }
     defaultConfig {
         minSdkVersion 15
+        targetSdkVersion 28
     }
 }
 
