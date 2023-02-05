@@ -1,9 +1,12 @@
 package org.randoom.setlxUI.android;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.provider.Settings;
 
 import org.randoom.setlx.exceptions.JVMException;
 import org.randoom.setlx.utilities.EnvironmentProvider;
@@ -14,6 +17,7 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  *  This provides access to the I/O mechanisms of Android.
@@ -30,7 +34,7 @@ import java.util.Locale;
     // permission request flags
     private final static int FILE_IO_PERMISSION_REQUEST_CODE = 42;
     private final static String[] PERMISSIONS_TO_REQUEST = new String[]{
-            "android.permission.WRITE_EXTERNAL_STORAGE"
+            "android.permission.WRITE_EXTERNAL_STORAGE",
     };
 
     private SetlXforAndroidActivity   activity;
@@ -162,7 +166,9 @@ import java.util.Locale;
             Message msg;
             while (activity.isActive() && ! messageBuffer.isEmpty()) {
                 msg = messageBuffer.pollFirst();
-                activity.appendOut(msg.type, msg.text);
+                if (msg != null) {
+                    activity.appendOut(msg.type, msg.text);
+                }
             }
         }
     }
@@ -250,9 +256,17 @@ import java.util.Locale;
     }
 
     /*package*/ boolean checkAndRequestFileIOPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            activity.requestPermissions(PERMISSIONS_TO_REQUEST, FILE_IO_PERMISSION_REQUEST_CODE);
-            return false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
+                Uri uri = Uri.parse("package:" + BuildConfig.APPLICATION_ID);
+                activity.startActivity(new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri));
+                return false;
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (activity.checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                activity.requestPermissions(PERMISSIONS_TO_REQUEST, FILE_IO_PERMISSION_REQUEST_CODE);
+                return false;
+            }
         }
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state) && Environment.getExternalStorageDirectory().canWrite();
@@ -279,13 +293,15 @@ import java.util.Locale;
      * @param path Path of the directory to create.
      * @return True if the directory was deleted.
      */
-    /*package*/ boolean deleteDirectory(String path) {
+    /*package*/
+    @SuppressWarnings("UnusedReturnValue")
+    boolean deleteDirectory(String path) {
         return deleteRecursively(new File(path));
     }
 
     private boolean deleteRecursively(File path) {
         if (path.isDirectory()) {
-            for (File child : path.listFiles()) {
+            for (File child : Objects.requireNonNull(path.listFiles())) {
                 boolean success = deleteRecursively(child);
                 if (!success) {
                     return false;
@@ -331,6 +347,7 @@ import java.util.Locale;
 
         while (input == null) {
             try {
+                //noinspection BusyWait
                 Thread.sleep(100);
             } catch (final InterruptedException e) {
                 throw new JVMException("Unable to read input!", e);
@@ -371,6 +388,7 @@ import java.util.Locale;
 
         while (input == null) {
             try {
+                //noinspection BusyWait
                 Thread.sleep(100);
             } catch (final InterruptedException e) {
                 throw new JVMException("Unable to read input!", e);

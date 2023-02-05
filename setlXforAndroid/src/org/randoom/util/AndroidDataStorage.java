@@ -93,6 +93,7 @@ public class AndroidDataStorage {
      */
     public String getCode(final String codeName, final String defaultValue) {
         Cursor codeRow = null;
+        //noinspection TryFinallyCanBeTryWithResources
         try {
             // check to see if it already exists
             codeRow = db.rawQuery(
@@ -101,7 +102,7 @@ public class AndroidDataStorage {
             );
 
             if (codeRow.moveToFirst()) {
-                return codeRow.getString(codeRow.getColumnIndex("codeValue"));
+                return codeRow.getString(codeRow.getColumnIndexOrThrow("codeValue"));
             } else {
                 return defaultValue;
             }

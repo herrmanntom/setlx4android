@@ -13,7 +13,7 @@ import java.io.RandomAccessFile;
 /**
  * Some simple utility functions.
  */
-public class AndroidUItools {
+public class AndroidUiTools {
 
     /**
      * Hide the soft-keyboard.
@@ -21,10 +21,10 @@ public class AndroidUItools {
      * @param  v Current view.
      * @return True on success.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public static boolean hideKeyboard(final View v) {
-        final Object result = v.getContext().getSystemService(
-                Context.INPUT_METHOD_SERVICE);
-        if (result != null && (result instanceof InputMethodManager)) {
+        final Object result = v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (result instanceof InputMethodManager) {
             final InputMethodManager imm = (InputMethodManager) result;
             imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             return true;
@@ -61,6 +61,7 @@ public class AndroidUItools {
      * @param v The current view.
      * @return  True if the view is higher than wide.
      */
+    @SuppressWarnings("unused")
     public static boolean isInPortrait(final View v) {
         final DisplayMetrics dm = v.getContext().getResources().getDisplayMetrics();
         return isInPortrait(dm);

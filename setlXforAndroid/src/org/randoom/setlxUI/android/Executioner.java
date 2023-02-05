@@ -4,7 +4,7 @@ import org.randoom.setlx.exceptions.ParserException;
 import org.randoom.setlx.statements.Block;
 import org.randoom.setlx.utilities.ParseSetlX;
 import org.randoom.setlx.utilities.State;
-import org.randoom.util.AndroidUItools;
+import org.randoom.util.AndroidUiTools;
 
 /**
  * Class handling the execution on setlX code and the concurrent update of the
@@ -76,10 +76,10 @@ import org.randoom.util.AndroidUItools;
                         int ticks = 0;
                         do {
                             int index = ticks % NUMBER_OF_SAMPLES;
-                            cpuUsage[index]    = AndroidUItools.getCPUusage(248);
-                            memoryUsage[index] = AndroidUItools.getUsedMemory();
+                            cpuUsage[index]    = AndroidUiTools.getCPUusage(248);
+                            memoryUsage[index] = AndroidUiTools.getUsedMemory();
                             float cpuAvg = 0.0f;
-                            long memoryAvg = 0l;
+                            long memoryAvg = 0L;
                             if (ticks >= NUMBER_OF_SAMPLES) {
                                 for (float sample : cpuUsage) {
                                     cpuAvg += sample;
@@ -93,6 +93,7 @@ import org.randoom.util.AndroidUItools;
                             }
                             ++ticks;
                             envProvider.updateStats(ticks, cpuAvg / NUMBER_OF_SAMPLES, memoryAvg / NUMBER_OF_SAMPLES);
+                            //noinspection BusyWait
                             Thread.sleep(250);
                         } while (isExecuting());
                     } catch (final InterruptedException e) {
@@ -151,6 +152,7 @@ import org.randoom.util.AndroidUItools;
                         while (isUpdatingStats()) {
                             statsUpdate.interrupt();
                             // wait until thread dies
+                            //noinspection BusyWait
                             Thread.sleep(10);
                         }
                     } catch (final InterruptedException e) {
@@ -205,12 +207,14 @@ import org.randoom.util.AndroidUItools;
                 while (isExecuting()) {
                     execution.interrupt();
                     // wait until thread dies
+                    //noinspection BusyWait
                     Thread.sleep(250);
                 }
 
                 while (isUpdatingStats()) {
                     statsUpdate.interrupt();
                     // wait until thread dies
+                    //noinspection BusyWait
                     Thread.sleep(10);
                 }
             } catch (final InterruptedException e) {

@@ -54,7 +54,7 @@ import org.randoom.setlx.utilities.EncodedFilesWriter;
 import org.randoom.setlx.utilities.EnvironmentProvider;
 import org.randoom.setlx.utilities.State;
 import org.randoom.util.AndroidDataStorage;
-import org.randoom.util.AndroidUItools;
+import org.randoom.util.AndroidUiTools;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -341,11 +341,7 @@ public class SetlXforAndroidActivity extends Activity {
                     if (envProvider.isLocked()) {
                         item.setVisible(false);
                     } else {
-                        if (item.isEnabled()) {
-                            item.setVisible(true);
-                        } else {
-                            item.setVisible(false);
-                        }
+                        item.setVisible(item.isEnabled());
                         if (state.isRuntimeDebuggingEnabled()) {
                             item.setTitle(R.string.menuRuntimeDebugging2OFF);
                         } else {
@@ -604,23 +600,19 @@ public class SetlXforAndroidActivity extends Activity {
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        switch (requestCode) {
-            case REQUEST_FILE_FLAG:
-                if (resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_FILE_FLAG) {
+            if (resultCode == RESULT_OK) {
 
-                    /*
-                     * file chooser always returns a list of files;
-                     * if selection mode is single, the list contains one file
-                     */
-                    @SuppressWarnings("unchecked")
-                    final
-                    List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
-                    for (final LocalFile f : files) {
-                        this.inputFileMode.setText(this.envProvider.stripPath(f.getAbsolutePath()));
-                    }
+                /*
+                 * file chooser always returns a list of files;
+                 * if selection mode is single, the list contains one file
+                 */
+                @SuppressWarnings("unchecked") final List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
+                for (final LocalFile f : files) {
+                    this.inputFileMode.setText(this.envProvider.stripPath(f.getAbsolutePath()));
                 }
-                lockUI(false);
-                break;
+            }
+            lockUI(false);
         }
     }
 
@@ -646,6 +638,7 @@ public class SetlXforAndroidActivity extends Activity {
 
             while (uiThreadHasWork && elapsedSeconds < 1000) {
                 try {
+                    //noinspection BusyWait
                     Thread.sleep(10);
                     elapsedSeconds += 10;
                 } catch (final InterruptedException e) {
@@ -660,6 +653,7 @@ public class SetlXforAndroidActivity extends Activity {
 
             do {
                 try {
+                    //noinspection BusyWait
                     Thread.sleep(10);
                     elapsedSeconds += 10;
                 } catch (final InterruptedException e) {
@@ -689,7 +683,7 @@ public class SetlXforAndroidActivity extends Activity {
             output.setTypeface(Typeface.MONOSPACE);
             outputIsGreeting = false;
         }
-        AndroidUItools.hideKeyboard(v);
+        AndroidUiTools.hideKeyboard(v);
     }
 
     /**
@@ -730,6 +724,7 @@ public class SetlXforAndroidActivity extends Activity {
             int elapsedSeconds = 0;
 
             while (isNotUiThread && uiThreadHasWork && elapsedSeconds < 1000) {
+                //noinspection BusyWait
                 Thread.sleep(10);
                 elapsedSeconds += 10;
             }
@@ -741,6 +736,7 @@ public class SetlXforAndroidActivity extends Activity {
 
             if (isNotUiThread) {
                 do {
+                    //noinspection BusyWait
                     Thread.sleep(10);
                     elapsedSeconds += 10;
                 } while (uiThreadHasWork && elapsedSeconds < 1000);
@@ -825,8 +821,8 @@ public class SetlXforAndroidActivity extends Activity {
         final DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
 
-        if (AndroidUItools.isTablet(this)) {
-            if (AndroidUItools.isInPortrait(displaymetrics)) {
+        if (AndroidUiTools.isTablet(this)) {
+            if (AndroidUiTools.isInPortrait(displaymetrics)) {
                 inputInteractive.setMaxHeight(displaymetrics.heightPixels / 2);
             } else {
                 inputInteractive.setMaxHeight((11 * displaymetrics.heightPixels) / 30);
@@ -987,7 +983,7 @@ public class SetlXforAndroidActivity extends Activity {
                 // start selection dialog
                 activity.startActivityForResult(intent, REQUEST_FILE_FLAG);
             } else {
-                Toast.makeText(v.getContext(), "External storage cannot be accessed.", Toast.LENGTH_LONG).show();
+                Toast.makeText(v.getContext(), R.string.noAccessToExternalStorage, Toast.LENGTH_LONG).show();
                 activity.lockUI(false);
             }
         }

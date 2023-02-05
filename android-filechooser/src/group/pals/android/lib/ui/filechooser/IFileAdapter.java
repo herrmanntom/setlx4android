@@ -7,22 +7,6 @@
 
 package group.pals.android.lib.ui.filechooser;
 
-import group.pals.android.lib.ui.filechooser.io.IFile;
-import group.pals.android.lib.ui.filechooser.io.IFileFilter;
-import group.pals.android.lib.ui.filechooser.prefs.DisplayPrefs;
-import group.pals.android.lib.ui.filechooser.prefs.DisplayPrefs.FileTimeDisplay;
-import group.pals.android.lib.ui.filechooser.services.IFileProvider;
-import group.pals.android.lib.ui.filechooser.services.IFileProvider.FilterMode;
-import group.pals.android.lib.ui.filechooser.utils.Converter;
-import group.pals.android.lib.ui.filechooser.utils.DateUtils;
-import group.pals.android.lib.ui.filechooser.utils.FileUtils;
-import group.pals.android.lib.ui.filechooser.utils.ui.ContextMenuUtils;
-import group.pals.android.lib.ui.filechooser.utils.ui.LoadingDialog;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import android.content.Context;
 import android.graphics.Paint;
 import android.preference.PreferenceActivity;
@@ -37,31 +21,40 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.List;
+
+import group.pals.android.lib.ui.filechooser.io.IFile;
+import group.pals.android.lib.ui.filechooser.io.IFileFilter;
+import group.pals.android.lib.ui.filechooser.prefs.DisplayPrefs;
+import group.pals.android.lib.ui.filechooser.prefs.DisplayPrefs.FileTimeDisplay;
+import group.pals.android.lib.ui.filechooser.services.IFileProvider;
+import group.pals.android.lib.ui.filechooser.services.IFileProvider.FilterMode;
+import group.pals.android.lib.ui.filechooser.utils.Converter;
+import group.pals.android.lib.ui.filechooser.utils.DateUtils;
+import group.pals.android.lib.ui.filechooser.utils.FileUtils;
+import group.pals.android.lib.ui.filechooser.utils.ui.ContextMenuUtils;
+import group.pals.android.lib.ui.filechooser.utils.ui.LoadingDialog;
+
 /**
  * The adapter to be used in {@link android.widget.ListView}
- * 
+ *
  * @author Hai Bison
- * 
+ *
  */
 public class IFileAdapter extends BaseAdapter {
-
-    /**
-     * Used for logging...
-     */
-    public static final String _ClassName = IFileAdapter.class.getName();
 
     private final Integer[] mAdvancedSelectionOptions;
     private final IFileProvider.FilterMode mFilterMode;
     private final Context mContext;
     private final FileTimeDisplay mFileTimeDisplay;
 
-    private List<IFileDataModel> mData;
-    private LayoutInflater mInflater;
-    private boolean mMultiSelection;
+    private final List<IFileDataModel> mData;
+    private final LayoutInflater mInflater;
+    private final boolean mMultiSelection;
 
     /**
      * Creates new {@link IFileAdapter}
-     * 
+     *
      * @param context
      *            {@link Context}
      * @param objects
@@ -134,57 +127,10 @@ public class IFileAdapter extends BaseAdapter {
         return position;
     }
 
-    public boolean isMultiSelection() {
-        return mMultiSelection;
-    }
-
-    /**
-     * Sets multi-selection mode.<br>
-     * <b>Note:</b><br>
-     * 
-     * <li>If {@code v = true}, this method will also update adapter.</li>
-     * 
-     * <li>If {@code v = false}, this method will iterate all items, set their
-     * selection to {@code false}. So you should consider using a
-     * {@link LoadingDialog}. This will not update adapter, you must do it
-     * yourself.</li>
-     * 
-     * @param v
-     *            {@code true} if multi-selection is enabled
-     */
-    public void setMultiSelection(boolean v) {
-        if (mMultiSelection != v) {
-            mMultiSelection = v;
-            if (mMultiSelection) {
-                notifyDataSetChanged();
-            } else {
-                if (getCount() > 0) {
-                    for (int i = 0; i < mData.size(); i++)
-                        mData.get(i).setSelected(false);
-                }
-            }
-        }
-    }// setMultiSelection()
-
-    /**
-     * Gets selected items.
-     * 
-     * @return list of selected items, can be empty but never be {@code null}
-     */
-    public ArrayList<IFileDataModel> getSelectedItems() {
-        ArrayList<IFileDataModel> res = new ArrayList<IFileDataModel>();
-
-        for (int i = 0; i < getCount(); i++)
-            if (getItem(i).isSelected())
-                res.add(getItem(i));
-
-        return res;
-    }// getSelectedItems()
-
     /**
      * Adds an {@code item}. <b>Note:</b> this does not notify the adapter that
      * data set has been changed.
-     * 
+     *
      * @param item
      *            {@link IFileDataModel}
      */
@@ -196,7 +142,7 @@ public class IFileAdapter extends BaseAdapter {
     /**
      * Removes {@code item}. <b>Note:</b> this does not notify the adapter that
      * data set has been changed.
-     * 
+     *
      * @param item
      *            {@link IFileDataModel}
      */
@@ -205,18 +151,6 @@ public class IFileAdapter extends BaseAdapter {
             mData.remove(item);
         }
     }// remove()
-
-    /**
-     * Removes all {@code items}. <b>Note:</b> this does not notify the adapter
-     * that data set has been changed.
-     * 
-     * @param items
-     *            the items you want to remove.
-     */
-    public void removeAll(Collection<IFileDataModel> items) {
-        if (mData != null)
-            mData.removeAll(items);
-    }// removeAll()
 
     /**
      * Clears all items.<br>
@@ -230,9 +164,9 @@ public class IFileAdapter extends BaseAdapter {
 
     /**
      * The "view holder"
-     * 
+     *
      * @author Hai Bison
-     * 
+     *
      */
     private static final class Bag {
 
@@ -248,7 +182,7 @@ public class IFileAdapter extends BaseAdapter {
         Bag bag;
 
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.afc_file_item, null);
+            convertView = mInflater.inflate(R.layout.afc_file_item, parent);
 
             bag = new Bag();
             bag.mImageIcon = (ImageView) convertView.findViewById(R.id.afc_file_item_imageview_icon);
@@ -262,18 +196,16 @@ public class IFileAdapter extends BaseAdapter {
         }
 
         // update view
-        updateView(parent, convertView, bag, data, data.getFile());
+        updateView(parent, bag, data, data.getFile());
 
         return convertView;
     }
 
     /**
      * Updates the view.
-     * 
+     *
      * @param parent
      *            the parent view
-     * @param childView
-     *            the child view.
      * @param bag
      *            the "view holder", see {@link Bag}
      * @param data
@@ -282,7 +214,7 @@ public class IFileAdapter extends BaseAdapter {
      *            {@link IFile}
      * @since v2.0 alpha
      */
-    private void updateView(ViewGroup parent, View childView, Bag bag, final IFileDataModel data, IFile file) {
+    private void updateView(ViewGroup parent, Bag bag, final IFileDataModel data, IFile file) {
         /*
          * Use single line for grid view, multiline for list view
          */
@@ -334,7 +266,7 @@ public class IFileAdapter extends BaseAdapter {
 
     /**
      * Selects all items.
-     * 
+     *
      * @param notifyDataSetChanged
      *            {@code true} if you want to notify that data set changed
      * @param filter
@@ -343,7 +275,7 @@ public class IFileAdapter extends BaseAdapter {
     public void selectAll(boolean notifyDataSetChanged, IFileFilter filter) {
         for (int i = 0; i < getCount(); i++) {
             IFileDataModel item = getItem(i);
-            item.setSelected(filter == null ? true : filter.accept(item.getFile()));
+            item.setSelected(filter == null || filter.accept(item.getFile()));
         }
         if (notifyDataSetChanged)
             notifyDataSetChanged();
@@ -351,7 +283,7 @@ public class IFileAdapter extends BaseAdapter {
 
     /**
      * Selects no items.
-     * 
+     *
      * @param notifyDataSetChanged
      *            {@code true} if you want to notify that data set changed
      */
@@ -364,7 +296,7 @@ public class IFileAdapter extends BaseAdapter {
 
     /**
      * Inverts selection.
-     * 
+     *
      * @param notifyDataSetChanged
      *            {@code true} if you want to notify that data set changed
      */
@@ -389,7 +321,7 @@ public class IFileAdapter extends BaseAdapter {
 
                         @Override
                         public void onClick(final int resId) {
-                            new LoadingDialog(view.getContext(), R.string.afc_msg_loading, false) {
+                            LoadingDialog loadingDialog = new LoadingDialog(view.getContext(), R.string.afc_msg_loading, false) {
 
                                 @Override
                                 protected Object doInBackground(Void... arg0) {
@@ -425,7 +357,8 @@ public class IFileAdapter extends BaseAdapter {
                                     super.onPostExecute(result);
                                     notifyDataSetChanged();
                                 }// onPostExecute()
-                            }.execute();// LoadingDialog
+                            };
+                            loadingDialog.execute();// LoadingDialog
                         }// onClick()
                     });
 
