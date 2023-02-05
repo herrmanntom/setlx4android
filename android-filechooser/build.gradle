@@ -4,12 +4,11 @@ repositories {
     mavenLocal()
     mavenCentral()
     google()
-    jcenter()
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 33
+    buildToolsVersion '33.0.1'
 
     sourceSets {
         main {
@@ -28,6 +27,6 @@ android {
     }
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 33
     }
 }

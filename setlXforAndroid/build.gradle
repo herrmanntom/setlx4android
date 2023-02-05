@@ -4,17 +4,16 @@ repositories {
     mavenLocal()
     mavenCentral()
     google()
-    jcenter()
 }
 
 dependencies {
-    implementation 'org.randoom.setlx:setlX-core:2.7.1'
+    implementation 'org.randoom.setlx:setlX-core:2.7.2'
     implementation project(':android-filechooser')
 }
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 33
+    buildToolsVersion '33.0.1'
 
     sourceSets {
         main {
@@ -32,12 +31,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
-    lintOptions {
-        disable 'GoogleAppIndexingWarning','RtlHardcoded'
-    }
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 33
+    }
+    lint {
+        disable 'GoogleAppIndexingWarning', 'RtlHardcoded'
     }
 }
 
@@ -53,11 +52,4 @@ task generateVersionJava {
         script.waitFor()
     }
 }
-
-task copyDeps(type: Copy) {
-    from configurations.compile
-    into "${buildDir}/outputs"
-}
-
-generateVersionJava.dependsOn(copyDeps)
 

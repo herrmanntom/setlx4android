@@ -6,7 +6,6 @@
     permission.
 -->
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/afc_button_location" >
+<TextView style="@style/afc_button_location" >
 
 </TextView>
