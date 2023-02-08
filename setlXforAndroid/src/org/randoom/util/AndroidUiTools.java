@@ -1,6 +1,7 @@
 package org.randoom.util;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -89,27 +90,30 @@ public class AndroidUiTools {
      * @return                       Average CPU utilization between 0.0 and 1.0.
      * @throws InterruptedException  Thread was interrupted while waiting.
      */
-    public static float getCPUusage(final int timeBetweenBothSamples) throws InterruptedException {
+    public static float getCpuUsage(final int timeBetweenBothSamples) throws InterruptedException {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return -1;
+        }
         try {
             final RandomAccessFile reader = new RandomAccessFile("/proc/stat", "r");
 
             // take first sample
-            String[] toks = reader.readLine().split(" ");
+            String[] tokens = reader.readLine().split(" ");
 
-            final long idle1 = Long.parseLong(toks[5]);
-            final long cpu1  = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
-                             + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
+            final long idle1 = Long.parseLong(tokens[5]);
+            final long cpu1  = Long.parseLong(tokens[2]) + Long.parseLong(tokens[3]) + Long.parseLong(tokens[4])
+                             + Long.parseLong(tokens[6]) + Long.parseLong(tokens[7]) + Long.parseLong(tokens[8]);
 
             Thread.sleep(timeBetweenBothSamples);
 
             // take second sample
             reader.seek(0);
-            toks = reader.readLine().split(" ");
+            tokens = reader.readLine().split(" ");
             reader.close();
 
-            final long idle2 = Long.parseLong(toks[5]);
-            final long cpu2  = Long.parseLong(toks[2]) + Long.parseLong(toks[3]) + Long.parseLong(toks[4])
-                             + Long.parseLong(toks[6]) + Long.parseLong(toks[7]) + Long.parseLong(toks[8]);
+            final long idle2 = Long.parseLong(tokens[5]);
+            final long cpu2  = Long.parseLong(tokens[2]) + Long.parseLong(tokens[3]) + Long.parseLong(tokens[4])
+                             + Long.parseLong(tokens[6]) + Long.parseLong(tokens[7]) + Long.parseLong(tokens[8]);
 
             // return average CPU usage
             return Math.abs((float) cpu2 - cpu1) / Math.abs((cpu2 + idle2) - (cpu1 + idle1));

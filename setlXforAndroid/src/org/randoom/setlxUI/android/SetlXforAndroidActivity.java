@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
@@ -1089,7 +1090,12 @@ public class SetlXforAndroidActivity extends Activity {
             if (ticks.equals("") && usedCPU.equals("") && usedMemory.equals("")) {
                 activity.load.setText("");
             } else {
-                String loadText = activity.getString(R.string.load);
+                String loadText;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    loadText = activity.getString(R.string.load);
+                } else {
+                    loadText = activity.getString(R.string.loadForBetterAndroid);
+                }
                 loadText = loadText.replace("$TICKS$", ticks);
                 loadText = loadText.replace("$CPU$",   usedCPU);
                 loadText = loadText.replace("$MEM$",   usedMemory);

@@ -76,7 +76,7 @@ import org.randoom.util.AndroidUiTools;
                         int ticks = 0;
                         do {
                             int index = ticks % NUMBER_OF_SAMPLES;
-                            cpuUsage[index]    = AndroidUiTools.getCPUusage(248);
+                            cpuUsage[index]    = AndroidUiTools.getCpuUsage(248);
                             memoryUsage[index] = AndroidUiTools.getUsedMemory();
                             float cpuAvg = 0.0f;
                             long memoryAvg = 0L;
